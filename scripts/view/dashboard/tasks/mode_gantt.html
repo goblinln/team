@@ -1,6 +1,6 @@
 <link rel="stylesheet" href="/www/css/jquery.gantt.min.css">
 
-<div class="text-center shadow border p-2" style="overflow: auto">    
+<div class="text-center p-2" style="overflow: auto">    
     <div id="gantt-view"></div>
 </div>
 
@@ -14,7 +14,6 @@ $('#gantt-view').ganttView({
         draggable: false,
         resizable: false,
         onClick: function(node) {
-            console.log(node);
             if (node.is_summary) return;
             open_task(node.id);
         }
