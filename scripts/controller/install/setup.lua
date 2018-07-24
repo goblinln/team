@@ -55,6 +55,14 @@ setup.struct = {
         `uid` INTEGER NOT NULL,
         `event` INTEGER NOT NULL,
         `addition` VARCHAR(64)]],
+    files = [[
+        `id` INTEGER NOT NULL AUTO_INCREMENT,
+        `name` VARCHAR(128) NOT NULL,
+        `path` VARCHAR(512) NOT NULL,
+        `creator` INTEGER NOT NULL,
+        `size` INTEGER NOT NULL,
+        `upload_time` DATETIME DEFAULT NOW(),
+        PRIMARY KEY(`id`)]]
 };
 
 -- 部署时写入数据
