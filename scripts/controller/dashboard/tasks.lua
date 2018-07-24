@@ -288,7 +288,7 @@ function tasks:__process(title, tasks_, process_mine)
     };
 
     for _, info in ipairs(tasks_) do
-        local gantt_color = 'gold';
+        local gantt_color = 'grey';
         local end_time = os.time(info.end_time);
 
         if info.status == self.status.OPENED then
