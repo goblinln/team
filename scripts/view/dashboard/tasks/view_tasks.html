@@ -43,7 +43,7 @@ function open_task(tid) {
 
 function switch_viewmode() {
     $.post('/dashboard/tasks/switch_viewmode', function(ret) {
-        if (location.pathname == '/dashboard/tasks/') location.reload();
+        if (location.pathname == '/' || location.pathname == '/dashboard/tasks/') location.reload();
         else last_pressed_button.click();
     }, 'json');
 }
