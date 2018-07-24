@@ -4,10 +4,13 @@
 
 ## 预览
 
+* 【看板】模式
 ![Tasks](/preview/preview.png)
 
+* 【甘特图】模式
 ![Gantt](/preview/gantt.png)
 
+* 发布任务预览
 ![Publish](/preview/publish.png)
 
 ## 使用技术
