@@ -129,6 +129,12 @@ function tasks:do_create(req, rsp)
     rsp:json{ok = true};
 end
 
+-- 切换预览模式
+function tasks:switch_viewmode(req, rsp)
+    session.gantt_mode = (not session.gantt_mode);
+    rsp:json{ok = true};
+end
+
 ----------------------- 修改任务 --------------------------
 
 -- 修改指派人

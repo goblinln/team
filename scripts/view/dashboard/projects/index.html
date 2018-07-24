@@ -159,7 +159,9 @@ function del_proj() {
 
 var last_pressed_button = null;
 function get_proj_info(btn, url, id, name, addition) {
+    if (last_pressed_button) $(last_pressed_button).removeClass('list-group-item-secondary');
     last_pressed_button = btn;
+    $(last_pressed_button).addClass('list-group-item-secondary');
     
     $('#project-detail').empty();
     $('#project-detail').get(0).innerHTML = '<div class="text-center text-muted" style="margin-top: 10%"><img src="/www/images/loading.gif" class="mb-4"><h1>努力加载中 ...</h1></div>';

@@ -16,6 +16,7 @@
 * [JQuery Datetimepicker](https://github.com/xdan/datetimepicker)
 * [Bootstrap 4](http://getbootstrap.com/)
 * [Bootstrap Markdown](https://github.com/toopay/bootstrap-markdown)
+* [FontAwesome 4](http://www.fontawesome.com.cn/)
 * [Gantt Chart](https://github.com/d-band/gantt)
 * [jsTree](https://www.jstree.com)
 

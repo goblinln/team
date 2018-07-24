@@ -155,11 +155,12 @@ end
 
 -- 登录完成后操作
 function user:__on_login(him)
-    session.uid     = him.id;
-    session.name    = him.name;
-    session.account = him.account;
-    session.avatar  = him.avatar;
-    session.is_su   = him.is_su == 1;
+    session.uid         = him.id;
+    session.name        = him.name;
+    session.account     = him.account;
+    session.avatar      = him.avatar;
+    session.is_su       = him.is_su == 1;
+    session.gantt_mode  = false;
 end
 
 return user;

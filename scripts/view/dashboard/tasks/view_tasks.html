@@ -1,245 +1,33 @@
-<div class="px-2 mt-1">
+<div class="m-2">
 
-    <ul class="nav nav-tabs justify-content-end mb-2" id="view-mode-tabs" role="tablist">
-        <li class="nav-item disabled mr-auto mt-2">
-            <i class="fa fa-eye mr-1"></i><b class="mr-1">{{summary.title}}</b>的任务<span class="mr-4"></span>
+    <div class="d-block mt-2">
+        <i class="fa fa-eye mr-1"></i><b class="mr-1">{{summary.title}}</b>的任务<span class="mr-4"></span>
 
-            <small>
-                <span class="bg-dark text-white p-1">待办中</span><span class="bg-warning text-white px-2 py-1 mr-2">{{summary.opened}}</span>
-                <span class="bg-dark text-white p-1">进行中</span><span class="bg-info text-white px-2 py-1 mr-2">{{summary.underway}}</span>
-                <span class="bg-dark text-white p-1">已滞后</span><span class="bg-danger text-white px-2 py-1 mr-2">{{summary.delayed}}</span>
-                <span class="bg-dark text-white p-1">已完成</span><span class="bg-success text-white px-2 py-1 mr-2">{{summary.closed}}</span>
-            </small>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link active" id="board-tab" data-toggle="tab" href="#mode-board" role="tab" aria-controls="mode-board" aria-selected="true">看板模式</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="gantt-tab" data-toggle="tab" href="#mode-gantt" role="tab" aria-controls="mode-gantt" aria-selected="true">GANNT图</a>
-        </li>
-    </ul>
-    
-    <div class="tab-content px-2 h-100 w-100" id="view-modes">
-        <!-- 看板模式 -->
-        <div class="tab-pane fade show active" id="mode-board" role="tabpanel" aria-labelledby="board-tab">
-            <div class="row">
-                <div class="col-3">
-                    <div class="card text-white shadow bg-warning">
-                        <div class="card-header px-2 py-1">
-                            <i class="fa fa-circle-o mr-2"></i>待办中
-                        </div>
-        
-                        <div class="card-body m-0 p-0">
-                            {% for _, info in ipairs(tasks.opened) do %}
-                            <div id="task-card-{{info.id}}" class="card text-dark m-1 rounded-0">
-                                <div class="card-body m-0 py-1 px-2">
-                                    <span class="d-inline-block text-truncate mw-100">                            
-                                        <span class="{{weights[info.weight].color}}">【{{weights[info.weight].title}}】</span>
-                                        <span class="text-muted">#{{info.id}}</span>
-                                        <a href="#" onclick="return open_task('{{info.id}}');">{{info.name}}</a>
-                                    </span><br>
-                                    {% if #info.tags > 0 then %}
-                                    <span class="d-inline-block text-truncate mw-100">
-                                        {% for _, tag in ipairs(info.tags) do %}
-                                        <span class="badge {{tags[tag].color}} mr-1">{{tags[tag].title}}</span>
-                                        {% end %}
-                                    </span><br>
-                                    {% end %}
-                                    <small class="d-inline-block text-truncate mw-100" style="min-width: 100%">
-                                        <i class="fa fa-calendar mr-1"></i>{{string.format('%04d-%02d-%02d', info.end_time.year, info.end_time.month, info.end_time.day)}}
-                                        <span class="pull-right">
-                                            <span class="badge badge-dark text-white ml-2">{{info.creator_name}}</span>
-                                            <i class="fa fa-chevron-right mx-1"></i>
-                                            <span class="badge badge-dark text-white">{{info.assigned_name}}</span>
-                                        </span>
-                                    </small>
-                                </div>
-                            </div>
-                            {% end %}
-                        </div>
-                    </div>
-                </div>
-                <div class="col-3">
-                    <div class="card shadow text-white bg-info">
-                        <div class="card-header px-2 py-1">
-                            <i class="fa fa-dot-circle-o mr-2"></i>进行中
-                        </div>
-        
-                        <div class="card-body m-0 p-0">
-                            {% for _, info in ipairs(tasks.underway) do %}
-                            <div id="task-card-{{info.id}}" class="card text-dark m-1 rounded-0">
-                                <div class="card-body m-0 py-1 px-2">
-                                    <span class="d-inline-block text-truncate mw-100">                            
-                                        <span class="{{weights[info.weight].color}}">【{{weights[info.weight].title}}】</span>
-                                        <span class="text-muted">#{{info.id}}</span>
-                                        <a href="#" onclick="return open_task('{{info.id}}');">{{info.name}}</a>
-                                    </span><br>
-                                    {% if #info.tags > 0 then %}
-                                    <span class="d-inline-block text-truncate mw-100">
-                                        {% for _, tag in ipairs(info.tags) do %}
-                                        <span class="badge {{tags[tag].color}} mr-1">{{tags[tag].title}}</span>
-                                        {% end %}
-                                    </span><br>
-                                    {% end %}
-                                    <small class="d-inline-block text-truncate mw-100" style="min-width: 100%">
-                                        <i class="fa fa-calendar mr-1"></i>{{string.format('%04d-%02d-%02d', info.end_time.year, info.end_time.month, info.end_time.day)}}
-                                        <span class="pull-right">
-                                            <span class="badge badge-dark text-white ml-2">{{info.creator_name}}</span>
-                                            <i class="fa fa-chevron-right mx-1"></i>
-                                            <span class="badge badge-dark text-white">{{info.assigned_name}}</span>
-                                        </span>
-                                    </small>
-                                </div>
-                            </div>
-                            {% end %}
-                        </div>
-                    </div>
-                </div>
-                <div class="col-3">
-                    <div class="card text-white shadow bg-danger">
-                        <div class="card-header px-2 py-1">
-                            <i class="fa fa-exclamation-circle mr-2"></i>已滞后
-                        </div>
-        
-                        <div class="card-body m-0 p-0">
-                            {% for _, info in ipairs(tasks.delayed) do %}
-                            <div id="task-card-{{info.id}}" class="card text-dark m-1 rounded-0">
-                                <div class="card-body m-0 py-1 px-2">
-                                    <span class="d-inline-block text-truncate mw-100">                            
-                                        <span class="{{weights[info.weight].color}}">【{{weights[info.weight].title}}】</span>
-                                        <span class="text-muted">#{{info.id}}</span>
-                                        <a href="#" onclick="return open_task('{{info.id}}');">{{info.name}}</a>
-                                    </span><br>
-                                    {% if #info.tags > 0 then %}
-                                    <span class="d-inline-block text-truncate mw-100">
-                                        {% for _, tag in ipairs(info.tags) do %}
-                                        <span class="badge {{tags[tag].color}} mr-1">{{tags[tag].title}}</span>
-                                        {% end %}
-                                    </span><br>
-                                    {% end %}
-                                    <small class="d-inline-block text-truncate mw-100" style="min-width: 100%">
-                                        <i class="fa fa-calendar mr-1"></i>{{string.format('%04d-%02d-%02d', info.end_time.year, info.end_time.month, info.end_time.day)}}
-                                        <span class="pull-right">
-                                            <span class="badge badge-dark text-white ml-2">{{info.creator_name}}</span>
-                                            <i class="fa fa-chevron-right mx-1"></i>
-                                            <span class="badge badge-dark text-white">{{info.assigned_name}}</span>
-                                        </span>
-                                    </small>
-                                </div>
-                            </div>
-                            {% end %}
-                        </div>
-                    </div>
-                </div>
-                <div class="col-3">
-                    <div class="card text-white shadow bg-success">
-                        <div class="card-header px-2 py-1">
-                            <i class="fa fa-check-circle mr-2"></i>已完成
-                        </div>
-        
-                        <div class="card-body m-0 p-0">
-                            {% for _, info in ipairs(tasks.closed) do %}
-                            <div id="task-card-{{info.id}}" class="card text-dark m-1 rounded-0">
-                                <div class="card-body m-0 py-1 px-2">
-                                    <span class="d-inline-block text-truncate mw-100">                            
-                                        <span class="{{weights[info.weight].color}}">【{{weights[info.weight].title}}】</span>
-                                        <span class="text-muted">#{{info.id}}</span>
-                                        <a href="#" onclick="return open_task('{{info.id}}');">{{info.name}}</a>
-                                    </span><br>
-                                    {% if #info.tags > 0 then %}
-                                    <span class="d-inline-block text-truncate mw-100">
-                                        {% for _, tag in ipairs(info.tags) do %}
-                                        <span class="badge {{tags[tag].color}} mr-1">{{tags[tag].title}}</span>
-                                        {% end %}
-                                    </span><br>
-                                    {% end %}
-                                    <small class="d-inline-block text-truncate mw-100" style="min-width: 100%">
-                                        <i class="fa fa-calendar mr-1"></i>{{string.format('%04d-%02d-%02d', info.end_time.year, info.end_time.month, info.end_time.day)}}
-                                        <span class="pull-right">
-                                            <span class="badge badge-dark text-white ml-2">{{info.creator_name}}</span>
-                                            <i class="fa fa-chevron-right mx-1"></i>
-                                            <span class="badge badge-dark text-white">{{info.assigned_name}}</span>
-                                        </span>
-                                    </small>
-                                </div>
-                            </div>
-                            {% end %}
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <small>
+            <span class="bg-dark text-white p-1">待办中</span><span class="bg-warning text-white px-2 py-1 mr-2">{{summary.opened}}</span>
+            <span class="bg-dark text-white p-1">进行中</span><span class="bg-info text-white px-2 py-1 mr-2">{{summary.underway}}</span>
+            <span class="bg-dark text-white p-1">已滞后</span><span class="bg-danger text-white px-2 py-1 mr-2">{{summary.delayed}}</span>
+            <span class="bg-dark text-white p-1">已完成</span><span class="bg-success text-white px-2 py-1 mr-2">{{summary.closed}}</span>
+        </small>
+
+        <div class="btn-link pull-right mr-2" onclick="return switch_viewmode();">
+            <i class="fa fa-toggle-on mr-1"></i>切换为【{{session.gantt_mode and '看板' or '甘特图'}}】模式
         </div>
-    
-        <!-- GANTT图模式 -->
-        <div class="tab-pane fade" id="mode-gantt" role="tabpanel" aria-labelledby="gantt-tab">
-            <div class="text-center">
-                <p>
-                    查看方式：
-                    <select id="gantt-scale">
-                            <option value="day">每日</option>
-                            <option value="week">每周</option>
-                            <option value="month">每月</option>
-                    </select>
-                </p>
-            </div>
+    </div>
 
-            <div class="text-center shadow border p-2" style="overflow: auto">                
-                <canvas id="gantt-view"></canvas>
-            </div>
-        </div>
+    <hr class="mx-0 mt-2">
+
+    <div class="mw-100 container">
+        {[ session.gantt_mode and "dashboard/tasks/mode_gantt.html" or "dashboard/tasks/mode_normal.html" ]}
     </div>
 </div>
 
 <div id="task-view" class="task-view-pane invisible">
     <div id="task-info-pane">
-
     </div>
 </div>
 
-<script src="/www/js/gantt.min.js"></script>
 <script type='text/javascript'>
-
-$(document).ready(function() {
-    var data = {*gantt_data*};
-
-    $.each(data, function(index, group) {
-        $.each(group.children, function(idx, info) {
-            group.children[idx].from = new Date(info.start_time);
-            group.children[idx].to = new Date(info.end_time);
-        });
-    });
-
-    var gantt = new Gantt.default('#gantt-view', data, {
-        viewMode: 'day',
-        styleOptions: {
-            BG: '#fff',
-            groupBg: '#14aeb0',
-            lineColor: '#eee',
-            redLineColor: '#f04134',
-            baseBar: '#b8c2cc',
-            greenBar: '#52c41a',
-            groupBar: '#52c41a',
-            redBar: '#ed7f2c',
-            textColor: '#222',
-            lightTextColor: '#222',
-            lineWidth: '1px',
-            thickLineWidth: '1.4px',
-            fontSize: '14px',
-            smallFontSize: '12px',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
-        },
-        onClick: function(node) {
-            if (node.group) return;
-            open_task(node.id);
-        }
-    });
-
-    $('#gantt-scale').change(function(e) {
-        gantt.setOptions({
-            viewMode: $('#gantt-scale').val()
-        });
-    })
-});
 
 function open_task(tid) {
     $('#task-info-pane').empty();
@@ -251,5 +39,12 @@ function open_task(tid) {
         $('#task-info-pane').empty();
         $('#task-info-pane').append($(ret));
     }, 'html');
+}
+
+function switch_viewmode() {
+    $.post('/dashboard/tasks/switch_viewmode', function(ret) {
+        if (location.pathname == '/dashboard/tasks/') location.reload();
+        else last_pressed_button.click();
+    }, 'json');
 }
 </script>

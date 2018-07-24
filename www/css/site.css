@@ -37,7 +37,7 @@
 }
 
 /* Main block */
-.mainlock {
+.mainblock {
     position: absolute;
     display: block;
     left: 64px;
@@ -53,8 +53,8 @@
 .menublock {
     position: absolute;
     display: block;
-    left: 64px;
-    top: 40px;
+    left: 0;
+    top: 0;
     width: 250px;
     bottom: 0;
     margin: 0;
@@ -65,21 +65,20 @@
 .menu-link {
     display: block;
     margin-bottom: .25rem;
-    color: rgb(39, 39, 39);
+    color: rgb(59, 59, 59);
     text-decoration: none;
 }
-.menu-link:hover, .menublock ul .active .menu-link {
+.menu-link:hover, .menublock ul .menu-link.active {
     color: green;
     text-decoration: none;
 }
-
 
 /* Content block */
 .contentblock {
     position: absolute;
     display: block;
-    left: 314px;
-    top: 40px;
+    left: 250px;
+    top: 0;
     right: 0;
     bottom: 0;
     margin: 0;
@@ -136,7 +135,7 @@
 
 .btn-link {
     cursor: pointer;
-    color: black;
+    color: rgb(59, 59, 59);
 }
 
 .btn-link:hover {
