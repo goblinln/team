@@ -29,3 +29,10 @@
 1. Clone
 2. 修改omni.ini中数据库配置
 3. 运行omni.exe。需要Linux版的，请自行到`OmniWeb`中下载预编译好的可执行文件
+
+## 默认帐号
+
+**帐号:** admin  
+**密码:** team
+
+>【注】可修改`scripts/controller/install/setup.lua`中`setup.build_in`配置，自定义默认帐号
