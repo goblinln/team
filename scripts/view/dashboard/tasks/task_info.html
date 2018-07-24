@@ -139,7 +139,7 @@ function close_task() {
     $('#task-view').addClass('invisible');
     $('.xdsoft_datetimepicker').remove();
 
-    if (location.pathname == '/dashboard/tasks/') {
+    if (location.pathname == '/' || location.pathname == '/dashboard/tasks/') {
         location.reload();
     } else {
         last_pressed_button.click();
