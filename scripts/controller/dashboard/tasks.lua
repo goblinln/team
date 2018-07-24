@@ -212,29 +212,29 @@ end
 -- 我的所有任务
 function tasks:all_of_mine(req, rsp)
     local tasks_ = M('tasks'):get_mine('(creator=' .. session.uid .. ' OR assigned=' .. session.uid .. ')');
-    self:__layout_tasks(rsp, session.name .. '【所有】', tasks_, true);
+    self:__layout_tasks(rsp, session.name .. '【所有】', tasks_);
 end
 
 -- 选出我发布的任务
 function tasks:create_by_me(req, rsp)
-    self:__layout_tasks(rsp, session.name .. '【发布】', M('tasks'):get_mine('creator=' .. session.uid), true);
+    self:__layout_tasks(rsp, session.name .. '【发布】', M('tasks'):get_mine('creator=' .. session.uid));
 end
 
 -- 选出指派给我的任务
 function tasks:assigned_to_me(req, rsp)
-    self:__layout_tasks(rsp, '【指派给】' .. session.name, M('tasks'):get_mine('assigned=' .. session.uid), true);
+    self:__layout_tasks(rsp, '【指派给】' .. session.name, M('tasks'):get_mine('assigned=' .. session.uid));
 end
 
 -- 选出指定任务等级的任务
 function tasks:filter_weight(req, rsp)
     local tasks_ = M('tasks'):get_mine('weight=' .. req.post.p1 .. ' AND (creator=' .. session.uid .. ' OR assigned=' .. session.uid .. ')');
-    self:__layout_tasks(rsp, session.name .. string.format('【%s】', self.weights[tonumber(req.post.p1)].title), tasks_, true);
+    self:__layout_tasks(rsp, session.name .. string.format('【%s】', self.weights[tonumber(req.post.p1)].title), tasks_);
 end
 
 -- 选出指定项目的任务
 function tasks:filter_proj(req, rsp)
     local tasks_ = M('tasks'):get_mine('pid=' .. req.post.p1 .. ' AND (creator=' .. session.uid .. ' OR assigned=' .. session.uid .. ')');
-    self:__layout_tasks(rsp, session.name .. string.format('@【%s】', req.post.p2), tasks_, true);
+    self:__layout_tasks(rsp, session.name .. string.format('@【%s】', req.post.p2), tasks_);
 end
 
 -----------------------------------------------------------
@@ -276,15 +276,11 @@ end
 
 -- 分析任务，分组等
 function tasks:__process(title, tasks_, process_mine)
-    local opened, closed, underway, delayed, gantt_groups, gantt_map = {}, {}, {}, {}, {}, {}, {};
+    local opened, closed, underway, delayed, gantt_data, gantt_map = {}, {}, {}, {}, {}, {};
     local summary = { title = title, opened = 0, closed = 0, underway = 0, delayed = 0 };
     local now = os.time();
 
     local mine = {
-        opened          = 0,
-        underway        = 0,
-        delayed         = 0,
-        closed          = 0,
         create_by_me    = 0,
         assigned_to_me  = 0,
         weights         = {},
@@ -292,36 +288,33 @@ function tasks:__process(title, tasks_, process_mine)
     };
 
     for _, info in ipairs(tasks_) do
-        local percent = 0;
+        local gantt_color = 'gray';
+        local end_time = os.time(info.end_time);
 
         if info.status == self.status.OPENED then
             table.insert(opened, info);
             summary.opened = summary.opened + 1;
-            mine.opened = mine.opened + 1;
 
-            local deadline = os.time(info.end_time);
-            if deadline <= now then
+            if end_time <= now then
                 table.insert(delayed, info);
                 summary.delayed = summary.delayed + 1;
-                mine.delayed = mine.delayed + 1;
+                gantt_color = 'red';
             end
         elseif info.status == self.status.UNDERWAY then
             table.insert(underway, info);
             summary.underway = summary.underway + 1;
-            mine.underway = mine.underway + 1;
-
-            local deadline = os.time(info.end_time);
-            if deadline <= now then
+            
+            if end_time <= now then
                 table.insert(delayed, info);
-                summary.delayed = summary.delayed + 1;                
-                mine.delayed = mine.delayed + 1;
+                summary.delayed = summary.delayed + 1;
+                gantt_color = 'red';
+            else
+                gantt_color = 'darkcyan';
             end
-            percent = 0.5;
         elseif info.status == self.status.CLOSED then
             table.insert(closed, info);
             summary.closed = summary.closed + 1;
-            mine.closed = mine.closed + 1;
-            percent = 1;
+            gantt_color = 'green';
         end
 
         if process_mine then
@@ -341,20 +334,20 @@ function tasks:__process(title, tasks_, process_mine)
         end
 
         if not gantt_map[info.assigned] then
-            table.insert(gantt_groups, {
+            table.insert(gantt_data, {
                 id = info.assigned,
                 name = info.assigned_name,
-                children = {},
+                series = {},
             });
-            gantt_map[info.assigned] = #gantt_groups;
+            gantt_map[info.assigned] = #gantt_data;
         end
         
-        table.insert(gantt_groups[gantt_map[info.assigned]].children, {
+        table.insert(gantt_data[gantt_map[info.assigned]].series, {
             id = info.id,
             name = info.name,
-            start_time = tostring(info.start_time),
-            end_time = tostring(info.end_time),
-            percent = percent,
+            start = tostring(info.start_time),
+            ['end'] = tostring(info.end_time),
+            options = { color = gantt_color },
         });
     end
 
@@ -363,7 +356,7 @@ function tasks:__process(title, tasks_, process_mine)
         mine        = process_mine and mine or nil;
         tags        = self.tags,
         weights     = self.weights,
-        gantt_data  = #gantt_groups == 0 and '[]' or json.encode(gantt_groups),
+        gantt_data  = #gantt_data == 0 and '[]' or json.encode(gantt_data),
         tasks       = {
             opened      = opened,
             closed      = closed,

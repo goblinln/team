@@ -14,22 +14,22 @@
     <div class="container-fluid p-4" style="color:rgb(102, 102, 102); font-size: .75em;">
         <div class="row">
             <div class="col-6 text-center">
-                <h2>{{mine.opened}}</h2>
+                <h2>{{summary.opened}}</h2>
                 <i class="fa fa-circle-o mr-1"></i>待办中
             </div>
             <div class="col-6 text-center">
-                <h2>{{mine.underway}}</h2>
+                <h2>{{summary.underway}}</h2>
                 <i class="fa fa-dot-circle-o mr-1"></i>进行中
             </div>
         </div>
 
         <div class="row pt-2">
             <div class="col-6 text-center">
-                <h2>{{mine.delayed}}</h2>
+                <h2>{{summary.delayed}}</h2>
                 <i class="fa fa-exclamation-circle mr-1"></i>已滞后
             </div>
             <div class="col-6 text-center">
-                <h2>{{mine.closed}}</h2>
+                <h2>{{summary.closed}}</h2>
                 <i class="fa fa-check-circle mr-1"></i>已完成
             </div>
         </div>
@@ -37,7 +37,7 @@
     <ul class="flex-column px-4">
         <li class="d-flex justify-content-between align-items-center">
             <a id="task-menu-default" class="menu-link active" href="#" onclick="return filter_task(this, '/dashboard/tasks/all_of_mine');"><i class="fa fa-list-alt mr-2"></i>所有任务</a>
-            <span class="badge badge-secondary">{{mine.opened + mine.underway + mine.closed}}</span>
+            <span class="badge badge-secondary">{{summary.opened + summary.underway + summary.closed}}</span>
         </li>
         <li class="d-flex justify-content-between align-items-center">
             <a class="menu-link" href="#" onclick="return filter_task(this, '/dashboard/tasks/assigned_to_me');"><i class="fa fa-hand-o-right mr-2"></i>指派给我的</a>

@@ -1,59 +1,23 @@
-<div class="text-center">
-    <p>
-        查看方式：
-        <select id="gantt-scale">
-                <option value="day">每日</option>
-                <option value="week">每周</option>
-                <option value="month">每月</option>
-        </select>
-    </p>
-</div>
+<link rel="stylesheet" href="/www/css/jquery.gantt.min.css">
 
 <div class="text-center shadow border p-2" style="overflow: auto">    
-    <canvas id="gantt-view"></canvas>
+    <div id="gantt-view"></div>
 </div>
 
-<script src="/www/js/gantt.min.js"></script>
+<script src="/www/js/jquery.gantt.min.js"></script>
 <script type='text/javascript'>
-$(document).ready(function() {
-    var data = $.parseJSON('{*gantt_data*}');
-
-    $.each(data, function(index, group) {
-        $.each(group.children, function(idx, info) {
-            group.children[idx].from = new Date(info.start_time);
-            group.children[idx].to = new Date(info.end_time);
-        });
-    });
-
-    var gantt = new Gantt.default('#gantt-view', data, {
-        viewMode: 'day',
-        styleOptions: {
-            BG: '#fff',
-            groupBg: '#14aeb0',
-            lineColor: '#eee',
-            redLineColor: '#f04134',
-            baseBar: '#b8c2cc',
-            greenBar: '#52c41a',
-            groupBar: '#52c41a',
-            redBar: '#ed7f2c',
-            textColor: '#222',
-            lightTextColor: '#222',
-            lineWidth: '1px',
-            thickLineWidth: '1.4px',
-            fontSize: '14px',
-            smallFontSize: '12px',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
-        },
+$('#gantt-view').ganttView({
+    data: $.parseJSON('{*gantt_data*}'),
+    showWeekends: false,
+    behavior: {
+        clickable: true,
+        draggable: false,
+        resizable: false,
         onClick: function(node) {
-            if (node.group) return;
+            console.log(node);
+            if (node.is_summary) return;
             open_task(node.id);
         }
-    });
-
-    $('#gantt-scale').change(function(e) {
-        gantt.setOptions({
-            viewMode: $('#gantt-scale').val()
-        });
-    });
+    }
 });
 </script>

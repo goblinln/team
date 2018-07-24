@@ -154,7 +154,7 @@ $('#mdl-add-member').on('show.bs.modal', function(e) {
     $('#mdl-add-member #wating').show();
     $('#mdl-add-member #form-add-member').hide();
 
-    $.post('/dashboard/projects/get_invite_users', { pid: {{proj_id}} }, function(ret) {
+    $.post('/dashboard/projects/get_invite_users', { pid: '{{proj_id}}' }, function(ret) {
         if (ret.ok) {
             $('#mdl-add-member #err').empty();
             $('#mdl-add-member #uid').empty();
@@ -194,8 +194,8 @@ function add_member() {
         dataType: 'json',
         success: function(rsp) {
             if (rsp.ok) {
-                $('#mdl-add-member').modal('hide');
-                get_proj_info('/dashboard/projects/get_members', {{proj_id}}, '{{proj_name}}');            
+                $('.modal').modal('hide');
+                last_pressed_button.click();            
             } else {
                 showError('#mdl-add-member #err', '添加成员失败', rsp.err_msg);
             }
@@ -208,12 +208,8 @@ function edit_member() {
         dataType: 'json',
         success: function(rsp) {
             if (rsp.ok) {
-                $('#mdl-edit-member').modal('hide');
-                if (rsp.remove_admin) {
-                    location.href = '/dashboard/projects/';
-                } else {
-                    get_proj_info('/dashboard/projects/get_members', {{proj_id}}, '{{proj_name}}');
-                }                
+                $('.modal').modal('hide');
+                last_pressed_button.click();                
             } else {
                 showError('#mdl-edit-member #err', '修改成员信息失败', rsp.err_msg);
             }
@@ -226,8 +222,8 @@ function del_member() {
         dataType: 'json',
         success: function(rsp) {
             if (rsp.ok) {
-                $('#mdl-del-member').modal('hide');
-                get_proj_info('/dashboard/projects/get_members', {{proj_id}}, '{{proj_name}}');
+                $('.modal').modal('hide');
+                last_pressed_button.click();
             } else {
                 showError('#mdl-del-member #err', '删除成员失败', rsp.err_msg);
             }
