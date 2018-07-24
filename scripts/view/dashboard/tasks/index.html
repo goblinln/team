@@ -1,0 +1,99 @@
+{% layout = 'dashboard/layout_dashboard.html' %}
+
+<!-- 任务菜单 -->
+<div class="menublock border-right">
+
+    <!-- 任务概览 -->
+    <div class="container-fluid pt-2 px-2 pb-0">
+        <i class="fa fa-list mr-2"></i><b>我的任务</b>
+        <div class="btn-link pull-right" onclick="return create_task();">
+            <i class="fa fa-plus mr-1"></i>发布任务
+        </div>
+    </div>
+    <hr class="my-1 mx-0">
+    <div class="container-fluid p-4">
+        <div class="row">
+            <div class="col-6">
+                <i class="fa fa-circle-o mr-1"></i>待办中 {{mine.opened}}
+            </div>
+            <div class="col-6">
+                <i class="fa fa-dot-circle-o mr-1"></i>进行中 {{mine.underway}}
+            </div>
+        </div>
+
+        <div class="row pt-2">
+            <div class="col-6">
+                <i class="fa fa-exclamation-circle mr-1"></i>已滞后 {{mine.delayed}}
+            </div>
+            <div class="col-6">
+                <i class="fa fa-check-circle mr-1"></i>已完成 {{mine.closed}}
+            </div>
+        </div>
+    </div>
+    <ul class="flex-column px-4">
+        <li class="d-flex justify-content-between align-items-center">
+            <a class="menu-link" href="#" onclick="return filter_task('/dashboard/tasks/all_of_mine');"><i class="fa fa-list-alt mr-2"></i>所有任务</a>
+            <span class="badge badge-secondary">{{mine.opened + mine.underway + mine.closed}}</span>
+        </li>
+        <li class="d-flex justify-content-between align-items-center">
+            <a class="menu-link" href="#" onclick="return filter_task('/dashboard/tasks/assigned_to_me');"><i class="fa fa-hand-o-right mr-2"></i>指派给我的</a>
+            <span class="badge badge-secondary">{{mine.assigned_to_me}}</span>
+        </li>
+        <li class="d-flex justify-content-between align-items-center">
+            <a class="menu-link" href="#" onclick="return filter_task('/dashboard/tasks/create_by_me');"><i class="fa fa-bullhorn mr-2"></i>我发布的</a>
+            <span class="badge badge-secondary">{{mine.create_by_me}}</span>
+        </li>
+    </ul>
+
+    <!-- 按优先级筛选功能 -->
+    <div class="container-fluid mt-2 p-0">
+        <i class="fa fa-sort mx-2"></i><b> 按优先级筛选</b>
+    </div>    
+    <hr class="my-1 mx-0">
+    <div class="flex-column px-4">
+        {% for idx, info in ipairs(weights or {}) do %}
+        <li class="d-flex justify-content-between align-items-center">
+            <a class="menu-link" href="#" onclick="return filter_task('/dashboard/tasks/filter_weight', {{idx}});"><span class="{{info.color}}">【{{info.title}}】</span></a>
+            <span class="badge badge-secondary">{{mine.weights[idx] or 0}}</span>
+        </li>
+        {% end %}
+    </div>
+
+    <!-- 按项目筛选功能 -->
+    <div class="container-fluid mt-3 p-0">
+        <i class="fa fa-filter mx-2"></i><b>按项目筛选</b>
+    </div>
+    <hr class="my-1 mx-0">
+    <div class="flex-column px-4">
+        {% for id, info in pairs(mine.projects) do %}
+        <li class="d-flex justify-content-between align-items-center">
+            <a class="menu-link" href="#" onclick="return filter_task('/dashboard/tasks/filter_proj', {{id}}, '{{info.name}}');">【{{info.name}}】</span></a>
+            <span class="badge badge-secondary">{{info.count}}</span>
+        </li>
+        {% end %}
+    </div>
+</div>
+
+<!-- 任务面板 -->
+<div id="task-content" class="contentblock">
+    {["dashboard/tasks/view_tasks.html"]}
+</div>
+
+<script>
+function create_task() {
+    $.post('/dashboard/tasks/try_create', {}, function(ret) {
+        $('#task-content').empty();
+        $('#task-content').append($(ret));
+    }, 'html');
+}
+
+function filter_task(url, p1, p2) {
+    $('#task-content').empty();
+    $('#task-content').get(0).innerHTML = '<div class="text-center text-muted" style="margin-top: 10%"><img src="/www/images/loading.gif" class="mb-4"><h1>努力加载中 ...</h1></div>';
+
+    $.post(url, { p1: p1, p2: p2 }, function(ret) {
+        $('#task-content').empty();
+        $('#task-content').append($(ret));
+    }, 'html');
+}
+</script>

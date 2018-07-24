@@ -1,0 +1,16 @@
+{% layout = 'layout_base.html' %}
+
+<nav class="sidebar bg-secondary text-center">
+    <ul class="list-unstyled">
+        <li class="{{dashboard_menu == 'tasks' and 'active' or ''}}"><a href="/dashboard/tasks/"><i class="fa fa-tasks"></i><br>任务</a></li>
+        <li class="{{dashboard_menu == 'projects' and 'active' or ''}}"><a href="/dashboard/projects/"><i class="fa fa-code-fork"></i><br>项目</a></li>
+        <li class="{{dashboard_menu == 'documents' and 'active' or ''}}"><a href="/dashboard/documents/"><i class="fa fa-book"></i><br>文档</a></li>
+        {% if session.is_su then %}
+        <li class="{{dashboard_menu == 'admin' and 'active' or ''}}"><a href="/dashboard/admin/"><i class="fa fa-cogs"></i><br>管理</a></li>
+        {% end %}
+    </ul>
+</nav>
+
+<div class="mainblock">
+    {*view*}
+</div>

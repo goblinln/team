@@ -1,0 +1,250 @@
+{% layout = 'dashboard/layout_dashboard.html' %}
+
+<link rel="stylesheet" href="/www/css/bootstrap-editor.min.css">
+
+<!-- 文档目录树 -->
+<div class="menublock border-right pt-2">
+    <div id="treeview"></div>
+</div>
+
+<!-- 文档内容面板 -->
+<div class="contentblock p-2">
+    <div id="doc-view" class="h-100">
+
+    </div>
+</div>
+
+<!-- 新建文档对话框 -->
+<div id="mdl-add" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">新建文档</h5>                
+            </div>
+            <div class="modal-body">
+                <div id="err"></div>
+                <form id="form-add" action="/dashboard/documents/add" method="POST">
+                    <input id="parent_id" name="parent_id" type="number" hidden>
+                    <div class="form-group">
+                        <label for="add-doc-name">文档名</label>
+                        <input id="add-doc-name" name="name" type="text" class="form-control" placeholder="同目录下文档名唯一" required autofocus>
+                    </div>
+                    <p>父级节点：<span id="parent_name" class="badge badge-info"></span></p>                    
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-add-commit" type="button" class="btn btn-primary">确  定</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取  消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 删除文档对话框 -->
+<div id="mdl-del" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">删除文档</h5>                
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning" role="alert">
+                    <strong>警告：</strong>
+                    <ul>
+                        <li>只有创建者本人可以删除文档！</li>
+                        <li>删除文档会同时将文档下的所有子文档的父节点设置为本文档的父节点！</li>
+                        <li>需要确认要删除的文档名</li>
+                    </ul>
+                </div>
+
+                <div id="err"></div>
+                
+                <form id="form-del" action="/dashboard/documents/delete" method="POST">
+                    <input id="id" name="id" type="number" hidden>
+
+                    <div class="form-group">
+                        <label for="del-doc-name">请确认删除的文档名</label>
+                        <input id="del-doc-name" name="name" type="text" class="form-control" required autofocus>
+                    </div>              
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-del-commit" type="button" class="btn btn-primary">确  定</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取  消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/www/js/bootstrap-editor.min.js"></script>
+<script src="/www/js/jstree.min.js"></script>
+<script>
+$('#treeview').jstree({
+	core: {
+		multiple: false,
+		themes: { name: 'default', dots: true, icons: true, url: '/www/css/jstree.min.css' },
+        data: { url: '/dashboard/documents/table_of_contents' },
+        check_callback: function(opt, node, node_parent, node_position, more) {
+            if (opt == 'move_node' && more.core) {
+                var under = node_parent.id;
+                if (under == '#') under = -1;
+
+                $.ajax({
+                    url: '/dashboard/documents/move',
+                    type: 'POST',
+                    data: { id: node.id, to: under },
+                    dataType: 'json',
+                    success: function(ret) { if (!ret.ok) $('#treeview').jstree(true).refresh(true); },
+                    error: function() { $('#treeview').jstree(true).refresh(true); }
+                });
+            }
+
+            return true;
+        }
+    },
+    plugins: [ 'contextmenu', 'dnd' ],
+    dnd: {
+        copy: false,
+        drag_selection: false,
+        is_draggable: function(nodes) { return nodes[0].id != -1; }
+    },
+    contextmenu: {
+        select_node: false,
+        items: function (node) {
+            return {
+                create: {
+                    label: '新建文档',
+                    icon: 'fa fa-plus',
+                    submenu: {
+                        root_doc: {
+                            label: '同级文档',
+                            icon: 'fa fa-briefcase',
+                            action: function() {
+                                var pname = '/根目录';
+
+                                if (node.data != -1) {
+                                    var p = $('#treeview').jstree(true).get_node(node.data);
+                                    pname = p.text;
+                                }
+
+                                $('#mdl-add #parent_id').val(node.data);
+                                $('#mdl-add #parent_name').text(pname);
+                                $('#mdl-add').modal('show');
+                            }
+                        },
+                        sub_doc: {
+                            label: '子级文档',
+                            icon: 'fa fa-book',
+                            _disabled: node.id == -1,
+                            action: function() {
+                                $('#mdl-add #parent_id').val(node.id);
+                                $('#mdl-add #parent_name').text(node.text);
+                                $('#mdl-add').modal('show');
+                            }
+                        }
+                    }
+                },
+                edit: {
+                    label: '编辑文档',
+                    icon: 'fa fa-edit',
+                    _disabled: node.id == -1,
+                    action: function(obj) {
+                        $.post('/dashboard/documents/info', { id: node.id }, function(ret) {
+                            if (!ret.ok) {
+                                alert(rsp.err_msg);
+                                return;
+                            }
+
+                            $('#treeview').jstree(true).deselect_all();
+                            $('#doc-view').get(0).innerHTML = '<div class="container-fluid h-100 py-2"><div id="doc-editor"></div></div>';
+                            $('#doc-editor').markdown({
+                                autofocus: true,
+                                savable: true,
+                                closeable: true,
+                                iconlibrary: 'fa',
+                                height: 'd-flex flex-column h-100',
+                                uploadUrl: '/dashboard/files/upload',
+                                onShow: function(e) {                           
+                                    e.setContent(ret.content);
+                                },
+                                onClose: function(e) {
+                                    $('#doc-editor').hide();
+                                    $('#treeview').jstree(true).select_node(node.id);
+                                },
+                                onSave: function(e) {
+                                    $.post('/dashboard/documents/edit', { id: node.id, content: e.getContent() }, function(ret) {
+                                        alert(ret.ok ? '保存成功！' : rsp.err_msg);
+                                    });
+                                }
+                            });
+                        }, 'json');
+                    }
+                },
+                delete: {
+                    label: '删除文档',
+                    icon: 'fa fa-close',
+                    _disabled: node.id == -1,
+                    action: function() {
+                        $('#mdl-del #id').val(node.id);
+                        $('#mdl-del').modal('show');
+                    }
+                }
+            };
+        }
+    }
+}).bind("changed.jstree", function (ev, data) {
+    if (data.action == 'deselect_all') {
+        $('#doc-view').empty();
+        return;
+    }
+
+    if (data.node.id == -1) return;
+
+    $.post('/dashboard/documents/info', { id: data.node.id }, function(ret) {
+        if (!ret.ok) {
+            alert(rsp.err_msg);
+            return;
+        }
+
+        $('#doc-view').get(0).innerHTML = '<div class="pt-3 text-center"><small><span class="bg-dark text-white p-1">作者</span><span class="bg-success text-white px-2 py-1 mr-2">' + ret.author + '</span>'
+            + '<span class="bg-dark text-white p-1">更新者</span><span class="bg-success text-white px-2 py-1 mr-2">' + ret.modify_user + '</span>'
+            + '<span class="bg-dark text-white p-1">更新时间</span><span class="bg-success text-white px-2 py-1">' + ret.last_modify + '</span></small><hr></div>'
+            + '<div class="md-preview d-block mh-100">' + marked(ret.content || '') + '</div>';
+
+        mermaid.init({noteMargin: 10}, '.mermaid');
+        PR.prettyPrint();
+    }, 'json');
+});
+
+$('#btn-add-commit').click(function() {
+    $('#form-add').ajaxSubmit({
+        dataType: 'json',
+        success: function(rsp) {
+            if (rsp.ok) {
+                $('#mdl-add #err').empty();
+                $('#mdl-add').modal('hide');
+                $('#treeview').jstree(true).refresh(true);
+            } else {
+                showError('#mdl-add #err', '新建失败', rsp.err_msg);
+            }
+        }
+    })
+});
+
+$('#btn-del-commit').click(function() {
+    $('#form-del').ajaxSubmit({
+        dataType: 'json',
+        success: function(rsp) {
+            if (rsp.ok) {
+                $('#mdl-del #err').empty();
+                $('#mdl-del').modal('hide');
+                $('#doc-view').empty();
+                $('#treeview').jstree(true).refresh(true);
+            } else {
+                showError('#mdl-del #err', '删除失败', rsp.err_msg);
+            }
+        }
+    })
+});
+
+</script>

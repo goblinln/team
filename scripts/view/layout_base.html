@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<title>{{config.app.name}}</title>
+		
+		<link rel="stylesheet" href="/www/css/bootstrap.min.css">
+		<link rel="stylesheet" href="/www/css/font-awesome.min.css">
+		<link rel="stylesheet" href="/www/css/site.css">
+
+		<script src="/www/js/jquery.min.js"></script>
+		<script src="/www/js/jquery.form.min.js"></script>
+		<script src="/www/js/popper.min.js"></script>
+		<script src="/www/js/bootstrap.min.js"></script>
+	</head>
+	<body>
+		<nav class="navbar navbar-expand-sm sticky-top navbar-dark bg-dark p-0">
+			<a class="navbar-brand" href="#">
+				<img src="/www/images/logo.png" width="24px" height="24px" style="margin-top: -6px; margin-left: 8px">
+				{{config.app.name}}
+			</a>
+
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#user-menu" aria-controls="user-menu" aria-expanded="false" aria-label="Toggle Menu">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+
+			<div class="collapse navbar-collapse" id="user-menu">
+				{% if session.uid then %}
+				<ul class="navbar-nav ml-auto">
+					<li class="nav-item">
+						<a class="nav-link" href="#" onclick="return openProfile();">
+          					<img id="navbar-avatar" src="{{session.avatar}}" width="20px" height="20px" class="rounded-circle" style="margin-top: -2px"> {{session.name}}
+						</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link">|</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="/user/logout/"><i class="fa fa-sign-out mr-1"></i>注销</a>
+					</li>
+				</ul>
+				{% end %}
+			</div>
+		</nav>
+
+		<div id="profile-pane" class="profile-pane shadow invisible">
+		</div>
+
+		{*view*}
+	</body>
+
+	<script>
+	function showError(container, title, message) {
+		var elem = $(container).get(0);
+		elem.innerHTML = '<div class="alert alert-danger alert-dismissible fade show" role="alert">'
+			+ '<strong>' + title + '</strong>：&nbsp;'
+			+ message
+			+ '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
+			+ '</div>';
+	}
+
+	function openProfile() {
+		$.post('/user/profile/', function(ret) {
+			$('#profile-pane').empty();
+			$('#profile-pane').append($(ret));
+			$('#profile-pane').removeClass('invisible');
+			$('#profile-pane').addClass('visible');
+		}, 'html');
+	}
+
+	function closeProfile() {
+		$('#profile-pane').empty();
+		$('#profile-pane').removeClass('visible');
+		$('#profile-pane').addClass('invisible');
+	}
+	</script>
+</html>

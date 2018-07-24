@@ -1,0 +1,24 @@
+{% layout = 'dashboard/layout_dashboard.html' %}
+
+<!-- 功能列表 -->
+<div class="menublock border-right p-2">
+    <ul class="flex-column px-2">
+        <li class="d-flex">
+            <a class="menu-link" href="#" onclick="return open_admin('/dashboard/admin/users');"><i class="fa fa-list-alt mr-2"></i>管理用户</a>
+        </li>
+    </ul>
+</div>
+
+<!-- 内容面板 -->
+<div id="admin-detail" class="contentblock">
+</div>
+
+<script>
+function open_admin(url) {
+    $.post(url, function(ret) {
+        $('#admin-detail').empty();
+        $('#admin-detail').append($(ret));
+    }, 'html');
+}
+open_admin('/dashboard/admin/users');
+</script>

@@ -1,0 +1,183 @@
+/* Layouts of this site :
+ *  _______________________________________________________
+ * |                      navbar                           |
+ * |_______________________________________________________|
+ * |         |             mainblock                       |
+ * |         |                                             |
+ * | sidebar |  menublock  |         contentblock          |
+ * |         |             |                               |
+ * |_________|_____________|_______________________________|
+ */
+
+/* Side bar */
+.sidebar {
+    position: absolute;
+    display: block;
+    left: 0;
+    top: 40px;
+    width: 64px;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+}
+.sidebar ul li a {
+    display: block;
+    padding: 0.75rem 0;
+    color: rgba(255, 255, 255, .75);
+    text-decoration: none;
+}
+.sidebar ul li a:hover {
+    color: rgba(255, 255, 255, 1);
+    background: rgba(0, 0, 0, .1);
+}
+
+.sidebar ul .active a {
+    color: rgba(255, 255, 255, 1);
+    background: rgba(0, 0, 0, .25);
+}
+
+/* Main block */
+.mainlock {
+    position: absolute;
+    display: block;
+    left: 64px;
+    top: 40px;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+}
+
+/* Menu block */
+.menublock {
+    position: absolute;
+    display: block;
+    left: 64px;
+    top: 40px;
+    width: 250px;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+}
+
+.menu-link {
+    display: block;
+    margin-bottom: .25rem;
+    color: rgb(39, 39, 39);
+    text-decoration: none;
+}
+.menu-link:hover, .menublock ul .active .menu-link {
+    color: green;
+    text-decoration: none;
+}
+
+
+/* Content block */
+.contentblock {
+    position: absolute;
+    display: block;
+    left: 314px;
+    top: 40px;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+}
+
+/* Task view panel */
+.task-view-pane {
+    position:absolute;
+    display: block;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 640px;
+    -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,.3);
+    -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,.3);
+    box-shadow: 0 0 10px 0 rgba(0,0,0,.3);
+    background-color: #fff;
+    overflow: auto;
+}
+.task-view-pane-close {
+    position: absolute;
+    display: inline-block;
+    z-index: 2;
+    top: 0;
+    bottom: 0;
+    width: 24px;
+    margin-left: 0;
+    color: rgba(0,0,0,.4);
+    border: none;
+    outline: 0;
+    background: rgba(0,0,0,0);
+    cursor: pointer;
+    text-transform: none;
+}
+.task-view-pane-close:hover {    
+    background: lightgrey;
+}
+.task-view-pane-close:focus {
+    outline: 0;
+}
+
+/* Text button */
+.btn-link-danger {
+    cursor: pointer;
+    color: darkred;
+}
+.btn-link-danger:hover {
+    cursor: pointer;
+    color: red;
+}
+
+.btn-link {
+    cursor: pointer;
+    color: black;
+}
+
+.btn-link:hover {
+    cursor: pointer;
+    color: green;
+    text-decoration: none;
+}
+
+/* Profile panel */
+.profile-pane {
+    position: absolute;
+    display: block;
+    z-index: 3;
+    top: 40px;
+    right: 0;
+    bottom: 0;
+    width: 300px;
+    -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,.3);
+    -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,.3);
+    box-shadow: 0 0 10px 0 rgba(0,0,0,.3);
+    background-color: #fff;
+    overflow: auto;
+}
+
+.profile-pane-close {
+    position: absolute;
+    display: inline-block;
+    z-index: 2;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    color: rgba(0,0,0,.4);
+    border: none;
+    outline: 0;
+    background: rgba(0,0,0,0);
+    cursor: pointer;
+    text-transform: none;
+}
+.profile-pane-close:hover {    
+    background: lightgrey;
+}
+.profile-pane-close:focus {
+    outline: 0;
+}

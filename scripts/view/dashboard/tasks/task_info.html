@@ -1,0 +1,206 @@
+<link rel="stylesheet" href="/www/css/bootstrap-editor.min.css">
+<link rel="stylesheet" href="/www/css/jquery.datetimepicker.css">
+
+<button class="task-view-pane-close" onclick="return close_task();"><i class="fa fa-chevron-right"></i></button>
+
+<div class="px-2 my-2" style="margin-left: 24px;">
+
+    <!-- 标题 -->
+    <div class="d-flex">
+        <h4>{{task.info.name}}</h4>
+        {% if #task.info.tags > 0 then %}
+        <span class="ml-2 mt-1">
+            {% for _, tag in ipairs(task.info.tags) do %}
+            <span class="badge {{tags[tag].color}} mr-1">{{tags[tag].title}}</span>
+            {% end %}
+        </span><br>
+        {% end %}
+    </div>
+    <hr class="mx-0 mt-0 mb-1">
+
+    <!-- 状态栏 -->
+    <div class="d-flex">
+
+        <!-- 指派 -->
+        <div class="dropdown">
+            <div class="btn-link px-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-hand-o-right mr-1"></i>{{task.info.assigned_name}}
+            </div>
+            <div class="dropdown-menu">
+                {% for _, info in ipairs(members or {}) do %}
+                <a class="dropdown-item" href="#" onclick="return mod_assign('{{info.uid}}')">【{{info.user_role}}】{{info.user}}</a>
+                {% end %}
+            </div>
+        </div>
+
+        <!-- 时间 -->
+        <div class="dropdown">
+            <div class="btn-link px-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-calendar mr-1"></i>{{tostring(task.info.start_time) .. ' ~ ' .. tostring(task.info.end_time)}}
+            </div>
+            <form id="form-mod-time" class="dropdown-menu p-4" action="/dashboard/tasks/mod_time" method="POST">
+                <input name="tid" type="number" value="{{task.info.id}}" hidden>
+                <input name="org_start" type="string" value="{{task.info.start_time}}" hidden>
+                <input name="org_end" type="string" value="{{task.info.end_time}}" hidden>
+                
+                <div class="form-group">
+                    <label for="start-time">修改开始时间</label>
+                    <input type="text" class="form-control form-datetime" id="start-time" name="start_time" value="{{tostring(task.info.start_time)}}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="end-time">修改结束时间</label>
+                    <input type="text" class="form-control form-datetime" id="end-time" name="end_time" value="{{tostring(task.info.end_time)}}"  required>
+                </div>
+
+                <div class="form-group mb-0">
+                    <button type="button" class="btn btn-sm btn-primary form-control my-0" onclick="return mod_time();">修改时间</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- 状态 -->
+        <div class="dropdown">
+            <div class="btn-link px-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {% if task.info.status == 1 then %}
+                <i class="fa fa-circle-o mr-1"></i>待办中
+                {% elseif task.info.status == 2 then %}
+                <i class="fa fa-dot-circle-o mr-1"></i>进行中
+                {% elseif task.info.status == 3 then %}
+                <i class="fa fa-check-circle mr-1"></i>已完成
+                {% else %}
+                <i class="fa fa-archive mr-1"></i>已归档
+                {% end %}
+            </div>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="#" onclick="return mod_status(1)"><i class="fa fa-circle-o mr-1"></i>待办中</a>
+                <a class="dropdown-item" href="#" onclick="return mod_status(2)"><i class="fa fa-dot-circle-o mr-1"></i>进行中</a>
+                <a class="dropdown-item" href="#" onclick="return mod_status(3)"><i class="fa fa-check-circle mr-1"></i>已完成</a>
+            </div>
+        </div>
+
+        <!-- 优先级 -->
+        <div class="dropdown">
+            <div class="btn-link px-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-tag mr-1"></i>{{weights[task.info.weight].title}}
+            </div>
+            <div class="dropdown-menu">
+                {% for i, info in ipairs(weights or {}) do %}
+                <a class="dropdown-item" href="#" onclick="return mod_weight('{{i}}')">{{info.title}}</a>
+                {% end %}
+            </div>
+        </div>
+
+        <!-- 编辑 -->
+        <div class="btn-link px-2" onclick="return edit_content();">
+            <i class="fa fa-pencil-square-o mr-1"></i>编辑
+        </div>
+    </div>
+
+    <hr class="mt-2">
+
+    <div id="task-content-preview" class="mt-4 h-100" style="min-height: 300px;">{{task.info.content}}</div>
+
+    <div class="mt-4">
+        <label class="text-muted">动态</label>
+        <hr class="mt-0 mb-2">
+
+        <ul class="px-4">
+            {% for _, ev in ipairs(task.events) do %}
+            <li class="text-muted">
+                {{ev.user}} <b>{{ev.event_desc}}</b> {{ev.timepoint}}
+            </li>
+            {% end %}
+        </ul>
+    </div>
+</div>
+
+<script src="/www/js/bootstrap-editor.min.js"></script>
+<script src="/www/js/jquery.datetimepicker.min.js"></script>
+<script>
+var content = $('#task-content-preview').get(0).innerHTML;
+var editor = null;
+
+$('#task-content-preview').empty();
+$('#task-content-preview').append('<div class="md-preview d-block mh-100">' + marked(content || '') + '</div>');
+
+$('#form-mod-time .form-datetime').datetimepicker({
+    format: 'Y-m-d',
+    timepicker: false,
+    lang: 'zh'
+});
+
+function refresh_task_info() {
+    open_task('{{task.info.id}}');
+}
+
+function close_task() {
+    $('#task-view').removeClass('visible');
+    $('#task-view').addClass('invisible');
+    $('.xdsoft_datetimepicker').remove();
+
+    if (location.pathname == '/dashboard/tasks/') {
+        location.reload();
+    } else {
+        last_pressed_button.click();
+    }
+}
+
+function mod_assign(uid) {    
+    $.post('/dashboard/tasks/mod_assign', { tid : '{{task.info.id}}', org_uid : '{{task.info.assigned}}', new_uid : uid }, refresh_task_info);
+}
+
+function mod_time() {
+    $('#form-mod-time').ajaxSubmit({
+        dataType: 'json',
+        success: function(ret) {
+            if (ret.ok) refresh_task_info();
+        }
+    });
+}
+
+function mod_status(status) {
+    $.post('/dashboard/tasks/mod_status', { tid : '{{task.info.id}}', org_status : '{{task.info.status}}', new_status : status }, refresh_task_info);
+}
+
+function mod_weight(weight) {
+    $.post('/dashboard/tasks/mod_weight', { tid : '{{task.info.id}}', org_weight : '{{task.info.weight}}', new_weight : weight }, refresh_task_info);
+}
+
+function edit_content() {
+    var editorContainer = $('<div id="doc-editor"></div>');
+    $('#task-content-preview').empty();
+    $('#task-content-preview').append(editorContainer);
+
+    editor = $('#doc-editor').markdown({
+        autofocus: true,
+        iconlibrary: 'fa',
+        height: 300,
+        uploadUrl: '/dashboard/files/upload',
+        footer: '<div><button id="btn-save-content" type="button" class="btn btn-sm btn-primary mr-2" onclick="return end_edit(true);">保  存</button><button id="btn-close-edit" type="button" class="btn btn-sm btn-secondary" onclick="return end_edit(false);">关  闭</button></div>',
+        fullscreen: { enable : false },
+        onShow: function(e) {
+            e.setContent(content);
+        }
+    });
+}
+
+function end_edit(save) {
+    if (save) {
+        var new_content = $('.md-input').val();
+        if (new_content == content) return;
+
+        $.post('/dashboard/tasks/mod_content', { id: '{{task.info.id}}', content: new_content }, function(ret) {
+            if (ret.ok) refresh_task_info();
+        });
+    } else {
+        var new_content = $('.md-input').val();
+        if (new_content != content) {
+            refresh_task_info();
+        } else {
+            $('#task-content-preview').empty();
+            $('#task-content-preview').append('<div class="md-preview d-block mh-100">' + marked(content || '') + '</div>');
+        } 
+    }
+}
+</script>

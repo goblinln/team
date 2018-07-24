@@ -1,0 +1,201 @@
+<div class="m-2 p-2">
+    <i class="fa fa-eye mr-1"></i>成员管理
+    <button type="button" class="btn btn-sm btn-default pull-right" data-toggle="modal" data-target="#mdl-add-user">添加成员</button>
+    <hr>
+
+    <table class="table table-sm table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">帐号</th>
+                <th scope="col">用户名</th>
+                <th scope="col">管理员</th>
+                <th scope="col">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for idx, info in ipairs(users) do %}
+            <tr>
+                <th scope="row">{{idx}}</th>
+                <td>{{info.account}}</td>
+                <td>{{info.name}}</td>
+                <td><i class="fa {{info.is_su == 1 and 'fa-check-square-o' or 'fa-square-o'}}"></i></td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#mdl-edit-user" data-id="{{info.id}}" data-account="{{info.account}}" data-name="{{info.name}}" data-issu="{{info.is_su}}">修 改</button>
+                    <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#mdl-del-user" data-id="{{info.id}}" data-name="{{info.name}}">删 除</button>
+                </td>
+            </tr>            
+            {% end %}
+        </tbody>
+    </table>
+</div>
+
+<!-- 添加成员 -->
+<div id="mdl-add-user" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog model-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">添加成员</h5>
+            </div>
+            <div class="modal-body">
+                <div id="err"></div>
+
+                <form id="form-add-user" action="/dashboard/admin/add_user" method="POST">
+                    <div class="form-group">
+                        <input class="form-control" type="text" name="account" placeholder="帐号" required>
+                    </div>
+
+                    <div class="form-group">
+                        <input class="form-control" type="text" name="name" placeholder="显示用户名" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col">
+                            <input class="form-control" type="password" name="pswd" placeholder="初始密码" required>
+                        </div>
+                        <div class="form-group col">
+                            <input class="form-control" type="password" name="cfm_pswd" placeholder="确认密码" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="is_su" name="is_su">
+                            <label class="form-check-label" for="is_su">拥有管理权限</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="return add_user();">确  定</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取  消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 修改成员 -->
+<div id="mdl-edit-user" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog model-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">编辑成员</h5>
+            </div>
+            <div class="modal-body">
+                <div id="err"></div>
+
+                <form id="form-edit-user" action="/dashboard/admin/edit_user" method="POST">
+                    <input id="edit_user_id" name="id" type="number" hidden>
+
+                    <div class="form-group">
+                        <input class="form-control" type="text" id="edit_user_account" name="account" placeholder="帐号" required>
+                    </div>
+
+                    <div class="form-group">
+                        <input class="form-control" type="text" id="edit_user_name" name="name" placeholder="显示用户名" required>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="edit_user_is_su" name="is_su">
+                            <label class="form-check-label" for="is_su">拥有管理权限</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="return edit_user();">确  定</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取  消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 删除用户 -->
+<div id="mdl-del-user" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog model-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">修改成员</h5>
+            </div>
+            <div class="modal-body">
+                <div id="err"></div>
+
+                <form id="form-del-user" action="/dashboard/admin/del_user" method="POST">
+                    <input id="del_user_id" name="id" type="number" hidden>
+                    请确认需要删除的用户：<span id="del_user_name" class="text-danger"></span>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="return del_user();">确  定</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取  消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+$('#mdl-edit-user').on('show.bs.modal', function(e) {
+    var button = $(e.relatedTarget);
+
+    $('#mdl-edit-user #err').empty();
+    $('#mdl-edit-user #edit_user_id').val(button.data('id'));
+    $('#mdl-edit-user #edit_user_account').val(button.data('account'));
+    $('#mdl-edit-user #edit_user_name').val(button.data('name'));
+    $('#mdl-edit-user #edit_user_is_su').get(0).checked = (button.data('issu') == 1);
+});
+
+$('#mdl-del-user').on('show.bs.modal', function(e) {
+    var button = $(e.relatedTarget);
+
+    $('#mdl-del-user #err').empty();
+    $('#mdl-del-user #del_user_id').val(button.data('id'));
+    $('#mdl-del-user #del_user_name').text(button.data('name'));
+});
+
+function add_user() {
+    $('#form-add-user').ajaxSubmit({
+        dataType: 'json',
+        success: function(ret) {
+            if (ret.ok) {
+                $('.model #err').empty();
+                $('.modal').modal('hide');
+                open_admin('/dashboard/admin/users');
+            } else {
+                showError('#mdl-add-user #err', '添加用户失败', ret.err_msg);
+            }
+        }
+    });
+}
+
+function edit_user() {
+    $('#form-edit-user').ajaxSubmit({
+        dataType: 'json',
+        success: function(ret) {
+            if (ret.ok) {
+                $('.model #err').empty();
+                $('.modal').modal('hide');
+                open_admin('/dashboard/admin/users');
+            } else {
+                showError('#mdl-edit-user #err', '修改用户失败', ret.err_msg);
+            }
+        }
+    });
+}
+
+function del_user() {
+    $('#form-del-user').ajaxSubmit({
+        dataType: 'json',
+        success: function(ret) {
+            if (ret.ok) {
+                $('.model #err').empty();
+                $('.modal').modal('hide');
+                open_admin('/dashboard/admin/users');
+            } else {
+                showError('#mdl-del-user #err', '删除用户失败', ret.err_msg);
+            }
+        }
+    });
+}
+</script>

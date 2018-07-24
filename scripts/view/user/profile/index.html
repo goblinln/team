@@ -1,0 +1,99 @@
+<div class="container p-4 h-100">
+    <div class="text-center">
+        <img id="profile-avatar" src="{{session.avatar}}" width="80px" height="80px" class="rounded-circle mb-2" data-toggle="modal" data-target="#mdl-mod-avatar">
+        <h3>{{session.name}}</h3>
+        <p class="text-muted">{{session.account}}</p>
+        <button type="button" class="btn btn-primary mt-4" data-toggle="modal" data-target="#mdl-mod-pswd">修改密码</button><br>
+        <a class="text-center profile-pane-close text-muted" onclick="return closeProfile();" style="font-size: 1.5em;">
+            <i class="fa fa-close"></i>
+        </a>   
+    </div>
+</div>
+
+<!-- 修改密码 -->
+<div id="mdl-mod-pswd" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">修改密码</h5>
+            </div>
+            <div class="modal-body">
+                <div id="err"></div>
+                <form id="form-mod-pswd" action="/user/profile/set_pswd" method="POST">
+                    <div class="form-group">
+                        <input name="org_pswd" type="password" class="form-control" placeholder="原始密码" required autofocus>
+                    </div>
+                    <div class="form-group">
+                        <input name="new_pswd" type="password" class="form-control" placeholder="新密码" required>
+                    </div>
+                    <div class="form-group">
+                        <input name="cfm_pswd" type="password" class="form-control" placeholder="确认新密码" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="return mod_pswd();">确  定</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取  消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 上传头像 -->
+<div id="mdl-mod-avatar" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">上传新头像</h5>
+            </div>
+            <div class="modal-body">
+                <div id="err"></div>
+                <form id="form-mod-avatar" action="/user/profile/set_avatar" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="img">选择头像文件</label>
+                        <input id="img" name="img" type="file" class="form-control" required autofocus>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="return mod_avatar();">确  定</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取  消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$('#profile-pane .modal').on('shown.bs.modal', function(e) {
+    var mask = $('.modal-backdrop').detach();
+    mask.appendTo('#profile-pane');
+});
+
+function mod_avatar() {
+    $('#form-mod-avatar').ajaxSubmit({
+        dataType: 'json',
+        success: function (ret) {
+            if (!ret || !ret.ok) return;
+            $('#profile-avatar').attr('src', ret.url);
+            $('#navbar-avatar').attr('src', ret.url);
+        }
+    });
+    
+    $('.model #err').empty();
+    $('.modal').modal('hide');
+}
+
+function mod_pswd() {
+    $('#form-mod-pswd').ajaxSubmit({
+        dataType: 'json',
+        success: function (ret) {
+            if (!ret.ok) {
+                showError('#mdl-mod-pswd #err', '更改密码失败', ret.err_msg);
+            } else {
+                $('.model #err').empty();
+                $('.modal').modal('hide');
+            }
+        }
+    });
+}
+</script>

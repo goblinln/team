@@ -1,0 +1,110 @@
+<link rel="stylesheet" href="/www/css/bootstrap-editor.min.css">
+
+<button class="task-view-pane-close" onclick="return close_task();"><i class="fa fa-chevron-right"></i></button>
+
+<div class="px-2 my-2" style="margin-left: 24px;">
+
+    <!-- 标题 -->
+    <div class="d-table">
+        <h4>{{task.info.name}}</h4>
+        {% if #task.info.tags > 0 then %}
+        {% for _, tag in ipairs(task.info.tags) do %}
+        <span class="badge {{tags[tag].color}} mr-1 mb-1">{{tags[tag].title}}</span>
+        {% end %}
+        {% end %}
+    </div>
+    
+    {% if enable_archive then %}
+    {% if task.info.status == 4 then %}
+    <button type="button" class="btn btn-primary" onclick="return unarchive('{{task.info.id}}');" style="position: absolute; right: 1em; top: 1em;">重新打开</button>
+    {% else %}
+    <button type="button" class="btn btn-primary" onclick="return archive('{{task.info.id}}');" style="position: absolute; right: 1em; top: 1em;">任务归档</button>
+    {% end %}
+    {% end %}
+    <hr class="mx-0 mt-0 mb-1">
+
+    <!-- 状态栏 -->
+    <div class="d-flex">
+
+        <!-- 指派 -->
+        <div>
+            <div class="px-2">
+                <i class="fa fa-hand-o-right mr-1"></i>{{task.info.assigned_name}}
+            </div>
+        </div>
+
+        <!-- 时间 -->
+        <div>
+            <div class="px-2">
+                <i class="fa fa-calendar mr-1"></i>{{tostring(task.info.start_time) .. ' ~ ' .. tostring(task.info.end_time)}}
+            </div>
+        </div>
+        
+        <!-- 状态 -->
+        <div>
+            <div class="px-2">
+                {% if task.info.status == 4 then %}
+                <i class="fa fa-archive mr-1"></i>已归档
+                {% else %}
+                <i class="fa fa-circle-o mr-1"></i>待办中
+                {% end %}
+            </div>
+        </div>
+
+        <!-- 优先级 -->
+        <div>
+            <div class="px-2">
+                <i class="fa fa-tag mr-1"></i>{{weights[task.info.weight].title}}
+            </div>
+        </div>
+    </div>
+
+    <hr class="mt-2">
+
+    <div id="task-content-preview" class="mt-4 h-100" style="min-height: 300px;">{{task.info.content}}</div>
+
+    <div class="mt-4">
+        <label class="text-muted">动态</label>
+        <hr class="mt-0 mb-2">
+
+        <ul class="px-4">
+            {% for _, ev in ipairs(task.events) do %}
+            <li class="text-muted">
+                {{ev.user}} <b>{{ev.event_desc}}</b> {{ev.timepoint}}
+            </li>
+            {% end %}
+        </ul>
+    </div>
+</div>
+
+<script src="/www/js/bootstrap-editor.min.js"></script>
+<script>
+var content = $('#task-content-preview').get(0).innerHTML;
+
+$('#task-content-preview').empty();
+$('#task-content-preview').append('<div class="md-preview d-block mh-100">' + marked(content || '') + '</div>');
+
+function close_task() {
+    $('#task-view').removeClass('visible');
+    $('#task-view').addClass('invisible');
+
+    {% if enable_archive then %}
+    last_pressed_button.click();
+    {% end %}
+}
+
+{% if enable_archive then %}
+function archive(tid) {
+    $.post('/dashboard/tasks/mod_status', {tid : tid, org_status: 3, new_status : 4}, function() {
+        open_task(tid);
+    });
+}
+
+function unarchive(tid) {
+    $.post('/dashboard/tasks/mod_status', {tid : tid, org_status: 4, new_status : 1}, function() {
+        open_task(tid);
+    });
+}
+{% end %}
+
+</script>
