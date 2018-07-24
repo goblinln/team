@@ -288,7 +288,7 @@ function tasks:__process(title, tasks_, process_mine)
     };
 
     for _, info in ipairs(tasks_) do
-        local gantt_color = 'gray';
+        local gantt_color = 'gold';
         local end_time = os.time(info.end_time);
 
         if info.status == self.status.OPENED then
@@ -314,7 +314,7 @@ function tasks:__process(title, tasks_, process_mine)
         elseif info.status == self.status.CLOSED then
             table.insert(closed, info);
             summary.closed = summary.closed + 1;
-            gantt_color = 'green';
+            gantt_color = 'lightgreen';
         end
 
         if process_mine then
