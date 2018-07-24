@@ -1,0 +1,130 @@
+{% layout = 'dashboard/layout_dashboard.html' %}
+
+<div class="container p-4">
+    <button type="button" class="btn btn-default mb-4" data-toggle="modal" data-target="#mdl-share-file">
+        <i class="fa fa-upload mr-1"></i>上传文件
+    </button>
+
+    <table class="table table-sm table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">文件</th>
+                <th scope="col">上传者</th>
+                <th scope="col">上传时间</th>
+                <th scope="col">大小</th>
+                <th scope="col">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for idx, info in ipairs(shared) do %}
+            <tr>
+                <th scope="row">{{idx}}</th>
+                <td>{{info.name}}</td>
+                <td>{{info.creator_name}}</td>
+                <td>{{tostring(info.upload_time)}}</td>
+                <td>{{tostring(info.size)}}</td>
+                <td>
+                    <a href="{{info.path}}" class="btn btn-sm btn-primary"><i class="fa fa-download"></i></a>
+                    {% if session.uid == info.creator or session.is_su then %}
+                    <a onclick="return confirm_del_share('{{info.id}}', '{{info.name}}');" class="btn btn-sm btn-secondary"><i class="fa fa-trash"></i></a>
+                    {% end %}
+                </td>
+            </tr>
+            {% end %}
+        </tbody>
+    </table>
+
+    <!-- 上传分享文件 -->
+    <div id="mdl-share-file" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">上传</h5>
+                </div>
+                <div class="modal-body">
+                    <div id="err"></div>
+
+                    <form id="form-share-file" action="/dashboard/files/upload" method="POST" enctype="multipart/form-data">
+                        <input type="number" name="is_share" value="1" hidden>
+
+                        <div class="form-group">
+                            <label for="share-file-selector">选择文件</label>
+                            <input id="share-file-selector" name="file" type="file" class="form-control" required autofocus>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="return share_file();">确  定</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取  消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除分享文件 -->
+    <div id="mdl-del-share-file" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog model-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">删除分享文件</h5>
+                </div>
+                <div class="modal-body">
+                    <div id="err"></div>
+
+                    <form id="form-del-share-file" action="/dashboard/files/delete" method="POST">
+                        <input id="del_share_file_id" name="id" type="number" hidden>
+                        请确认需要删除的文件：<span id="del_share_file" class="text-danger"></span>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" onclick="return del_share_file();">确  定</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取  消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+$('.modal').on('shown.bs.modal', function(e) {
+    var mask = $('.modal-backdrop').detach();
+    mask.appendTo('.mainblock');
+    $('.modal #err').empty();
+});
+
+function confirm_del_share(id, name) {
+    $('#mdl-del-share-file #del_share_file_id').val(id);
+    $('#mdl-del-share-file #del_share_file').text(name);
+    $('#mdl-del-share-file').modal('show');
+}
+
+function share_file() {
+    $('#form-share-file').ajaxSubmit({
+        dataType: 'json',
+        success: function(ret) {
+            if (ret.ok) {
+                $('.modal').modal('hide');
+                location.reload();
+            } else {
+                showError('#mdl-share-file #err', '上传文件失败', '未知问题');
+            }
+        }
+    })
+}
+
+function del_share_file() {
+    $('#form-del-share-file').ajaxSubmit({
+        dataType: 'json',
+        success: function(ret) {
+            if (ret.ok) {
+                $('.modal').modal('hide');
+                location.reload();
+            } else {
+                showError('#mdl-del-share-file #err', '删除文件失败', ret.err_msg);
+            }
+        }
+    })
+}
+</script>
