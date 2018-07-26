@@ -18,7 +18,7 @@ function profile:set_avatar(req, rsp)
     local dir = 'www/upload';
     if not os.exists(dir) then os.mkdir(dir) end;
 
-    dir = dir .. '/' .. session.uid;    
+    dir = dir .. '/' .. session.uid;  
     if not os.exists(dir) then os.mkdir(dir) end;
 
     local to = dir .. '/' .. os.time() .. '_' .. req.post.img;
