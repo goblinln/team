@@ -3,18 +3,18 @@
 <!-- 项目列表 -->
 <div class="menublock border-right p-2">
     <div class="container-fluid p-0">
-        <i class="fa fa-list mr-2"></i><b>项目列表</b>
+        <i class="fa fa-list mr-2"></i><label class="title">项目列表</label>
         <div class="d-inline pull-right btn-link" data-toggle="modal" data-target="#mdl-add-proj">
             <i class="fa fa-plus mr-1"></i>新建项目
         </div>
     </div>
     
-    <hr class="my-1 mx-0">
+    <hr class="mb-1 mt-0 mx-0">
 
     <div id="projects">
         {% for idx, info in ipairs(projs) do %}
-        <div class="card card-proj mb-1 border-secondary rounded-0">
-            <div class="card-header bg-secondary rounded-0 p-2">
+        <div class="card card-proj mb-1 rounded-0" style="background-color: lightgray">
+            <div class="card-header rounded-0 p-2" style="background-color: lightgray">
                 <div class="m-0" data-toggle="collapse" data-target='#proj-menu-{{info.id}}' aria-expanded="true" aria-controls="proj-menu-{{info.id}}">
                     <b>{{info.name}}</b>
                     {% if info.repo and #info.repo > 0 then %}

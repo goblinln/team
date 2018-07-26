@@ -1,7 +1,7 @@
 <div class="m-2">
 
     <div class="d-block mt-2">
-        <i class="fa fa-eye mr-1"></i><b class="mr-1">{{summary.title}}</b>的任务<span class="mr-4"></span>
+        <i class="fa fa-eye mr-1"></i><label class="title mr-4">{{summary.title}}的任务</label>
 
         <small>
             <span class="bg-dark text-white p-1">待办中</span><span class="bg-secondary text-white px-2 py-1 mr-2">{{summary.opened}}</span>
@@ -15,9 +15,9 @@
         </div>
     </div>
 
-    <hr class="mx-0 mt-2">
+    <hr class="m-0">
 
-    <div class="mw-100 container">
+    <div class="container mw-100 mt-2">
         {[ session.gantt_mode and "dashboard/tasks/mode_gantt.html" or "dashboard/tasks/mode_normal.html" ]}
     </div>
 </div>

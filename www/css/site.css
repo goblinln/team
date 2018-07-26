@@ -19,21 +19,25 @@
     bottom: 0;
     margin: 0;
     padding: 0;
+    background-color: rgb(222, 222, 222);
 }
 .sidebar ul li a {
     display: block;
     padding: 0.75rem 0;
-    color: rgba(255, 255, 255, .75);
+    color: rgb(70, 70, 70);
+    font-size: .85em;
     text-decoration: none;
 }
+.sidebar ul li a i {
+    font-size: 1.5em;
+}
 .sidebar ul li a:hover {
-    color: rgba(255, 255, 255, 1);
-    background: rgba(0, 0, 0, .1);
+    color: #10af88;
 }
 
 .sidebar ul .active a {
-    color: rgba(255, 255, 255, 1);
-    background: rgba(0, 0, 0, .25);
+    color: #10af88;
+    background: rgba(0, 0, 0, .05);
 }
 
 /* Main block */
@@ -64,12 +68,13 @@
 
 .menu-link {
     display: block;
-    margin-bottom: .25rem;
+    margin-bottom: .3rem;
+    font-size: .95em;
     color: rgb(59, 59, 59);
     text-decoration: none;
 }
 .menu-link:hover, .menublock ul .menu-link.active {
-    color: green;
+    color: #10af88;
     text-decoration: none;
 }
 
@@ -131,16 +136,18 @@
 .btn-link-danger:hover {
     cursor: pointer;
     color: red;
+    text-decoration: none;
 }
 
 .btn-link {
     cursor: pointer;
+    font-size: .95em;
     color: rgb(59, 59, 59);
 }
 
 .btn-link:hover {
     cursor: pointer;
-    color: green;
+    color: #10af88;
     text-decoration: none;
 }
 
@@ -174,9 +181,15 @@
     cursor: pointer;
     text-transform: none;
 }
-.profile-pane-close:hover {    
+.profile-pane-close:hover {
     background: lightgrey;
 }
 .profile-pane-close:focus {
     outline: 0;
+}
+
+/** Fonts */
+.title {
+    font-size: .95em;
+    font-weight: bold;
 }
