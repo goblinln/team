@@ -90,10 +90,28 @@ function user:get_names(...)
     return ret;
 end
 
+-- 修改名字
+function user:set_name(name)
+    if not session.uid then return end;
+
+    local ok, err = false, '';
+
+    xpcall(function()
+        self:exec("UPDATE `users` SET name=?1 WHERE id=?2", name, session.uid);
+        session.name = name;
+        ok = true;
+    end, function(e)
+        err = e;
+    end)
+    
+    return ok, err;
+end
+
 -- 修改头像
 function user:set_avatar(url)
     if not session.uid then return end;
-    self:exec("UPDATE `users` SET avatar=?1 WHERE id=?2", url, session.uid);
+    self:exec("UPDATE `users` SET avatar=?1 WHERE id=?2", url, session.uid);    
+    session.avatar = url;
 end
 
 -- 修改密码

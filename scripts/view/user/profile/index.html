@@ -1,12 +1,15 @@
 <div class="container p-4 h-100">
     <div class="text-center">
         <img id="profile-avatar" src="{{session.avatar}}" width="80px" height="80px" class="rounded-circle mb-2" data-toggle="modal" data-target="#mdl-mod-avatar">
-        <h3>{{session.name}}</h3>
+        <div id="profile-name">
+            <h3>{{session.name}}<sup><i class="fa fa-pencil-square-o ml-1 btn-link" onclick="return open_edit_name();"></i></sup></h3>
+        </div>
+        
         <p class="text-muted">{{session.account}}</p>
         <button type="button" class="btn btn-primary mt-4" data-toggle="modal" data-target="#mdl-mod-pswd">修改密码</button><br>
         <a class="text-center profile-pane-close text-muted" onclick="return closeProfile();" style="font-size: 1.5em;">
             <i class="fa fa-close"></i>
-        </a>   
+        </a>
     </div>
 </div>
 
@@ -68,6 +71,38 @@ $('#profile-pane .modal').on('shown.bs.modal', function(e) {
     var mask = $('.modal-backdrop').detach();
     mask.appendTo('#profile-pane');
 });
+
+function open_edit_name() {
+    var org = $('#profile-name h3');
+    var name = org.text();
+    var input = $('<input type="text" class="form-control">');
+
+    input.val(name);
+    input.keydown(function(ev) {
+        if (ev.keyCode == 13) {
+            mod_user_name($(this).val(), org);
+        } else if (ev.keyCode == 27) {
+            $('#profile-name').empty();
+            $('#profile-name').append(org);
+        }
+    });
+
+    $('#profile-name').empty();
+    $('#profile-name').append(input);
+    input.focus();
+}
+
+function mod_user_name(name, dom) {
+    $.post('/user/profile/set_name', {name: name}, function(ret) {
+        if (ret.ok) {
+            dom.text(name);
+            $('#navbar-name').text(name);
+        }
+
+        $('#profile-name').empty();
+        $('#profile-name').append(dom);
+    });
+}
 
 function mod_avatar() {
     $('#form-mod-avatar').ajaxSubmit({

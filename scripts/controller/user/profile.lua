@@ -11,6 +11,14 @@ function profile:index(req, rsp)
     rsp:html('user/profile/index.html');
 end
 
+-- 修改名字
+function profile:set_name(req, rsp)
+    if req.method ~= 'POST' then return rsp:error(405) end;
+    if req.post.name == session.name then return rsp:json{ ok = false } end;
+    local ok, err = M('user'):set_name(req.post.name);
+    rsp:json{ok = ok, err_msg = err};
+end
+
 -- 修改头像
 function profile:set_avatar(req, rsp)
     if req.method ~= 'POST' then return rsp:error(405) end;
@@ -28,8 +36,6 @@ function profile:set_avatar(req, rsp)
     local url = '/' .. to;
     
     M('user'):set_avatar(url);
-    session.avatar = url;
-
     rsp:json({ ok = true, url = url });
 end
 
