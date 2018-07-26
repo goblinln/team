@@ -151,6 +151,17 @@
     text-decoration: none;
 }
 
+.task-link {
+    cursor: pointer;
+    color: rgb(59, 59, 59);
+}
+
+.task-link:hover {
+    cursor: pointer;
+    color: #10af88;
+    text-decoration: none;
+}
+
 /* Profile panel */
 .profile-pane {
     position: absolute;
