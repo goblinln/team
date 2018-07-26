@@ -110,10 +110,10 @@
         <label class="text-muted">动态</label>
         <hr class="mt-0 mb-2">
 
-        <ul class="px-4">
+        <ul class="px-0" style="list-style-type: none;font-size: .8em;">
             {% for _, ev in ipairs(task.events) do %}
             <li class="text-muted">
-                {{ev.user}} <b>{{ev.event_desc}}</b> {{ev.timepoint}}
+                <i class="fa fa-calendar mr-1"></i><span class="mr-1">{{tostring(ev.timepoint)}}</span><b class="mr-1">{{ev.user}}</b>{{ev.event_desc}} 
             </li>
             {% end %}
         </ul>
