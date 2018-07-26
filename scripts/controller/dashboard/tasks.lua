@@ -58,22 +58,24 @@ tasks.events = {
 -- 任务主页
 function tasks:index(req, rsp)
     local tasks_    = M('tasks'):get_mine('(creator=' .. session.uid .. ' OR assigned=' .. session.uid .. ')');
-    local parsed    = self:__process(session.name .. '【所有】', tasks_, true);
+    local parsed    = self:__process(session.name .. '【所有】', tasks_);
 
     parsed.dashboard_menu = 'tasks';
+    parsed.mine = self:__process_mine(tasks_);
     rsp:html('dashboard/tasks/index.html', parsed);
 end
 
 -- 取得一个任务的信息
 function tasks:info(req, rsp)
     if req.method ~= 'POST' then return rsp:error(405) end;
+
     local task_ = M('tasks'):get(req.post.id);
     self:__process_event(task_.events);
     rsp:html('dashboard/tasks/task_info.html', {
         task        = task_,
-        events      = self.events,
         tags        = self.tags,
         weights     = self.weights,
+        is_admin    = M('projects'):is_admin(task_.info.pid),
         members     = M('projects'):get_members(task_.info.pid),
     });
 end
@@ -81,12 +83,12 @@ end
 -- 查看任务信息，不可编辑
 function tasks:readonly_info(req, rsp)
     if req.method ~= 'POST' then return rsp:error(405) end;
+
     local task_ = M('tasks'):get(req.post.id);
     self:__process_event(task_.events);
     rsp:html('dashboard/tasks/task_info_readonly.html', {
         enable_archive  = req.post.enable_archive,
         task            = task_,
-        events          = self.events,
         tags            = self.tags,
         weights         = self.weights
     });
@@ -217,12 +219,14 @@ end
 
 -- 选出我发布的任务
 function tasks:create_by_me(req, rsp)
-    self:__layout_tasks(rsp, session.name .. '【发布】', M('tasks'):get_mine('creator=' .. session.uid));
+    local tasks_ = M('tasks'):get_mine('creator=' .. session.uid);
+    self:__layout_tasks(rsp, session.name .. '【发布】', tasks_);
 end
 
 -- 选出指派给我的任务
 function tasks:assigned_to_me(req, rsp)
-    self:__layout_tasks(rsp, '【指派给】' .. session.name, M('tasks'):get_mine('assigned=' .. session.uid));
+    local tasks_ = M('tasks'):get_mine('assigned=' .. session.uid);
+    self:__layout_tasks(rsp, '【指派给】' .. session.name, tasks_);
 end
 
 -- 选出指定任务等级的任务
@@ -240,52 +244,15 @@ end
 -----------------------------------------------------------
 
 -- 布局任务列表
-function tasks:__layout_tasks(rsp, title, tasks_, process_mine) 
-    rsp:html('dashboard/tasks/view_tasks.html', self:__process(title, tasks_, process_mine));
-end
-
--- 分析事件，解析等
-function tasks:__process_event(evs)
-    for _, info in ipairs(evs) do
-        info.timepoint = tostring(info.timepoint);
-        if info.event == self.events.CREATE then
-            info.event_desc = (_ ~= #evs and '重新' or '') .. '发布了任务';
-        elseif info.event == self.events.START then
-            info.event_desc = '开始了任务';
-        elseif info.event == self.events.CLOSED then
-            info.event_desc = '完成了任务';
-        elseif info.event == self.events.ARCHIVED then
-            info.event_desc = '归档了任务';
-        elseif info.event == self.events.MODIFY_STARTTIME then
-            info.event_desc = '修改任务开始时间 : ' .. info.addition[1] .. ' > ' .. info.addition[2];
-        elseif info.event == self.events.MODIFY_ENDTIME then      
-            info.event_desc = '修改任务结束时间 : ' .. info.addition[1] .. ' > ' .. info.addition[2];
-        elseif info.event == self.events.MODIFY_ASSIGNED then
-            info.event_desc = '修改任务指派：' .. info.addition[1] .. ' > ' .. info.addition[2];
-        elseif info.event == self.events.MODIFY_WEIGHT then            
-            info.event_desc = '修改任务优先级 : ' .. self.weights[info.addition[1]].title .. ' > ' .. self.weights[info.addition[2]].title;
-        elseif info.event == self.events.MODIFY_TAGS then
-            info.event_desc = '修改任务标签';
-        elseif info.event == self.events.MODIFY_CONTANT then
-            info.event_desc = '修改任务内容';
-        else
-            info.event_desc = '对任务其他内容进行了修改';
-        end
-    end
+function tasks:__layout_tasks(rsp, title, tasks_, readonly) 
+    rsp:html('dashboard/tasks/view_tasks.html', self:__process(title, tasks_, readonly));
 end
 
 -- 分析任务，分组等
-function tasks:__process(title, tasks_, process_mine)
+function tasks:__process(title, tasks_, readonly)
     local opened, closed, underway, delayed, gantt_data, gantt_map = {}, {}, {}, {}, {}, {};
     local summary = { title = title, opened = 0, closed = 0, underway = 0, delayed = 0 };
     local now = os.time();
-
-    local mine = {
-        create_by_me    = 0,
-        assigned_to_me  = 0,
-        weights         = {},
-        projects        = {},
-    };
 
     for _, info in ipairs(tasks_) do
         local gantt_color = 'grey';
@@ -316,22 +283,6 @@ function tasks:__process(title, tasks_, process_mine)
             gantt_color = 'lightgreen';
         end
 
-        if process_mine then
-            if info.creator == session.uid then
-                mine.create_by_me = mine.create_by_me + 1;
-            end
-            
-            if info.assigned == session.uid then
-                mine.assigned_to_me = mine.assigned_to_me + 1;
-            end
-
-            mine.weights[info.weight] = mine.weights[info.weight] or 0;
-            mine.weights[info.weight] = mine.weights[info.weight] + 1;
-
-            mine.projects[info.pid] = mine.projects[info.pid] or { name = info.pname, count = 0 };
-            mine.projects[info.pid].count = mine.projects[info.pid].count + 1;
-        end
-
         if not gantt_map[info.assigned] then
             table.insert(gantt_data, {
                 id = info.assigned,
@@ -352,9 +303,9 @@ function tasks:__process(title, tasks_, process_mine)
 
     return {
         summary     = summary,
-        mine        = process_mine and mine or nil;
         tags        = self.tags,
         weights     = self.weights,
+        readonly    = readonly,
         gantt_data  = #gantt_data == 0 and '[]' or json.encode(gantt_data),
         tasks       = {
             opened      = opened,
@@ -363,6 +314,64 @@ function tasks:__process(title, tasks_, process_mine)
             delayed     = delayed,
         }
     }
+end
+
+-- 分析当前用户的任务
+function tasks:__process_mine(tasks_)
+    local mine = {
+        create_by_me    = 0,
+        assigned_to_me  = 0,
+        weights         = {},
+        projects        = {},
+    };
+
+    for _, info in ipairs(tasks_) do
+        if info.creator == session.uid then
+            mine.create_by_me = mine.create_by_me + 1;
+        end
+        
+        if info.assigned == session.uid then
+            mine.assigned_to_me = mine.assigned_to_me + 1;
+        end
+
+        mine.weights[info.weight] = mine.weights[info.weight] or 0;
+        mine.weights[info.weight] = mine.weights[info.weight] + 1;
+
+        mine.projects[info.pid] = mine.projects[info.pid] or { name = info.pname, count = 0 };
+        mine.projects[info.pid].count = mine.projects[info.pid].count + 1;
+    end
+
+    return mine;
+end
+
+-- 分析事件，解析等
+function tasks:__process_event(evs)
+    for _, info in ipairs(evs) do
+        info.timepoint = tostring(info.timepoint);
+        if info.event == self.events.CREATE then
+            info.event_desc = (_ ~= #evs and '重新' or '') .. '发布了任务';
+        elseif info.event == self.events.START then
+            info.event_desc = '开始了任务';
+        elseif info.event == self.events.CLOSED then
+            info.event_desc = '完成了任务';
+        elseif info.event == self.events.ARCHIVED then
+            info.event_desc = '归档了任务';
+        elseif info.event == self.events.MODIFY_STARTTIME then
+            info.event_desc = '修改任务开始时间 : ' .. info.addition[1] .. ' > ' .. info.addition[2];
+        elseif info.event == self.events.MODIFY_ENDTIME then      
+            info.event_desc = '修改任务结束时间 : ' .. info.addition[1] .. ' > ' .. info.addition[2];
+        elseif info.event == self.events.MODIFY_ASSIGNED then
+            info.event_desc = '修改任务指派：' .. info.addition[1] .. ' > ' .. info.addition[2];
+        elseif info.event == self.events.MODIFY_WEIGHT then            
+            info.event_desc = '修改任务优先级 : ' .. self.weights[info.addition[1]].title .. ' > ' .. self.weights[info.addition[2]].title;
+        elseif info.event == self.events.MODIFY_TAGS then
+            info.event_desc = '修改任务标签';
+        elseif info.event == self.events.MODIFY_CONTANT then
+            info.event_desc = '修改任务内容';
+        else
+            info.event_desc = '对任务其他内容进行了修改';
+        end
+    end
 end
 
 return tasks;

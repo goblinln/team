@@ -35,7 +35,7 @@ function open_task(tid) {
     $('#task-view').removeClass('invisible');
     $('#task-view').addClass('visible');
 
-    $.post('/dashboard/tasks/info', {id : tid}, function(ret) {
+    $.post("{*readonly and '/dashboard/tasks/readonly_info' or '/dashboard/tasks/info'*}", {id : tid}, function(ret) {
         $('#task-info-pane').empty();
         $('#task-info-pane').append($(ret));
     }, 'html');

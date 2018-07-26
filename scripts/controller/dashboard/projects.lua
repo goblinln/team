@@ -50,7 +50,8 @@ function projects:get_tasks(req, rsp)
     if req.method ~= 'POST' then return rsp:error(405) end;
 
     local tasks = M('tasks'):get_by_proj(req.post.pid);
-    C('dashboard/tasks'):__layout_tasks(rsp, req.post.pname, tasks);
+    local is_admin = M('projects'):is_admin(req.post.pid);
+    C('dashboard/tasks'):__layout_tasks(rsp, req.post.pname, tasks, not is_admin);
 end
 
 -- 取得指定项目成员信息

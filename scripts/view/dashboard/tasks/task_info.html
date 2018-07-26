@@ -30,7 +30,8 @@
             </div>
         </div>
 
-        <!-- 时间 -->
+        <!-- 时间: 只有项目管理员可以更改时间 -->
+        {% if is_admin then %}
         <div class="dropdown">
             <div class="btn-link px-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="fa fa-calendar mr-1"></i>{{tostring(task.info.start_time) .. ' ~ ' .. tostring(task.info.end_time)}}
@@ -55,6 +56,13 @@
                 </div>
             </form>
         </div>
+        {% else %}
+        <div>
+            <div class="px-2">
+                <i class="fa fa-calendar mr-1"></i>{{tostring(task.info.start_time) .. ' ~ ' .. tostring(task.info.end_time)}}
+            </div>
+        </div>
+        {% end %}
         
         <!-- 状态 -->
         <div class="dropdown">
