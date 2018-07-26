@@ -80,6 +80,8 @@ $('#form-create-task .form-datetime').datetimepicker({
     lang: 'zh'
 });
 
+$('#form-create-task #content').markdown();
+
 function get_members_of_proj(pid) {
     $('#form-create-task #assigned').empty();
     $.post('/dashboard/tasks/members_of_proj', {pid: pid}, function(ret) {
