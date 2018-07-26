@@ -289,13 +289,12 @@ function tasks:__process(title, tasks_, process_mine)
 
     for _, info in ipairs(tasks_) do
         local gantt_color = 'grey';
-        local end_time = os.time(info.end_time);
 
         if info.status == self.status.OPENED then
             table.insert(opened, info);
             summary.opened = summary.opened + 1;
 
-            if end_time <= now then
+            if os.time(info.start_time) <= now then
                 table.insert(delayed, info);
                 summary.delayed = summary.delayed + 1;
                 gantt_color = 'red';
@@ -304,7 +303,7 @@ function tasks:__process(title, tasks_, process_mine)
             table.insert(underway, info);
             summary.underway = summary.underway + 1;
             
-            if end_time <= now then
+            if os.time(info.end_time) <= now then
                 table.insert(delayed, info);
                 summary.delayed = summary.delayed + 1;
                 gantt_color = 'red';
