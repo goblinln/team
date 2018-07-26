@@ -150,7 +150,31 @@ function projects:del_member(pid, uid)
 end
 
 -- 生成周报
-function projects:get_reports(pid, offset)
+function projects:get_reports(pid, week_offset)
+    local report = {};
+    local timepoint = week_offset * 3600 * 24 * 7 + os.time();
+    local calc_start = os.date('*t', timepoint);
+
+    -- 偏移到星期日
+    if calc_start.wday ~= 1 then
+        local sunday = timepoint - (calc_start.wday - 1) * 3600 * 24;
+        calc_start = os.date('*t', sunday);
+    end
+
+    calc_start.hour = 0;
+    calc_start.min = 0;
+    calc_start.sec = 0;
+
+    local week_start = os.time(calc_start);
+    local week_end = week_start + 3600 * 24 * 7;
+
+    report.week = os.date('%U', week_start);
+    report.week_offset = week_offset;
+    report.week_start = os.date('%Y/%m/%d', week_start);
+    report.week_end = os.date('%Y/%m/%d', week_end);
+    
+    M('tasks'):report_for_proj(pid, week_start, week_end, report);
+    return report;
 end
 
 return projects;

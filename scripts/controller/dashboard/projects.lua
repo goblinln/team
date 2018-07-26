@@ -111,11 +111,12 @@ end
 function projects:get_reports(req, rsp)
     if req.method ~= 'POST' then return rsp:error(405) end;
 
-    local reports = M('projects'):get_reports(req.post.pid, req.post.addition);
+    local report = M('projects'):get_reports(req.post.pid, req.post.week_offset or 0);
     rsp:html('dashboard/projects/reports.html', {
         proj_id = req.post.pid,
         proj_name = req.post.pname,
-        reports = reports,
+        weights = C('dashboard/tasks').weights,
+        report = report,
     });
 end
 

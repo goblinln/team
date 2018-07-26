@@ -158,7 +158,7 @@ function del_proj() {
 }
 
 var last_pressed_button = null;
-function get_proj_info(btn, url, id, name, addition) {
+function get_proj_info(btn, url, id, name) {
     if (last_pressed_button) $(last_pressed_button).removeClass('list-group-item-secondary');
     last_pressed_button = btn;
     $(last_pressed_button).addClass('list-group-item-secondary');
@@ -166,7 +166,7 @@ function get_proj_info(btn, url, id, name, addition) {
     $('#project-detail').empty();
     $('#project-detail').get(0).innerHTML = '<div class="text-center text-muted" style="margin-top: 10%"><img src="/www/images/loading.gif" class="mb-4"><h1>努力加载中 ...</h1></div>';
 
-    $.post(url, { pid: id, pname: name, addition: addition }, function(ret) {
+    $.post(url, { pid: id, pname: name }, function(ret) {
         $('#project-detail').empty();
         $('#project-detail').append($(ret));
     }, 'html');

@@ -12,12 +12,8 @@
         {% end %}
     </div>
     
-    {% if enable_archive then %}
-    {% if task.info.status == 4 then %}
-    <button type="button" class="btn btn-primary" onclick="return unarchive('{{task.info.id}}');" style="position: absolute; right: 1em; top: 1em;">重新打开</button>
-    {% else %}
-    <button type="button" class="btn btn-primary" onclick="return archive('{{task.info.id}}');" style="position: absolute; right: 1em; top: 1em;">任务归档</button>
-    {% end %}
+    {% if enable_archive and task.info.status == 3 then %}
+    <a href="#" class="btn-link" onclick="return archive('{{task.info.id}}');" style="position: absolute; right: 1em; top: .5em;"><i class="fa fa-archive mr-1"></i>任务归档</a>
     {% end %}
     <hr class="mx-0 mt-0 mb-1">
 
@@ -41,10 +37,14 @@
         <!-- 状态 -->
         <div>
             <div class="px-2">
-                {% if task.info.status == 4 then %}
-                <i class="fa fa-archive mr-1"></i>已归档
-                {% else %}
+                {% if task.info.status == 1 then %}
                 <i class="fa fa-circle-o mr-1"></i>待办中
+                {% elseif task.info.status == 2 then %}
+                <i class="fa fa-dot-circle-o mr-1"></i>进行中
+                {% elseif task.info.status == 3 then %}
+                <i class="fa fa-check-circle mr-1"></i>已完成
+                {% else %}
+                <i class="fa fa-archive mr-1"></i>已归档
                 {% end %}
             </div>
         </div>
@@ -86,24 +86,13 @@ $(document).ready(function() {
 function close_task() {
     $('#task-view').removeClass('visible');
     $('#task-view').addClass('invisible');
-
-    {% if enable_archive then %}
-    last_pressed_button.click();
-    {% end %}
+    if (location.path = '/dashboard/projects') last_pressed_button.click();
 }
 
-{% if enable_archive then %}
 function archive(tid) {
     $.post('/dashboard/tasks/mod_status', {tid : tid, org_status: 3, new_status : 4}, function() {
         open_task(tid);
     });
 }
-
-function unarchive(tid) {
-    $.post('/dashboard/tasks/mod_status', {tid : tid, org_status: 4, new_status : 1}, function() {
-        open_task(tid);
-    });
-}
-{% end %}
 
 </script>

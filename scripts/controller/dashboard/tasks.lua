@@ -253,7 +253,7 @@ function tasks:__process_event(evs)
         elseif info.event == self.events.START then
             info.event_desc = '开始了任务';
         elseif info.event == self.events.CLOSED then
-            info.event_desc = '关闭了任务';
+            info.event_desc = '完成了任务';
         elseif info.event == self.events.ARCHIVED then
             info.event_desc = '归档了任务';
         elseif info.event == self.events.MODIFY_STARTTIME then

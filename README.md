@@ -2,6 +2,16 @@
 
 一个模仿[Team@OSC](https://team.oschina.net)的`radmine`?
 
+## 重要提醒
+
+因项目在开发期，所以数据表经常变动，升级时请比对`scripts/controller/install/setup.lua`文件，如果表结构发生变化，自行决定升级数据库方式
+
+* 方式一：丢弃旧数据，重新部署  
+
+    手动删除所有表，删除`omni.lock`文件，重启即可
+
+* 方式二：比对文件，自行更改表结构
+
 ## 预览
 
 * 【看板】模式
@@ -30,7 +40,7 @@
 ## 安装
 
 1. Clone
-2. 修改omni.ini中数据库配置
+2. 修改omni.ini中数据库配置。
 3. 运行omni.exe。需要Linux版的，请自行到`OmniWeb`中下载并编译
 
 ## 默认帐号

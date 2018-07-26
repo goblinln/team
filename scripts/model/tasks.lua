@@ -30,6 +30,35 @@ function tasks:get_archivable_by_proj(pid)
     return find;
 end
 
+-- 生成任务周报
+function tasks:report_for_proj(pid, start_time, end_time, to)
+    -- 本周验收的任务
+    to.archived = self:query([[
+        SELECT `id`, `creator`, `assigned`, `name`, `weight`, `tags`, `start_time`, `end_time`, `status`
+        FROM `tasks`
+        WHERE `pid`=?1 AND (`archive_time`>=?2 AND `archive_time`<=?3)]],
+        pid, start_time, end_time);
+
+    -- 本周该验收但未验收的任务
+    to.not_archived = self:query([[
+        SELECT `id`, `creator`, `assigned`, `name`, `weight`, `tags`, `start_time`, `end_time`, `status`
+        FROM `tasks`
+        WHERE `pid`=?1 AND UNIX_TIMESTAMP(`end_time`)<=?2 AND (`archive_time`=-1 OR `archive_time`>?2)]],
+        pid, end_time, start_time);
+
+    local users = M('user'):get_names();
+
+    for _, info in ipairs(to.archived) do
+        info.creator_name = users[info.creator] or '神秘人';
+        info.assigned_name = users[info.assigned] or '神秘人';
+    end
+
+    for _, info in ipairs(to.not_archived) do
+        info.creator_name = users[info.creator] or '神秘人';
+        info.assigned_name = users[info.assigned] or '神秘人';
+    end
+end
+
 -- 取得当前用户的所有任务
 function tasks:get_mine(cond)
     local sql   = [[
@@ -117,10 +146,18 @@ end
 
 -- 修改状态
 function tasks:mod_status(id, status)
-    self:exec([[
-        UPDATE `tasks`
-        SET `status`=?1
-        WHERE `id`=?2]], status, id);
+    if status == C('dashboard/tasks').status.ARCHIVED then
+        self:exec([[
+            UPDATE `tasks`
+            SET `status`=?1, `archive_time`=?2
+            WHERE `id`=?3]], status, os.time(), id);
+    else
+        self:exec([[
+            UPDATE `tasks`
+            SET `status`=?1
+            WHERE `id`=?2]], status, id);
+    end
+    
     self:__add_event(id, status);
     return true;
 end
@@ -162,7 +199,6 @@ function tasks:__on_loaded(tasks_, events_)
         info.creator_name = users[info.creator] or '神秘人';
         info.assigned_name = users[info.assigned] or '神秘人';
         info.tags = json.decode(info.tags or '[]') or {};
-        info.attachments = json.decode(info.attachments or '[]') or {};
     end
 
     for _, info in ipairs(events_ or {}) do
