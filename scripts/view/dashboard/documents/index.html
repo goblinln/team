@@ -169,7 +169,7 @@ $('#treeview').jstree({
                                 },
                                 onSave: function(e) {
                                     $.post('/dashboard/documents/edit', { id: node.id, content: e.getContent() }, function(ret) {
-                                        alert(ret.ok ? '保存成功！' : rsp.err_msg);
+                                        alert(ret.ok ? '保存成功！' : ret.err_msg);
                                     });
                                 }
                             });
