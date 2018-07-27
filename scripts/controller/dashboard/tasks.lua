@@ -25,12 +25,9 @@ tasks.status_desc = {
 -- 任务标记
 tasks.tags = {
     { title = 'BUG', desc = "缺陷", color = 'bg-danger' },
-    { title = 'DUPLICATED', desc = "重复", color = 'bg-warning' },
+    { title = 'QUICKFIX', desc = "快速修正", color = 'bg-secondary' },
     { title = 'ENHANCEMENT', desc = "优化", color = 'bg-info' },
     { title = 'FEATURE', desc = "特性", color = 'bg-success' },
-    { title = 'INVALID', desc = "无效", color = 'bg-dark' },
-    { title = 'QUESTION', desc = "问题", color = 'bg-primary' },
-    { title = 'WONTFIX', desc = "不修复", color = 'bg-secondary' },
 }
 
 -- 任务优先级
