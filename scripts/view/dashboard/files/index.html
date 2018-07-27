@@ -1,7 +1,7 @@
 {% layout = 'dashboard/layout_dashboard.html' %}
 
 <div class="container p-4">
-    <button type="button" class="btn btn-default mb-4" data-toggle="modal" data-target="#mdl-share-file">
+    <button type="button" class="btn btn-default mb-4" onclick="return open_share_file();">
         <i class="fa fa-upload mr-1"></i>上传文件
     </button>
 
@@ -53,6 +53,10 @@
                             <input id="share-file-selector" name="file" type="file" class="form-control" required autofocus>
                         </div>
                     </form>
+
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar" style="width: 0%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" onclick="return share_file();">确  定</button>
@@ -94,6 +98,12 @@ $('.modal').on('shown.bs.modal', function(e) {
     $('.modal #err').empty();
 });
 
+function open_share_file() {
+    $('#mdl-share-file .progress').hide();
+    $('#mdl-share-file .progress-bar').css('width', '0%');
+    $('#mdl-share-file').modal('show');
+}
+
 function confirm_del_share(id, name) {
     $('#mdl-del-share-file #del_share_file_id').val(id);
     $('#mdl-del-share-file #del_share_file').text(name);
@@ -101,9 +111,17 @@ function confirm_del_share(id, name) {
 }
 
 function share_file() {
+    $('#form-share-file').hide();
+    $('#mdl-share-file .progress').show();
+
     $('#form-share-file').ajaxSubmit({
         dataType: 'json',
+        uploadProgress: function(ev, pos, total, percent) {            
+            $('#mdl-share-file .progress-bar').css('width', '' + (percent * 100) + '%');
+        },
         success: function(ret) {
+            $('#form-share-file').show();
+
             if (ret.ok) {
                 $('.modal').modal('hide');
                 location.reload();
