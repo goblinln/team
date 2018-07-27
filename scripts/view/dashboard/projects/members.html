@@ -167,7 +167,7 @@ $('#mdl-add-member').on('show.bs.modal', function(e) {
 
             $('#mdl-add-member #uid').val(ret.users[0].uid);
         } else {
-            $('#mdl-add-member #wating').hide();
+            $('#mdl-add-member #waiting').hide();
             showError('#mdl-add-member #err', '获取邀请成员列表失败！', ret.err_msg);
         }
     }, 'json');
