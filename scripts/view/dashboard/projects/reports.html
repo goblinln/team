@@ -8,14 +8,14 @@
         <a href="#" class="btn-link" onclick="return goto_week('{{report.week_offset + 1}}');" style="font-size: 2.5em"><i class="fa fa-chevron-circle-right"></i></a>
     </div>
 
-    <div class="container mt-4">
+    <div class="container-fluid mt-4">
         <div class="row">
             <div class="col-md-6">
                 <h5><i class="fa fa-smile-o mr-2"></i>已验收的任务 <small class="badge badge-light">{{#report.archived}}</small></h5>
                 <hr>
-                <ul class="mt-4 px-0" style="list-style-type: none">
+                <ul class="mt-2 px-0" style="list-style-type: none">
                     {% for _, task in ipairs(report.archived) do %}
-                    <li class="d-inline-block text-truncate text-muted mw-100">
+                    <li class="d-block text-truncate text-muted mw-100 mb-1">
                         <i class="fa fa-calendar-check-o text-success"></i>
                         <a href="#" class="task-link" onclick="return open_task('{{task.id}}');">{{task.name}}</a>
                         <span class="badge badge-secondary text-white ml-1">{{task.creator_name}}</span><i class="fa fa-chevron-right mx-1"></i><span class="badge badge-secondary text-white">{{task.assigned_name}}</span>
@@ -26,9 +26,9 @@
             <div class="col-md-6">
                 <h5><i class="fa fa-frown-o mr-2"></i>未验收的任务 <small class="badge badge-light">{{#report.not_archived}}</small></h5>
                 <hr>
-                <ul class="mt-4 px-0" style="list-style-type: none">
+                <ul class="mt-2 px-0" style="list-style-type: none">
                     {% for _, task in ipairs(report.not_archived) do %}
-                    <li class="d-inline-block text-truncate text-muted mw-100">
+                    <li class="d-block text-truncate text-muted mw-100 mb-1">
                         <i class="fa fa-calendar-times-o text-danger mr-1"></i><span class="text-danger">{{string.format('%04d.%02d.%02d', task.end_time.year, task.end_time.month, task.end_time.day)}}</span>
                         <a href="#" class="task-link" onclick="return open_task('{{task.id}}');">{{task.name}}</a>
                         <span class="badge badge-secondary text-white ml-1">{{task.creator_name}}</span><i class="fa fa-chevron-right mx-1"></i><span class="badge badge-secondary text-white">{{task.assigned_name}}</span>

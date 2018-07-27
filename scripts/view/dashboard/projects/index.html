@@ -36,7 +36,7 @@
                     <a href="#" class="list-group-item list-group-item-action py-1" onclick="return get_proj_info(this, '/dashboard/projects/get_tasks', '{{info.id}}', '{{info.name}}');">任务计划</a>
                     <a href="#" class="list-group-item list-group-item-action py-1" onclick="return get_proj_info(this, '/dashboard/projects/get_reports', '{{info.id}}', '{{info.name}}');">项目周报</a>
                     {% if info.is_admin == 1 then %}
-                    <a href="#" class="list-group-item list-group-item-action py-1" onclick="return get_proj_info(this, '/dashboard/projects/get_can_archive', '{{info.id}}', '{{info.name}}');">归档管理</a>
+                    <a href="#" class="list-group-item list-group-item-action py-1" onclick="return get_proj_info(this, '/dashboard/projects/get_can_archive', '{{info.id}}', '{{info.name}}');">验收管理</a>
                     <a href="#" class="list-group-item list-group-item-action py-1" onclick="return get_proj_info(this, '/dashboard/projects/get_members', '{{info.id}}', '{{info.name}}');">管理成员</a>
                     {% end %}
                 </div>

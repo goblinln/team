@@ -13,7 +13,7 @@
     </div>
     
     {% if enable_archive and task.info.status == 3 then %}
-    <a href="#" class="btn-link" onclick="return archive('{{task.info.id}}');" style="position: absolute; right: 1em; top: .5em;"><i class="fa fa-archive mr-1"></i>任务归档</a>
+    <a href="#" class="btn-link" onclick="return archive('{{task.info.id}}');" style="position: absolute; right: 1em; top: .5em;"><i class="fa fa-archive mr-1"></i>验收任务</a>
     {% end %}
     <hr class="mx-0 mt-0 mb-1">
 
@@ -44,7 +44,7 @@
                 {% elseif task.info.status == 3 then %}
                 <i class="fa fa-check-circle mr-1"></i>已完成
                 {% else %}
-                <i class="fa fa-archive mr-1"></i>已归档
+                <i class="fa fa-archive mr-1"></i>已验收
                 {% end %}
             </div>
         </div>

@@ -19,7 +19,7 @@ tasks.status_desc = {
     '待办中',
     '进行中',
     '已完成',
-    '已归档',
+    '已验收',
 }
 
 -- 任务标记
@@ -355,7 +355,7 @@ function tasks:__process_event(evs)
         elseif info.event == self.events.CLOSED then
             info.event_desc = '完成了任务';
         elseif info.event == self.events.ARCHIVED then
-            info.event_desc = '归档了任务';
+            info.event_desc = '验收了任务';
         elseif info.event == self.events.MODIFY_STARTTIME then
             info.event_desc = '修改任务开始时间 : ' .. info.addition[1] .. ' > ' .. info.addition[2];
         elseif info.event == self.events.MODIFY_ENDTIME then      

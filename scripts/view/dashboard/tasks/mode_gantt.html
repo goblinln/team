@@ -1,5 +1,12 @@
-<div class="text-center p-2" style="overflow: auto">    
-    <div id="gantt-view"></div>
+<div class="text-center p-2" style="overflow: auto">
+    <small>
+        <span class="bg-dark text-white p-1">待办中</span><span class="bg-secondary text-white px-2 py-1 mr-2">{{summary.opened}}</span>
+        <span class="bg-dark text-white p-1">进行中</span><span class="bg-info text-white px-2 py-1 mr-2">{{summary.underway}}</span>
+        <span class="bg-dark text-white p-1">已滞后</span><span class="bg-danger text-white px-2 py-1 mr-2">{{summary.delayed}}</span>
+        <span class="bg-dark text-white p-1">已完成</span><span class="bg-success text-white px-2 py-1 mr-2">{{summary.closed}}</span>
+    </small>
+
+    <div id="gantt-view" class="mt-3"></div>
 </div>
 
 <script type='text/javascript'>
