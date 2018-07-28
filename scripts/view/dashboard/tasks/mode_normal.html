@@ -1,13 +1,13 @@
 <div class="row">
     <div class="col-3">
-        <div class="card text-white border-0 rounded-0" style="font-size: .9em;">
-            <div class="card-header px-2 py-1 bg-secondary rounded-0">
+        <div class="card border-0 rounded-0" style="font-size: .9em;">
+            <div class="card-header text-white px-2 py-1 bg-secondary rounded-0">
                 <i class="fa fa-circle-o mr-2"></i>待办中<span class="badge badge-light mt-1 pull-right">{{summary.opened}}</span>
             </div>
 
-            <div class="card-body m-0 p-0" style="background: lightgray">
+            <div class="card-body m-0 p-0" style="background: #eee">
                 {% for _, info in ipairs(tasks.opened) do %}
-                <div id="task-card-{{info.id}}" class="card text-dark m-1 rounded-0">
+                <div class="card task-card m-1 rounded-0">
                     <div class="card-body m-0 py-1 px-2">
                         <span class="d-inline-block text-truncate mw-100">                            
                             <span class="{{weights[info.weight].color}}">【{{weights[info.weight].title}}】</span>
@@ -36,14 +36,14 @@
         </div>
     </div>
     <div class="col-3">
-        <div class="card text-white border-0 rounded-0" style="font-size: .9em;">
-            <div class="card-header px-2 py-1 rounded-0 bg-info">
+        <div class="card border-0 rounded-0" style="font-size: .9em;">
+            <div class="card-header text-white px-2 py-1 rounded-0 bg-info">
                 <i class="fa fa-dot-circle-o mr-2"></i>进行中<span class="badge badge-light mt-1 pull-right">{{summary.underway}}</span>
             </div>
 
-            <div class="card-body m-0 p-0" style="background-color: lightgray;">
+            <div class="card-body m-0 p-0" style="background-color: #eee;">
                 {% for _, info in ipairs(tasks.underway) do %}
-                <div id="task-card-{{info.id}}" class="card text-dark m-1 rounded-0">
+                <div class="card task-card m-1 rounded-0">
                     <div class="card-body m-0 py-1 px-2">
                         <span class="d-inline-block text-truncate mw-100">                            
                             <span class="{{weights[info.weight].color}}">【{{weights[info.weight].title}}】</span>
@@ -72,14 +72,14 @@
         </div>
     </div>
     <div class="col-3">
-        <div class="card text-white border-0 rounded-0" style="font-size: .9em;">
-            <div class="card-header px-2 py-1 rounded-0 bg-danger">
+        <div class="card border-0 rounded-0" style="font-size: .9em;">
+            <div class="card-header text-white px-2 py-1 rounded-0 bg-danger">
                 <i class="fa fa-exclamation-circle mr-2"></i>已滞后<span class="badge badge-light mt-1 pull-right">{{summary.delayed}}</span>
             </div>
 
-            <div class="card-body m-0 p-0" style="background-color: lightgray">
+            <div class="card-body m-0 p-0" style="background-color: #eee">
                 {% for _, info in ipairs(tasks.delayed) do %}
-                <div id="task-card-{{info.id}}" class="card text-dark m-1 rounded-0">
+                <div class="card task-card m-1 rounded-0">
                     <div class="card-body m-0 py-1 px-2">
                         <span class="d-inline-block text-truncate mw-100">                            
                             <span class="{{weights[info.weight].color}}">【{{weights[info.weight].title}}】</span>
@@ -108,14 +108,14 @@
         </div>
     </div>
     <div class="col-3">
-        <div class="card text-white border-0 rounded-0" style="font-size: .9em;">
-            <div class="card-header px-2 py-1 rounded-0 bg-success">
+        <div class="card border-0 rounded-0" style="font-size: .9em;">
+            <div class="card-header text-white px-2 py-1 rounded-0 bg-success">
                 <i class="fa fa-check-circle mr-2"></i>已完成<span class="badge badge-light mt-1 pull-right">{{summary.closed}}</span>
             </div>
 
-            <div class="card-body m-0 p-0" style="background-color: lightgray">
+            <div class="card-body m-0 p-0" style="background-color: #eee">
                 {% for _, info in ipairs(tasks.closed) do %}
-                <div id="task-card-{{info.id}}" class="card text-dark m-1 rounded-0">
+                <div class="card task-card m-1 rounded-0">
                     <div class="card-body m-0 py-1 px-2">
                         <span class="d-inline-block text-truncate mw-100">                            
                             <span class="{{weights[info.weight].color}}">【{{weights[info.weight].title}}】</span>
