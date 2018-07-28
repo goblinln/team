@@ -43,6 +43,9 @@
 * 文档视图
 ![Documents](/preview/documents.png)
 
+* 文件分享
+![Share](/preview/share.png)
+
 ## 使用技术
 
 * [OmniWeb](https://gitee.com/love_linger/OmniWeb.git)
