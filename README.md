@@ -15,21 +15,33 @@
     * 项目视图中的任务列表
     * 任务的归档管理
 
-3. 归档操作，即是验收操作！
+3. 验收操作也是归档操作！
 
 ## 预览
 
-* 【看板】模式
+* 任务视图 - 【看板】模式
 ![Tasks](/preview/preview.png)
 
-* 【甘特图】模式
+* 任务视图 - 【甘特图】模式
 ![Gantt](/preview/gantt.png)
 
-* 发布任务预览
+* 任务视图 - 任务详情
+![TaskInfo](/preview/task.png)
+
+* 任务视图 - 发布任务预览
 ![Publish](/preview/publish.png)
 
-* 项目周报
+* 项目视图 - 项目周报
 ![Reports](/preview/reports.png)
+
+* 项目视图 - 验收管理
+![Archive](/preview/archive.png)
+
+* 项目视图 - 成员管理
+![Members](/preview/members.png)
+
+* 文档视图
+![Documents](/preview/documents.png)
 
 ## 使用技术
 
