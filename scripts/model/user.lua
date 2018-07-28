@@ -185,6 +185,7 @@ end
 -- 删除用户
 function user:del(id)
     self:exec([[DELETE FROM `users` WHERE `id`=?1]], id);
+    self:exec([[DELETE FROM `project_members` WHERE `uid`=?1]], id);
 end
 
 -----------------------------------------------------------
