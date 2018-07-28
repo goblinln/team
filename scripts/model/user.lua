@@ -13,26 +13,28 @@ function user:login(req, rsp)
     local account   = req.post.account;
     local pswd      = md5(req.post.pswd);
     local remember  = req.post.remember_me;
-    local find      = self:query("SELECT * FROM `users` WHERE `account`=?1", account);
+    local find      = self:query("SELECT * FROM `users` WHERE `account`=?1", account)[1];
 
-    if #find == 0 then
+    if not find then
         return false, '帐号不存在！';
-    elseif find[1].pswd ~= pswd then
+    elseif find.is_locked == 1 then
+        return false, '帐号已被禁止登录，请联系管理员解除锁定！';
+    elseif find.pswd ~= pswd then
         return false, '帐号名或密码不正确！';
     else
         if remember then
             local expire    = 30 * 3600 * 24;
             local token     = b64.encode(json.encode{
-                account = find[1].account,
+                account = find.account,
                 ip      = req.remote,
-                sign    = md5(find[1].account .. '|' .. req.remote .. '|' .. self.SECRET_AUTOLOGIN),
+                sign    = md5(find.account .. '|' .. req.remote .. '|' .. self.SECRET_AUTOLOGIN),
             });
             token = string.gsub(token, '\n', '');
             rsp:cookie('login_token', token, expire, '/');            
             self:exec("UPDATE `users` SET auto_login_expire=?1 WHERE id=?2", os.time() + expire, find[1].id)
         end
 
-        self:__on_login(find[1]);
+        self:__on_login(find);
         return true;
     end
 end
@@ -47,9 +49,9 @@ function user:auto_login(req, rsp)
     if data.account and data.ip == req.remote then
         local sign = md5(data.account .. '|' .. req.remote .. '|' .. self.SECRET_AUTOLOGIN);
         if sign == data.sign then
-            local find = self:query("SELECT * FROM `users` WHERE account=?1", data.account);
-            if #find == 1 and find[1].auto_login_expire > os.time() then
-                self:__on_login(find[1]);
+            local find = self:query("SELECT * FROM `users` WHERE account=?1", data.account)[1];
+            if find and find.is_locked == 0 and find.auto_login_expire > os.time() then
+                self:__on_login(find);
                 ok = true;
             end
         end
@@ -127,7 +129,7 @@ end
 
 -- 取出所有的用户
 function user:all()
-    local find = self:query([[SELECT `id`,`account`,`name`,`is_su` FROM `users`]]);
+    local find = self:query([[SELECT `id`,`account`,`name`,`is_su`,`is_locked` FROM `users`]]);
     return find;
 end
 
@@ -162,6 +164,22 @@ function user:edit(id, account, name, is_su)
     end)
 
     return ok, err;
+end
+
+-- 锁定用户登录
+function user:disable_login(id)
+    self:exec([[
+        UPDATE `users`
+        SET `auto_login_expire`=0, `is_locked`=1
+        WHERE `id`=?1]], id);
+end
+
+-- 解锁帐号
+function user:unlock_login(id, pswd)
+    self:exec([[
+        UPDATE `users`
+        SET `is_locked`=0
+        WHERE `id`=?1]], id);
 end
 
 -- 删除用户

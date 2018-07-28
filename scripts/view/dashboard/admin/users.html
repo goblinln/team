@@ -22,6 +22,11 @@
                 <td><i class="fa {{info.is_su == 1 and 'fa-check-square-o' or 'fa-square-o'}}"></i></td>
                 <td>
                     <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#mdl-edit-user" data-id="{{info.id}}" data-account="{{info.account}}" data-name="{{info.name}}" data-issu="{{info.is_su}}">修 改</button>
+                    {% if info.is_locked == 1 then %}
+                    <button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#mdl-unlock-user" data-id="{{info.id}}" data-name="{{info.name}}">解 锁</button>
+                    {% else %}
+                    <button type="button" class="btn btn-sm btn-default" data-toggle="modal" data-target="#mdl-disable-user" data-id="{{info.id}}" data-name="{{info.name}}">禁 用</button>
+                    {% end %}
                     <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#mdl-del-user" data-id="{{info.id}}" data-name="{{info.name}}">删 除</button>
                 </td>
             </tr>            
@@ -111,12 +116,58 @@
     </div>
 </div>
 
+<!-- 解除帐号禁止登录 -->
+<div id="mdl-unlock-user" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog model-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">解锁帐号</h5>
+            </div>
+            <div class="modal-body">
+                <div id="err"></div>
+
+                <form id="form-unlock-user" action="/dashboard/admin/unlock_user" method="POST">
+                    <input id="unlock_user_id" name="id" type="number" hidden>
+                    请确认需要解锁的用户：<span id="unlock_user_name" class="text-primary"></span>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="return unlock_user();">确  定</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取  消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 禁用用户但不删除，防止删除用户后，与其关联的任务，文档等显示出“神秘人” -->
+<div id="mdl-disable-user" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog model-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">禁用帐号</h5>
+            </div>
+            <div class="modal-body">
+                <div id="err"></div>
+
+                <form id="form-disable-user" action="/dashboard/admin/disable_user" method="POST">
+                    <input id="disable_user_id" name="id" type="number" hidden>
+                    请确认需要禁用的用户：<span id="disable_user_name" class="text-danger"></span>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="return disable_user();">确  定</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取  消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- 删除用户 -->
 <div id="mdl-del-user" class="modal" tabindex="-1" role="dialog">
     <div class="modal-dialog model-sm" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">修改成员</h5>
+                <h5 class="modal-title">删除用户</h5>
             </div>
             <div class="modal-body">
                 <div id="err"></div>
@@ -144,6 +195,22 @@ $('#mdl-edit-user').on('show.bs.modal', function(e) {
     $('#mdl-edit-user #edit_user_account').val(button.data('account'));
     $('#mdl-edit-user #edit_user_name').val(button.data('name'));
     $('#mdl-edit-user #edit_user_is_su').get(0).checked = (button.data('issu') == 1);
+});
+
+$('#mdl-unlock-user').on('show.bs.modal', function(e) {
+    var button = $(e.relatedTarget);
+
+    $('#mdl-unlock-user #err').empty();
+    $('#mdl-unlock-user #unlock_user_id').val(button.data('id'));
+    $('#mdl-unlock-user #unlock_user_name').text(button.data('name'));
+});
+
+$('#mdl-disable-user').on('show.bs.modal', function(e) {
+    var button = $(e.relatedTarget);
+
+    $('#mdl-disable-user #err').empty();
+    $('#mdl-disable-user #disable_user_id').val(button.data('id'));
+    $('#mdl-disable-user #disable_user_name').text(button.data('name'));
 });
 
 $('#mdl-del-user').on('show.bs.modal', function(e) {
@@ -179,6 +246,36 @@ function edit_user() {
                 open_admin('/dashboard/admin/users');
             } else {
                 showError('#mdl-edit-user #err', '修改用户失败', ret.err_msg);
+            }
+        }
+    });
+}
+
+function unlock_user() {
+    $('#form-unlock-user').ajaxSubmit({
+        dataType: 'json',
+        success: function(ret) {
+            if (ret.ok) {
+                $('.model #err').empty();
+                $('.modal').modal('hide');
+                open_admin('/dashboard/admin/users');
+            } else {
+                showError('#mdl-unlock-user #err', '解锁帐号失败', ret.err_msg);
+            }
+        }
+    });
+}
+
+function disable_user() {
+    $('#form-disable-user').ajaxSubmit({
+        dataType: 'json',
+        success: function(ret) {
+            if (ret.ok) {
+                $('.model #err').empty();
+                $('.modal').modal('hide');
+                open_admin('/dashboard/admin/users');
+            } else {
+                showError('#mdl-disable-user #err', '禁用帐号失败', ret.err_msg);
             }
         }
     });

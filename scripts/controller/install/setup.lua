@@ -15,6 +15,7 @@ setup.struct = {
         `avatar` VARCHAR(128) DEFAULT '/www/images/default_avatar.png',
         `pswd` CHAR(32) NOT NULL,
         `is_su` BOOLEAN DEFAULT 0,
+        `is_locked` BOOLEAN DEFAULT 0,
         `auto_login_expire` INTEGER UNSIGNED DEFAULT 0,
         PRIMARY KEY(`id`)]],
     documents = [[
