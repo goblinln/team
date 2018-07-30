@@ -50,13 +50,12 @@
 
 * [OmniWeb](https://gitee.com/love_linger/OmniWeb.git)
 * [JQuery](https://jquery.com)
-* [JQuery Form](http://plugins.jquery.com/form/)
 * [JQuery Datetimepicker](https://github.com/xdan/datetimepicker)
+* [jsTree](https://www.jstree.com)
 * [Bootstrap 4](http://getbootstrap.com/)
 * [Bootstrap Markdown](https://github.com/toopay/bootstrap-markdown)
 * [FontAwesome 4](http://www.fontawesome.com.cn/)
 * [Gantt Chart](https://github.com/982964399/jQuery-ganttView)
-* [jsTree](https://www.jstree.com)
 
 > 【注】`Bootstrap markdown`是个人定制版，集成了`markedjs`, `mermaidjs`, `katexjs`。
 

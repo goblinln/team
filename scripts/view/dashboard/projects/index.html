@@ -59,7 +59,7 @@
             </div>
             <div class="modal-body">
                 <div id="err"></div>
-                <form id="form-add-proj" action="/dashboard/projects/add" method="POST">
+                <form id="form-add-proj">
                     <div class="form-group">
                         <label for="add-proj-name">项目名</label>
                         <input id="add-proj-name" name="name" type="text" class="form-control" placeholder="项目名理应简短唯一" required autofocus>
@@ -105,7 +105,7 @@
 
                 <div id="err"></div>
                 
-                <form id="form-del-proj" action="/dashboard/projects/delete" method="POST">
+                <form id="form-del-proj">
                     <input id="id" name="id" type="number" hidden>
                     <input id="org_name" name="org_name" type="text" hidden>
 
@@ -132,8 +132,14 @@ $('#mdl-del-proj').on('show.bs.modal', function(e) {
 });
 
 function add_proj() {
-    $('#form-add-proj').ajaxSubmit({
+    $.ajax({
+        url: '/dashboard/projects/add',
+        type: 'POST',
+        data: new FormData(document.getElementById('form-add-proj')),
         dataType: 'json',
+        processData: false,
+        contentType: false,
+        cache: false,
         success: function(rsp) {
             if (rsp.ok) {
                 location.href = '/dashboard/projects/';
@@ -141,12 +147,18 @@ function add_proj() {
                 showError('#mdl-add-proj #err', '创建项目失败', rsp.err_msg);
             }
         }
-    })
+    });
 }
 
 function del_proj() {
-    $('#form-del-proj').ajaxSubmit({
+    $.ajax({
+        url: '/dashboard/projects/delete',
+        type: 'POST',
+        data: new FormData(document.getElementById('form-del-proj')),
         dataType: 'json',
+        processData: false,
+        contentType: false,
+        cache: false,
         success: function(rsp) {
             if (rsp.ok) {
                 location.href = '/dashboard/projects/';
@@ -154,7 +166,7 @@ function del_proj() {
                 showError('#mdl-del-proj #err', '删除项目失败', rsp.err_msg);
             }
         }
-    })
+    });
 }
 
 var last_pressed_button = null;

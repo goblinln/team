@@ -42,8 +42,14 @@
 
 <script>
 function add_proj() {
-    $('#form-add-proj').ajaxSubmit({
+    $.ajax({
+        url: '/dashboard/projects/add',
+        type: 'POST',
+        data: new FormData(document.getElementById('form-add-proj')),
         dataType: 'json',
+        processData: false,
+        contentType: false,
+        cache: false,
         success: function(rsp) {
             if (rsp.ok) {
                 $('#mdl-add-proj #err').empty();
@@ -53,6 +59,6 @@ function add_proj() {
                 showError('#mdl-add-proj #err', '创建项目失败', rsp.err_msg);
             }
         }
-    })
+    });
 }
 </script>

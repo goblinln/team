@@ -45,7 +45,7 @@
             <div class="modal-body">
                 <div id="err"></div>
 
-                <form id="form-add-user" action="/dashboard/admin/add_user" method="POST">
+                <form id="form-add-user">
                     <div class="form-group">
                         <input class="form-control" type="text" name="account" placeholder="帐号" required>
                     </div>
@@ -89,7 +89,7 @@
             <div class="modal-body">
                 <div id="err"></div>
 
-                <form id="form-edit-user" action="/dashboard/admin/edit_user" method="POST">
+                <form id="form-edit-user">
                     <input id="edit_user_id" name="id" type="number" hidden>
 
                     <div class="form-group">
@@ -126,7 +126,7 @@
             <div class="modal-body">
                 <div id="err"></div>
 
-                <form id="form-unlock-user" action="/dashboard/admin/unlock_user" method="POST">
+                <form id="form-unlock-user">
                     <input id="unlock_user_id" name="id" type="number" hidden>
                     请确认需要解锁的用户：<span id="unlock_user_name" class="text-primary"></span>
                 </form>
@@ -149,7 +149,7 @@
             <div class="modal-body">
                 <div id="err"></div>
 
-                <form id="form-disable-user" action="/dashboard/admin/disable_user" method="POST">
+                <form id="form-disable-user">
                     <input id="disable_user_id" name="id" type="number" hidden>
                     请确认需要禁用的用户：<span id="disable_user_name" class="text-danger"></span>
                 </form>
@@ -172,7 +172,7 @@
             <div class="modal-body">
                 <div id="err"></div>
 
-                <form id="form-del-user" action="/dashboard/admin/del_user" method="POST">
+                <form id="form-del-user">
                     <input id="del_user_id" name="id" type="number" hidden>
                     请确认需要删除的用户：<span id="del_user_name" class="text-danger"></span>
                 </form>
@@ -221,78 +221,44 @@ $('#mdl-del-user').on('show.bs.modal', function(e) {
     $('#mdl-del-user #del_user_name').text(button.data('name'));
 });
 
-function add_user() {
-    $('#form-add-user').ajaxSubmit({
+function __post(url, form, dialog, err_title) {
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: new FormData(document.getElementById(form)),
         dataType: 'json',
+        processData: false,
+        contentType: false,
+        cache: false,
         success: function(ret) {
             if (ret.ok) {
                 $('.model #err').empty();
                 $('.modal').modal('hide');
                 open_admin('/dashboard/admin/users');
             } else {
-                showError('#mdl-add-user #err', '添加用户失败', ret.err_msg);
+                showError('#' + dialog + ' #err', err_title, ret.err_msg);
             }
         }
     });
+}
+
+function add_user() {
+    __post('/dashboard/admin/add_user', 'form-add-user', 'mdl-add-user', '添加用户失败');
 }
 
 function edit_user() {
-    $('#form-edit-user').ajaxSubmit({
-        dataType: 'json',
-        success: function(ret) {
-            if (ret.ok) {
-                $('.model #err').empty();
-                $('.modal').modal('hide');
-                open_admin('/dashboard/admin/users');
-            } else {
-                showError('#mdl-edit-user #err', '修改用户失败', ret.err_msg);
-            }
-        }
-    });
+    __post('/dashboard/admin/edit_user', 'form-edit-user', 'mdl-edit-user', '修改用户失败');
 }
 
 function unlock_user() {
-    $('#form-unlock-user').ajaxSubmit({
-        dataType: 'json',
-        success: function(ret) {
-            if (ret.ok) {
-                $('.model #err').empty();
-                $('.modal').modal('hide');
-                open_admin('/dashboard/admin/users');
-            } else {
-                showError('#mdl-unlock-user #err', '解锁帐号失败', ret.err_msg);
-            }
-        }
-    });
+    __post('/dashboard/admin/unlock_user', 'form-unlock-user', 'mdl-unlock-user', '解锁帐号失败');
 }
 
 function disable_user() {
-    $('#form-disable-user').ajaxSubmit({
-        dataType: 'json',
-        success: function(ret) {
-            if (ret.ok) {
-                $('.model #err').empty();
-                $('.modal').modal('hide');
-                open_admin('/dashboard/admin/users');
-            } else {
-                showError('#mdl-disable-user #err', '禁用帐号失败', ret.err_msg);
-            }
-        }
-    });
+    __post('/dashboard/admin/disable_user', 'form-disable-user', 'mdl-disable-user', '禁用帐号失败');
 }
 
 function del_user() {
-    $('#form-del-user').ajaxSubmit({
-        dataType: 'json',
-        success: function(ret) {
-            if (ret.ok) {
-                $('.model #err').empty();
-                $('.modal').modal('hide');
-                open_admin('/dashboard/admin/users');
-            } else {
-                showError('#mdl-del-user #err', '删除用户失败', ret.err_msg);
-            }
-        }
-    });
+    __post('/dashboard/admin/del_user', 'form-del-user', 'mdl-del-user', '删除用户失败');
 }
 </script>

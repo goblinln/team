@@ -36,11 +36,7 @@
             <div class="btn-link px-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="fa fa-calendar mr-1"></i>{{tostring(task.info.start_time) .. ' ~ ' .. tostring(task.info.end_time)}}
             </div>
-            <form id="form-mod-time" class="dropdown-menu p-4" action="/dashboard/tasks/mod_time" method="POST">
-                <input name="tid" type="number" value="{{task.info.id}}" hidden>
-                <input name="org_start" type="string" value="{{task.info.start_time}}" hidden>
-                <input name="org_end" type="string" value="{{task.info.end_time}}" hidden>
-                
+            <form id="form-mod-time" class="dropdown-menu p-4">                
                 <div class="form-group">
                     <label for="start-time">修改开始时间</label>
                     <input type="text" class="form-control form-datetime" id="start-time" name="start_time" value="{{tostring(task.info.start_time)}}" required>
@@ -156,12 +152,13 @@ function mod_assign(uid) {
 }
 
 function mod_time() {
-    $('#form-mod-time').ajaxSubmit({
-        dataType: 'json',
-        success: function(ret) {
-            if (ret.ok) refresh_task_info();
-        }
-    });
+    $.post('/dashboard/tasks/mod_time', {
+        tid: '{{task.info.id}}', 
+        org_start: '{{tostring(task.info.start_time)}}',
+        org_end: '{{tostring(task.info.end_time)}}',
+        start_time : $('#form-mod-time #start-time').val(), 
+        end_time : $('#form-mod-time #end-time').val() 
+    }, refresh_task_info);
 }
 
 function mod_status(status) {

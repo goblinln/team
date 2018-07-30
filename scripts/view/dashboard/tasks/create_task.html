@@ -2,7 +2,7 @@
     <i class="fa fa-bullhorn mr-2"></i>发布新任务
     <hr class="mt-1 mx-0 mb-2">
     
-    <form id="form-create-task" action="/dashboard/tasks/do_create" method="POST">
+    <form id="form-create-task">
         <div class="form-row">
             <div class="form-group col-md-4">
                 <label for="pid">选择项目<b class="text-danger ml-2">*</b></label>
@@ -105,8 +105,14 @@ $(document).ready(function() {
 })
 
 $('#btn-create-commit').click(function() {
-    $('#form-create-task').ajaxSubmit({
+    $.ajax({
+        url: '/dashboard/tasks/do_create',
+        type: 'POST',
+        data: new FormData(document.getElementById('form-create-task')),
         dataType: 'json',
+        processData: false,
+        contentType: false,
+        cache: false,
         success: function(rsp) {
             if (!rsp.ok) {
                 showError('#form-create-task #err', '发布任务失败', rsp.err_msg);

@@ -3,7 +3,7 @@
 <div class="d-flex justify-content-center">
     <div class="card shadow" style="width: 300px; margin-top: 5%">
         <div class="card-body text-center">
-            <img src="/www/images/logo.png" width="64px" height="64px" class="mb-1">
+            <img src="/www/favicon.ico" width="64px" height="64px" class="mb-1">
             <h1>团队协作系统</h1>
             <small>MAKE SOMETHING REAL TOGETHER</small><hr>
 
@@ -34,8 +34,15 @@
 
 $('#form-login').on('submit', function(e) {
     e.preventDefault();
-    $('#form-login').ajaxSubmit({
+
+    $.ajax({
+        url: '/user/login/do_login',
+        type: 'POST',
+        data: new FormData(document.getElementById('form-login')),
         dataType: 'json',
+        processData: false,
+        contentType: false,
+        cache: false,
         success: function(rsp) {
             if (rsp.ok) {
                 location.href = '/dashboard/tasks/';

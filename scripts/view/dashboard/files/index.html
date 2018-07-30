@@ -45,7 +45,7 @@
                 <div class="modal-body">
                     <div id="err"></div>
 
-                    <form id="form-share-file" action="/dashboard/files/upload" method="POST" enctype="multipart/form-data">
+                    <form id="form-share-file">
                         <input type="number" name="is_share" value="1" hidden>
 
                         <div class="form-group">
@@ -76,7 +76,7 @@
                 <div class="modal-body">
                     <div id="err"></div>
 
-                    <form id="form-del-share-file" action="/dashboard/files/delete" method="POST">
+                    <form id="form-del-share-file">
                         <input id="del_share_file_id" name="id" type="number" hidden>
                         请确认需要删除的文件：<span id="del_share_file" class="text-danger"></span>
                     </form>
@@ -114,14 +114,22 @@ function share_file() {
     $('#form-share-file').hide();
     $('#mdl-share-file .progress').show();
 
-    $('#form-share-file').ajaxSubmit({
+    $.ajax({
+        url: '/dashboard/files/upload',
+        type: 'POST',
+        data: new FormData(document.getElementById('form-share-file')),
         dataType: 'json',
-        uploadProgress: function(ev, pos, total, percent) {            
-            $('#mdl-share-file .progress-bar').css('width', '' + (percent * 100) + '%');
+        processData: false,
+        contentType: false,
+        cache: false,
+        xhr: function () {
+            var xhr = new window.XMLHttpRequest();
+            xhr.upload.addEventListener('progress', function(ev) {
+                if (ev.lengthComputable) $('#mdl-share-file .progress-bar').css('width', '' + ((ev.loaded * 1.0 / ev.total) * 100) + '%');
+            }, false);
+            return xhr;
         },
         success: function(ret) {
-            $('#form-share-file').show();
-
             if (ret.ok) {
                 $('.modal').modal('hide');
                 location.reload();
@@ -129,12 +137,18 @@ function share_file() {
                 showError('#mdl-share-file #err', '上传文件失败', '未知问题');
             }
         }
-    })
+    });
 }
 
 function del_share_file() {
-    $('#form-del-share-file').ajaxSubmit({
+    $.ajax({
+        url: '/dashboard/files/delete',
+        type: 'POST',
+        data: new FormData(document.getElementById('form-del-share-file')),
         dataType: 'json',
+        processData: false,
+        contentType: false,
+        cache: false,
         success: function(ret) {
             if (ret.ok) {
                 $('.modal').modal('hide');
@@ -143,6 +157,6 @@ function del_share_file() {
                 showError('#mdl-del-share-file #err', '删除文件失败', ret.err_msg);
             }
         }
-    })
+    });
 }
 </script>

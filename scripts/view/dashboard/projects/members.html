@@ -44,7 +44,7 @@
                     <h1>加载其他成员列表中...</h1>
                 </div>
 
-                <form id="form-add-member" action="/dashboard/projects/add_member" method="POST">
+                <form id="form-add-member">
                     <input id="pid" name="pid" type="number" value="{{proj_id}}" hidden>
 
                     <div class="form-group">
@@ -89,7 +89,7 @@
             <div class="modal-body">
                 <div id="err"></div>
 
-                <form id="form-edit-member" action="/dashboard/projects/edit_member" method="POST">
+                <form id="form-edit-member">
                     <input id="uid" name="uid" type="number" hidden>
                     <input id="pid" name="pid" type="number" value="{{proj_id}}" hidden>
 
@@ -133,7 +133,7 @@
             <div class="modal-body">
                 <div id="err"></div>
 
-                <form id="form-del-member" action="/dashboard/projects/del_member" method="POST">
+                <form id="form-del-member">
                     <input id="uid" name="uid" type="number" hidden>
                     <input id="pid" name="pid" type="number" value="{{proj_id}}" hidden>
                     请确认需要删除的成员：<span id="name" class="text-danger"></span>
@@ -190,36 +190,54 @@ $('#mdl-del-member').on('show.bs.modal', function(e) {
 });
 
 function add_member() {
-    $('#form-add-member').ajaxSubmit({
+    $.ajax({
+        url: '/dashboard/projects/add_member',
+        type: 'POST',
+        data: new FormData(document.getElementById('form-add-member')),
         dataType: 'json',
+        processData: false,
+        contentType: false,
+        cache: false,
         success: function(rsp) {
             if (rsp.ok) {
                 $('.modal').modal('hide');
-                last_pressed_button.click();            
+                last_pressed_button.click();
             } else {
                 showError('#mdl-add-member #err', '添加成员失败', rsp.err_msg);
             }
         }
-    })
+    });
 }
 
 function edit_member() {
-    $('#form-edit-member').ajaxSubmit({
+    $.ajax({
+        url: '/dashboard/projects/edit_member',
+        type: 'POST',
+        data: new FormData(document.getElementById('form-edit-member')),
         dataType: 'json',
+        processData: false,
+        contentType: false,
+        cache: false,
         success: function(rsp) {
             if (rsp.ok) {
                 $('.modal').modal('hide');
-                last_pressed_button.click();                
+                last_pressed_button.click();
             } else {
                 showError('#mdl-edit-member #err', '修改成员信息失败', rsp.err_msg);
             }
         }
-    })
+    });
 }
 
 function del_member() {
-    $('#form-del-member').ajaxSubmit({
+    $.ajax({
+        url: '/dashboard/projects/del_member',
+        type: 'POST',
+        data: new FormData(document.getElementById('form-del-member')),
         dataType: 'json',
+        processData: false,
+        contentType: false,
+        cache: false,
         success: function(rsp) {
             if (rsp.ok) {
                 $('.modal').modal('hide');
@@ -228,7 +246,7 @@ function del_member() {
                 showError('#mdl-del-member #err', '删除成员失败', rsp.err_msg);
             }
         }
-    })
+    });
 }
 
 </script>

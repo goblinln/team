@@ -21,7 +21,7 @@
             </div>
             <div class="modal-body">
                 <div id="err"></div>
-                <form id="form-add" action="/dashboard/documents/add" method="POST">
+                <form id="form-add">
                     <input id="parent_id" name="parent_id" type="number" hidden>
                     <div class="form-group">
                         <label for="add-doc-name">文档名</label>
@@ -57,7 +57,7 @@
 
                 <div id="err"></div>
                 
-                <form id="form-del" action="/dashboard/documents/delete" method="POST">
+                <form id="form-del">
                     <input id="id" name="id" type="number" hidden>
 
                     <div class="form-group">
@@ -213,34 +213,45 @@ $('#treeview').jstree({
 });
 
 $('#btn-add-commit').click(function() {
-    $('#form-add').ajaxSubmit({
+    $.ajax({
+        url: '/dashboard/documents/add',
+        type: 'POST',
+        data: new FormData(document.getElementById('form-add')),
         dataType: 'json',
-        success: function(rsp) {
-            if (rsp.ok) {
-                $('#mdl-add #err').empty();
-                $('#mdl-add').modal('hide');
+        processData: false,
+        contentType: false,
+        cache: false,
+        success: function(ret) {
+            if (ret.ok) {
+                $('.model #err').empty();
+                $('.modal').modal('hide');
                 $('#treeview').jstree(true).refresh(true);
             } else {
                 showError('#mdl-add #err', '新建失败', rsp.err_msg);
             }
         }
-    })
+    });
 });
 
 $('#btn-del-commit').click(function() {
-    $('#form-del').ajaxSubmit({
+    $.ajax({
+        url: '/dashboard/documents/delete',
+        type: 'POST',
+        data: new FormData(document.getElementById('form-del')),
         dataType: 'json',
-        success: function(rsp) {
-            if (rsp.ok) {
-                $('#mdl-del #err').empty();
-                $('#mdl-del').modal('hide');
-                $('#doc-view').empty();
+        processData: false,
+        contentType: false,
+        cache: false,
+        success: function(ret) {
+            if (ret.ok) {
+                $('.model #err').empty();
+                $('.modal').modal('hide');
                 $('#treeview').jstree(true).refresh(true);
             } else {
                 showError('#mdl-del #err', '删除失败', rsp.err_msg);
             }
         }
-    })
+    });
 });
 
 </script>

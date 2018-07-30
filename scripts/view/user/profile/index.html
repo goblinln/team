@@ -23,7 +23,7 @@
             </div>
             <div class="modal-body">
                 <div id="err"></div>
-                <form id="form-mod-pswd" action="/user/profile/set_pswd" method="POST">
+                <form id="form-mod-pswd">
                     <div class="form-group">
                         <input name="org_pswd" type="password" class="form-control" placeholder="原始密码" required autofocus>
                     </div>
@@ -52,7 +52,7 @@
             </div>
             <div class="modal-body">
                 <div id="err"></div>
-                <form id="form-mod-avatar" action="/user/profile/set_avatar" method="POST" enctype="multipart/form-data">
+                <form id="form-mod-avatar">
                     <div class="form-group">
                         <label for="img">选择头像文件</label>
                         <input id="img" name="img" type="file" class="form-control" accept="image/*" required autofocus>
@@ -108,9 +108,15 @@ function mod_user_name(name, org) {
 }
 
 function mod_avatar() {
-    $('#form-mod-avatar').ajaxSubmit({
+    $.ajax({
+        url: '/user/profile/set_avatar',
+        type: 'POST',
+        data: new FormData(document.getElementById('form-mod-avatar')),
         dataType: 'json',
-        success: function (ret) {
+        processData: false,
+        contentType: false,
+        cache: false,
+        success: function(ret) {
             if (!ret || !ret.ok) return;
             $('#profile-avatar').attr('src', ret.url);
             $('#navbar-avatar').attr('src', ret.url);
@@ -122,9 +128,15 @@ function mod_avatar() {
 }
 
 function mod_pswd() {
-    $('#form-mod-pswd').ajaxSubmit({
+    $.ajax({
+        url: '/user/profile/set_pswd',
+        type: 'POST',
+        data: new FormData(document.getElementById('form-mod-pswd')),
         dataType: 'json',
-        success: function (ret) {
+        processData: false,
+        contentType: false,
+        cache: false,
+        success: function(ret) {
             if (!ret.ok) {
                 showError('#mdl-mod-pswd #err', '更改密码失败', ret.err_msg);
             } else {
