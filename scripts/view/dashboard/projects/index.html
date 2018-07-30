@@ -164,7 +164,7 @@ function get_proj_info(btn, url, id, name) {
     $(last_pressed_button).addClass('list-group-item-secondary');
     
     $('#project-detail').empty();
-    $('#project-detail').get(0).innerHTML = '<div class="text-center text-muted" style="margin-top: 10%"><img src="/www/images/loading.gif" class="mb-4"><h1>努力加载中 ...</h1></div>';
+    $('#project-detail').get(0).innerHTML = '<div class="text-center text-muted" style="margin-top: 40%"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div>';
 
     $.post(url, { pid: id, pname: name }, function(ret) {
         $('#project-detail').empty();

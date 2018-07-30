@@ -98,7 +98,7 @@ function filter_task(menu, url, p1, p2) {
     last_filter_menu.addClass('active');
 
     $('#task-content').empty();
-    $('#task-content').get(0).innerHTML = '<div class="text-center text-muted" style="margin-top: 10%"><img src="/www/images/loading.gif" class="mb-4"><h1>努力加载中 ...</h1></div>';
+    $('#task-content').get(0).innerHTML = '<div class="text-center text-muted" style="margin-top: 40%"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div>';
 
     $.post(url, { p1: p1, p2: p2 }, function(ret) {
         $('#task-content').empty();
