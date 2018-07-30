@@ -207,8 +207,13 @@ $('#treeview').jstree({
             + '<span class="bg-dark text-white p-1">更新时间</span><span class="bg-success text-white px-2 py-1">' + ret.last_modify + '</span></small><hr></div>'
             + '<div class="md-preview d-block mh-100">' + marked(ret.content || '') + '</div>';
 
-        mermaid.init({noteMargin: 10}, '.mermaid');
         PR.prettyPrint();
+        $('.flowchart').each(function() {
+            var elem = $(this);
+            var diag = flowchart.parse(elem.text());
+            elem.empty();
+            diag.drawSVG(elem.get(0));
+        });
     }, 'json');
 });
 

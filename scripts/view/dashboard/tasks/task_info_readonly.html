@@ -81,6 +81,13 @@ var content = $('#task-content-preview').get(0).innerHTML;
 $(document).ready(function() {
     $('#task-content-preview').empty();
     $('#task-content-preview').append('<div class="md-preview d-block mh-100">' + marked(content || '') + '</div>');
+    PR.prettyPrint();
+    $('.flowchart').each(function() {
+        var elem = $(this);
+        var diag = flowchart.parse(elem.text());
+        elem.empty();
+        diag.drawSVG(elem.get(0));
+    });
 })
 
 function close_task() {

@@ -57,7 +57,7 @@
 * [FontAwesome 4](http://www.fontawesome.com.cn/)
 * [Gantt Chart](https://github.com/982964399/jQuery-ganttView)
 
-> 【注】`Bootstrap markdown`是个人定制版，集成了`markedjs`, `mermaidjs`, `katexjs`。
+> 【注】`Bootstrap markdown`是个人定制版，集成了`markedjs`, `flowchart.js`, `katexjs`。
 
 ## 安装
 
