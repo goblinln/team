@@ -31,7 +31,7 @@ function user:login(req, rsp)
             });
             token = string.gsub(token, '\n', '');
             rsp:cookie('login_token', token, expire, '/');            
-            self:exec("UPDATE `users` SET auto_login_expire=?1 WHERE id=?2", os.time() + expire, find[1].id)
+            self:exec("UPDATE `users` SET auto_login_expire=?1 WHERE id=?2", os.time() + expire, find.id)
         end
 
         self:__on_login(find);
