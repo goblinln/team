@@ -489,28 +489,27 @@ function res.fields(res)
 end
 
 --row data fetching and parsing
-
-ffi.cdef('double s2d(const char*, char**);')
+ffi.cdef('double strtod(const char*, char**)' .. (ffi.os == 'Windows' and ' asm("s2d");' or ';'))
 local function parse_int(data, sz)
-	return ffi.C.s2d(data, nil)
+	return ffi.C.strtod(data, nil)
 end
 
 local function parse_float(data, sz)
-	return tonumber(ffi.cast('float', ffi.C.s2d(data, nil)))
+	return tonumber(ffi.cast('float', ffi.C.strtod(data, nil)))
 end
 
 local function parse_double(data, sz)
-	return ffi.C.s2d(data, nil)
+	return ffi.C.strtod(data, nil)
 end
 
-ffi.cdef('int64_t s2ll(const char*, char**, int);')
+ffi.cdef('int64_t strtoll(const char*, char**, int)' .. (ffi.os == 'Windows' and ' asm("s2ll");' or ';'))
 local function parse_int64(data, sz)
-	return tonumber(ffi.C.s2ll(data, nil, 10))
+	return tonumber(ffi.C.strtoll(data, nil, 10))
 end
 
-ffi.cdef('uint64_t s2ull(const char*, char**, int);')
+ffi.cdef('uint64_t strtoull(const char*, char**, int)' .. (ffi.os == 'Windows' and ' asm("s2ull");' or ';'))
 local function parse_uint64(data, sz)
-	return tonumber(ffi.C.s2ull(data, nil, 10))
+	return tonumber(ffi.C.strtoull(data, nil, 10))
 end
 
 local function parse_bit(data, sz)
