@@ -75,21 +75,23 @@ end
 
 -- 取得指定ID用户的名字，如果没有参数，则取所有
 function user:get_names(...)
-    local np    = select('#', ...);
-    local find  = {};
-    local ret   = {};
+    local np        = select('#', ...);
+    local find      = {};
+    local id2name   = {};
+    local id2avatar = {};
 
     if np > 0 then
-        find = self:query('SELECT `id`, `name` FROM `users` WHERE `id` IN(' .. table.concat({...}, ',') .. ')')    
+        find = self:query('SELECT `id`, `name`, `avatar` FROM `users` WHERE `id` IN(' .. table.concat({...}, ',') .. ')')    
     else    
-        find = self:query([[SELECT `id`, `name` FROM `users`]]);
+        find = self:query([[SELECT `id`, `name`, `avatar` FROM `users`]]);
     end
 
     for _, info in ipairs(find) do
-        ret[info.id] = info.name;
+        id2name[info.id] = info.name;
+        id2avatar[info.id] = info.avatar;
     end
 
-    return ret;
+    return id2name, id2avatar;
 end
 
 -- 修改名字

@@ -211,7 +211,7 @@ end
 
 -- 后处理
 function tasks:__on_loaded(tasks_, events_, comments_)    
-    local users = M('user'):get_names();
+    local users, avatars = M('user'):get_names();
 
     for _, info in ipairs(tasks_) do
         info.creator_name = users[info.creator] or '神秘人';
@@ -226,6 +226,7 @@ function tasks:__on_loaded(tasks_, events_, comments_)
 
     for _, info in ipairs(comments_ or {}) do
         info.user = users[info.uid] or '神秘人';
+        info.user_avatar = avatars[info.uid] or '/www/images/default_avatar.png';
     end
 end
 
