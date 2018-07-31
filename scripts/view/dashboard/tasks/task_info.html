@@ -5,14 +5,16 @@
 
     <!-- 标题 -->
     <div class="d-flex">
-        <h4>{{task.info.name}}</h4>
-        {% if #task.info.tags > 0 then %}
-        <span class="ml-2 mt-1">
-            {% for _, tag in ipairs(task.info.tags) do %}
-            <span class="badge {{tags[tag].color}} mr-1">{{tags[tag].title}}</span>
+        <h4>
+            {{task.info.name}}
+            {% if #task.info.tags > 0 then %}
+            <small class="ml-2 mt-1" style="font-size: 12px; vertical-align: middle;">
+                {% for _, tag in ipairs(task.info.tags) do %}
+                <span class="badge {{tags[tag].color}} mr-1">{{tags[tag].title}}</span>
+                {% end %}
+            </small>
             {% end %}
-        </span><br>
-        {% end %}
+        </h4>
     </div>
     <hr class="mx-0 mt-0 mb-1">
 
