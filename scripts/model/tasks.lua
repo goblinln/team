@@ -101,10 +101,12 @@ function tasks:get(id)
         if #tasks_ == 0 then return end;
 
         local events_ = self:query([[SELECT * FROM `task_events` WHERE `tid`=?1 ORDER BY `timepoint` DESC]], id);
-        self:__on_loaded(tasks_, events_);
+        local comments_ = self:query([[SELECT * FROM `task_comments` WHERE `tid`=?1 ORDER BY `timepoint` DESC]], id);
+        self:__on_loaded(tasks_, events_, comments_);
 
         ret.info = tasks_[1];
         ret.events = events_;
+        ret.comments = comments_;
     end, function(stack)
         log.error(stack);
     end);
@@ -182,6 +184,22 @@ function tasks:mod_content(id, content)
     return true;
 end
 
+-- 添加回复
+function tasks:add_comment(id, content)
+    self:exec([[
+        INSERT INTO `task_comments`(`tid`, `uid`, `comment`)
+        VALUES(?1, ?2, ?3)]], id, session.uid, content);
+    self:__add_event(id, C('dashboard/tasks').events.ADD_COMMENT);
+    return true;
+end
+
+-- 撤销回复
+function tasks:del_comment(id)
+    self:exec([[DELETE FROM `task_comments` WHERE `id`=?1 AND `uid`=?2]], id, session.uid);
+    self:__add_event(id, C('dashboard/tasks').events.DEL_COMMENT);
+    return true;
+end
+
 -- 添加事件
 function tasks:__add_event(tid, event, addition)
     self:exec([[
@@ -192,7 +210,7 @@ function tasks:__add_event(tid, event, addition)
 end
 
 -- 后处理
-function tasks:__on_loaded(tasks_, events_)    
+function tasks:__on_loaded(tasks_, events_, comments_)    
     local users = M('user'):get_names();
 
     for _, info in ipairs(tasks_) do
@@ -204,6 +222,10 @@ function tasks:__on_loaded(tasks_, events_)
     for _, info in ipairs(events_ or {}) do
         info.user = users[info.uid] or '神秘人';
         info.addition = json.decode(info.addition or 'null');
+    end
+
+    for _, info in ipairs(comments_ or {}) do
+        info.user = users[info.uid] or '神秘人';
     end
 end
 

@@ -57,6 +57,13 @@ setup.struct = {
         `uid` INTEGER NOT NULL,
         `event` INTEGER NOT NULL,
         `addition` VARCHAR(64)]],
+    task_comments = [[
+        `id` INTEGER NOT NULL AUTO_INCREMENT,
+        `timepoint` DATETIME DEFAULT NOW(),
+        `tid` INTEGER NOT NULL,
+        `uid` INTEGER NOT NULL,
+        `comment` TEXT,
+        PRIMARY KEY(`id`)]],
     files = [[
         `id` INTEGER NOT NULL AUTO_INCREMENT,
         `name` VARCHAR(128) NOT NULL,

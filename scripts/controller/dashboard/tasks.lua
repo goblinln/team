@@ -50,6 +50,8 @@ tasks.events = {
     MODIFY_WEIGHT       = 8,
     MODIFY_TAGS         = 9,
     MODIFY_CONTANT      = 10,
+    ADD_COMMENT         = 11,
+    DEL_COMMENT         = 12,
 };
 
 -- 任务主页
@@ -203,6 +205,20 @@ end
 function tasks:mod_content(req, rsp)
     if req.method ~= 'POST' then return rsp:error(405) end;
     local ok = M('tasks'):mod_content(req.post.id, req.post.content);
+    rsp:json{ok = true};
+end
+
+-- 评论
+function tasks:add_comment(req, rsp)
+    if req.method ~= 'POST' then return rsp:error(405) end;
+    local ok = M('tasks'):add_comment(req.post.id, req.post.comment);
+    rsp:json{ok = true};
+end
+
+-- 撤销评论
+function tasks:del_comment(req, rsp)
+    if req.method ~= 'POST' then return rsp:error(405) end;
+    local ok = M('tasks'):del_comment(req.post.id);
     rsp:json{ok = true};
 end
 
@@ -365,6 +381,10 @@ function tasks:__process_event(evs)
             info.event_desc = '修改任务标签';
         elseif info.event == self.events.MODIFY_CONTANT then
             info.event_desc = '修改任务内容';
+        elseif info.event == self.events.ADD_COMMENT then
+            info.event_desc = '评论了该任务';
+        elseif info.event == self.events.DEL_COMMENT then
+            info.event_desc = '撤销了一条评论';
         else
             info.event_desc = '对任务其他内容进行了修改';
         end

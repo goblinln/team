@@ -27,6 +27,7 @@ function open_task(tid) {
     $('#task-info-pane').get(0).innerHTML = '<div class="text-center text-muted" style="margin-top: 40%"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div>';
     $('#task-view').removeClass('invisible');
     $('#task-view').addClass('visible');
+    $('.xdsoft_datetimepicker').remove();
 
     $.post("{*readonly and '/dashboard/tasks/readonly_info' or '/dashboard/tasks/info'*}", {id : tid}, function(ret) {
         $('#task-info-pane').empty();

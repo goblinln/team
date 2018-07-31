@@ -7,7 +7,7 @@
 
             <div class="card-body m-0 p-0" style="background: #eee">
                 {% for _, info in ipairs(tasks.opened) do %}
-                <div class="card task-card m-1 rounded-0">
+                <div class="card m-1 rounded-0">
                     <div class="card-body m-0 py-1 px-2">
                         <span class="d-inline-block text-truncate mw-100">                            
                             <span class="{{weights[info.weight].color}}">【{{weights[info.weight].title}}】</span>
@@ -43,7 +43,7 @@
 
             <div class="card-body m-0 p-0" style="background-color: #eee;">
                 {% for _, info in ipairs(tasks.underway) do %}
-                <div class="card task-card m-1 rounded-0">
+                <div class="card m-1 rounded-0">
                     <div class="card-body m-0 py-1 px-2">
                         <span class="d-inline-block text-truncate mw-100">                            
                             <span class="{{weights[info.weight].color}}">【{{weights[info.weight].title}}】</span>
@@ -79,7 +79,7 @@
 
             <div class="card-body m-0 p-0" style="background-color: #eee">
                 {% for _, info in ipairs(tasks.delayed) do %}
-                <div class="card task-card m-1 rounded-0">
+                <div class="card m-1 rounded-0">
                     <div class="card-body m-0 py-1 px-2">
                         <span class="d-inline-block text-truncate mw-100">                            
                             <span class="{{weights[info.weight].color}}">【{{weights[info.weight].title}}】</span>
@@ -115,7 +115,7 @@
 
             <div class="card-body m-0 p-0" style="background-color: #eee">
                 {% for _, info in ipairs(tasks.closed) do %}
-                <div class="card task-card m-1 rounded-0">
+                <div class="card m-1 rounded-0">
                     <div class="card-body m-0 py-1 px-2">
                         <span class="d-inline-block text-truncate mw-100">                            
                             <span class="{{weights[info.weight].color}}">【{{weights[info.weight].title}}】</span>

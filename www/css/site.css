@@ -127,11 +127,46 @@
 .task-view-pane-close:focus {
     outline: 0;
 }
-.task-card {
-    box-shadow: none;
+.task-detail-info-pane {
+    position: absolute;
+    display: block;
+    left: 40px;
+    right: 0;
+    top: 64px;
+    bottom: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
-.task-card:hover {
-    box-shadow: 0 .5rem .5rem rgba(0,0,0,.15) !important;
+.task-detail-info-pane[editing-comment=false] {    
+    bottom: 64px;
+}
+.task-detail-info-pane[editing-comment=true] {    
+    bottom: 320px;
+}
+.task-comment-pane {
+    position: fixed;
+    display: block;
+    z-index: 3;
+    left: calc(100vw - 640px);
+    right: 0;
+    bottom: 0;
+    padding: 10px 10px 16px 16px;
+    -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,.3);
+    -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,.3);
+    box-shadow: 0 0 10px 0 rgba(0,0,0,.3);
+    background-color: #fff;
+}
+.task-comment-pane[editing-comment=false] {
+    height: 60px;
+}
+.task-comment-pane[editing-comment=true] {
+    height: 320px;
+}
+.task-comment-pane[editing-comment=true]>.editing-pane, .task-comment-pane[editing-comment=false]>input {
+    display: block;
+}
+.task-comment-pane[editing-comment=false]>.editing-pane, .task-comment-pane[editing-comment=true]>input {
+    display: none;
 }
 
 /* Text button */

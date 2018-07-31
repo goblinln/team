@@ -56,22 +56,57 @@
             </div>
         </div>
     </div>
-
     <hr class="mt-2">
+</div>
 
-    <div id="task-content-preview" class="mt-4 h-100" style="min-height: 300px;">{{task.info.content}}</div>
+<!-- 任务信息 -->
+<div class="task-detail-info-pane mt-4">
 
+    <!-- 任务描述 -->
+    <div id="task-content-preview" style="min-height: 250px;">{{task.info.content}}</div>
+
+    <!-- 任务评论及动态 -->
     <div class="mt-4">
-        <label class="text-muted">动态</label>
-        <hr class="mt-0 mb-2">
-
-        <ul class="px-0" style="list-style-type: none;font-size: .8em;">
-            {% for _, ev in ipairs(task.events) do %}
-            <li class="text-muted">
-                <i class="fa fa-calendar mr-1"></i><span class="mr-1">{{tostring(ev.timepoint)}}</span><b class="mr-1">{{ev.user}}</b>{{ev.event_desc}} 
+        <ul class="nav nav-tabs" id="task-addition-tab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="task-comment-tab" data-toggle="tab" href="#task-comment-pane" role="tab" aria-controls="task-comment-pane" aria-selected="true">评论</a>
             </li>
-            {% end %}
+            <li class="nav-item">
+                <a class="nav-link" id="task-event-tab" data-toggle="tab" href="#task-event-pane" role="tab" aria-controls="task-event-pane" aria-selected="false">动态</a>
+            </li>
         </ul>
+
+        <div class="tab-content h-100">
+            <!-- 评论分页 -->
+            <div class="tab-pane fade show active" id="task-comment-pane" role="tabpanel" aria-labelledby="task-comment-tab">
+                {% for _, info in ipairs(task.comments) do %}
+                <div class="mt-2 border-bottom">
+                    <div class="d-flex mb-2">
+                        <img class="mr-3" src="{{info.user_avatar or '/www/images/default_avatar.png'}}" width="48px" height="48px">
+                        <div class="">
+                            <b class="mt-0">{{info.user}}</b><br>
+                            <small class="text-muted">
+                                <i class="fa fa-clock-o mr-1"></i>{{tostring(info.timepoint)}}
+                            </small>
+                        </div>
+                    </div>
+
+                    {*info.comment*}
+                </div>
+                {% end %}
+            </div>
+
+            <!-- 事件分页 -->
+            <div class="tab-pane fade pt-1" id="task-event-pane" role="tabpanel" aria-labelledby="task-event-tab">
+                <ul class="p-2" style="list-style-type: none;font-size: .8em;">
+                    {% for _, ev in ipairs(task.events) do %}
+                    <li class="text-muted">
+                        <i class="fa fa-calendar mr-1"></i><span class="mr-1">{{tostring(ev.timepoint)}}</span><b class="mr-1">{{ev.user}}</b>{{ev.event_desc}} 
+                    </li>
+                    {% end %}
+                </ul>
+            </div>
+        </div>
     </div>
 </div>
 
