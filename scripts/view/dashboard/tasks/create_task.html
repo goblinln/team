@@ -4,7 +4,12 @@
     
     <form id="form-create-task">
         <div class="form-row">
-            <div class="form-group col-md-3">
+            <div class="form-group col-md-4 col-lg-3">
+                <label for="name">标题<b class="text-danger ml-2">*</b></label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="最大32个字符" required>
+            </div>                    
+                    
+            <div class="form-group col-md-4 col-lg-3">
                 <label for="pid">选择项目<b class="text-danger ml-2">*</b></label>
                 <select id="pid" name="pid" class="form-control">
                     {% for _, info in ipairs(projs) do %}
@@ -12,22 +17,15 @@
                     {% end %}
                 </select>
             </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group col-md-3">
-                <label for="name">标题<b class="text-danger ml-2">*</b></label>
-                <input type="text" class="form-control" id="name" name="name" placeholder="最大32个字符" required>
-            </div>
-            
-            <div class="form-group col-md-3">
+
+            <div class="form-group col-md-3 col-lg-2">
                 <label for="weight">优先级<b class="text-danger ml-2">*</b></label>
                 <select id="weight" name="weight" class="form-control">
                     {% for idx, info in ipairs(weights or {}) do %}
                     <option value="{{idx}}" class="{{info.color}}">{{info.title}}</option>
                     {% end %}
                 </select>
-            </div> 
+            </div>
         </div>
 
         <div class="form-row">
@@ -53,7 +51,7 @@
             <div class="form-group col-md-3">
                 <label for="end-time">计划结束时间<b class="text-danger ml-2">*</b></label>
                 <input type="text" class="form-control form-datetime" id="end-time" name="end_time" required>
-            </div>                       
+            </div> 
         </div>
 
         <div class="form-group">
