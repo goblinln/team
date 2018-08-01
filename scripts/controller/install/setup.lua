@@ -42,6 +42,7 @@ setup.struct = {
         `pid` INTEGER DEFAULT -1,
         `creator` INTEGER NOT NULL,
         `assigned` INTEGER NOT NULL,
+        `cooperator` INTEGER NOT NULL,
         `name` VARCHAR(32) NOT NULL,
         `weight` INTEGER DEFAULT 1,
         `tags` VARCHAR(64) DEFAULT '[]',

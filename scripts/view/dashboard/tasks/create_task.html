@@ -4,7 +4,7 @@
     
     <form id="form-create-task">
         <div class="form-row">
-            <div class="form-group col-md-4">
+            <div class="form-group col-md-3">
                 <label for="pid">选择项目<b class="text-danger ml-2">*</b></label>
                 <select id="pid" name="pid" class="form-control">
                     {% for _, info in ipairs(projs) do %}
@@ -12,38 +12,48 @@
                     {% end %}
                 </select>
             </div>
-
-            <div class="form-group col-md-4">
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group col-md-3">
                 <label for="name">标题<b class="text-danger ml-2">*</b></label>
                 <input type="text" class="form-control" id="name" name="name" placeholder="最大32个字符" required>
             </div>
-
-            <div class="form-group col-md-4">
-                <label for="assigned">指派成员<b class="text-danger ml-2">*</b></label>
-                <select id="assigned" name="assigned" class="form-control">
-                </select>
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group col-md-2">
-                <label for="start-time">计划开始时间<b class="text-danger ml-2">*</b></label>
-                <input type="text" class="form-control form-datetime" id="start-time" name="start_time" required>
-            </div>
-
-            <div class="form-group col-md-2">
-                <label for="end-time">计划结束时间<b class="text-danger ml-2">*</b></label>
-                <input type="text" class="form-control form-datetime" id="end-time" name="end_time" required>
-            </div>
             
-            <div class="form-group col-md-2">
+            <div class="form-group col-md-3">
                 <label for="weight">优先级<b class="text-danger ml-2">*</b></label>
                 <select id="weight" name="weight" class="form-control">
                     {% for idx, info in ipairs(weights or {}) do %}
                     <option value="{{idx}}" class="{{info.color}}">{{info.title}}</option>
                     {% end %}
                 </select>
-            </div>            
+            </div> 
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                <label for="assigned">指派成员<b class="text-danger ml-2">*</b></label>
+                <select id="assigned" name="assigned" class="form-control">
+                </select>
+            </div>
+
+            <div class="form-group col-md-3">
+                <label for="cooperator">协作者/测试人员<b class="text-danger ml-2">*</b></label>
+                <select id="cooperator" name="cooperator" class="form-control">
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                <label for="start-time">计划开始时间<b class="text-danger ml-2">*</b></label>
+                <input type="text" class="form-control form-datetime" id="start-time" name="start_time" required>
+            </div>
+
+            <div class="form-group col-md-3">
+                <label for="end-time">计划结束时间<b class="text-danger ml-2">*</b></label>
+                <input type="text" class="form-control form-datetime" id="end-time" name="end_time" required>
+            </div>                       
         </div>
 
         <div class="form-group">
@@ -87,6 +97,7 @@ function get_members_of_proj(pid) {
     $.post('/dashboard/tasks/members_of_proj', {pid: pid}, function(ret) {
         $.each(ret, function(_, info) {
             $('#form-create-task #assigned').append('<option value="' + info.uid + '">【' + info.user_role + '】' + info.user + '</option>');
+            $('#form-create-task #cooperator').append('<option value="' + info.uid + '">【' + info.user_role + '】' + info.user + '</option>');
         });
     }, 'json');
 }

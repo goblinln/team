@@ -33,6 +33,18 @@
             </div>
         </div>
 
+        <!-- 协作 -->
+        <div class="dropdown">
+            <div class="btn-link px-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-at mr-1"></i>{{task.info.cooperator_name}}
+            </div>
+            <div class="dropdown-menu">
+                {% for _, info in ipairs(members or {}) do %}
+                <a class="dropdown-item" href="#" onclick="return mod_cooperator('{{info.uid}}')">【{{info.user_role}}】{{info.user}}</a>
+                {% end %}
+            </div>
+        </div>
+
         <!-- 时间: 只有项目管理员可以更改时间 -->
         {% if is_admin then %}
         <div class="dropdown">
@@ -69,17 +81,20 @@
                 {% if task.info.status == 1 then %}
                 <i class="fa fa-circle-o mr-1"></i>待办中
                 {% elseif task.info.status == 2 then %}
-                <i class="fa fa-dot-circle-o mr-1"></i>进行中
+                <i class="fa fa-dot-circle-o mr-1"></i>开发中
                 {% elseif task.info.status == 3 then %}
+                <i class="fa fa-exclamation-circle mr-1"></i>测试中
+                {% elseif task.info.status == 4 then %}
                 <i class="fa fa-check-circle mr-1"></i>已完成
-                {% else %}
-                <i class="fa fa-archive mr-1"></i>已验收
+                {% else %}                
+                <i class="fa fa-archive mr-1"></i>已归档
                 {% end %}
             </div>
             <div class="dropdown-menu">
                 <a class="dropdown-item" href="#" onclick="return mod_status(1)"><i class="fa fa-circle-o mr-1"></i>待办中</a>
-                <a class="dropdown-item" href="#" onclick="return mod_status(2)"><i class="fa fa-dot-circle-o mr-1"></i>进行中</a>
-                <a class="dropdown-item" href="#" onclick="return mod_status(3)"><i class="fa fa-check-circle mr-1"></i>已完成</a>
+                <a class="dropdown-item" href="#" onclick="return mod_status(2)"><i class="fa fa-dot-circle-o mr-1"></i>开发中</a>
+                <a class="dropdown-item" href="#" onclick="return mod_status(3)"><i class="fa fa-exclamation-circle mr-1"></i>测试中</a>
+                <a class="dropdown-item" href="#" onclick="return mod_status(4)"><i class="fa fa-check-circle mr-1"></i>已完成</a>
             </div>
         </div>
 
@@ -218,6 +233,10 @@ function close_task() {
 
 function mod_assign(uid) {    
     $.post('/dashboard/tasks/mod_assign', { tid : '{{task.info.id}}', org_uid : '{{task.info.assigned}}', new_uid : uid }, refresh_task_info);
+}
+
+function mod_cooperator(uid) {
+    $.post('/dashboard/tasks/mod_cooperator', { tid : '{{task.info.id}}', org_uid : '{{task.info.assigned}}', new_uid : uid }, refresh_task_info);
 }
 
 function mod_time() {

@@ -7,7 +7,7 @@
                 <hr>
                 <ul class="mt-2 px-0" style="list-style-type: none">
                     {% for _, info in ipairs(tasks) do %}
-                    {% if info.status == 3 then %}
+                    {% if info.status == 4 then %}
                     <li class="d-block text-truncate text-muted mw-100 mb-1">
                         <i class="fa fa-clock-o mr-1"></i>{{string.format('%04d.%02d.%02d', info.end_time.year, info.end_time.month, info.end_time.day)}}
                         <a href="#" class="task-link" onclick="return open_task('{{info.id}}');">{{info.name}}</a>
@@ -24,7 +24,7 @@
                 <hr>
                 <ul class="mt-2 px-0" style="list-style-type: none">
                     {% for _, info in ipairs(tasks) do %}
-                    {% if info.status == 4 then %}
+                    {% if info.status == 5 then %}
                     <li class="d-block text-truncate text-muted mw-100 mb-1">
                         <i class="fa fa-check text-success mr-1"></i>{{string.format('%04d.%02d.%02d', info.end_time.year, info.end_time.month, info.end_time.day)}}
                         <a href="#" class="task-link" onclick="return open_task('{{info.id}}');">{{info.name}}</a>

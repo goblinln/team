@@ -9,7 +9,7 @@ local tasks = inherit(M('base'));
 -- 取得一个项目的任务
 function tasks:get_by_proj(pid)
     local find  = self:query([[
-            SELECT `id`, `creator`, `assigned`, `name`, `weight`, `tags`, `start_time`, `end_time`, `status`
+            SELECT `id`, `creator`, `assigned`, `cooperator`, `name`, `weight`, `tags`, `start_time`, `end_time`, `status`
             FROM `tasks`
             WHERE `pid`=?1 AND `status`<>?2]],
             pid, C('dashboard/tasks').status.ARCHIVED);
@@ -21,7 +21,7 @@ end
 -- 取得一个项目可归档的任务列表
 function tasks:get_archivable_by_proj(pid)
     local find  = self:query([[
-            SELECT `id`, `creator`, `assigned`, `name`, `weight`, `tags`, `start_time`, `end_time`, `status`
+            SELECT `id`, `creator`, `assigned`, `cooperator`, `name`, `weight`, `tags`, `start_time`, `end_time`, `status`
             FROM `tasks`
             WHERE `pid`=?1 AND `status`>?2]],
             pid, C('dashboard/tasks').status.UNDERWAY);
@@ -34,14 +34,14 @@ end
 function tasks:report_for_proj(pid, start_time, end_time, to)
     -- 本周验收的任务
     to.archived = self:query([[
-        SELECT `id`, `creator`, `assigned`, `name`, `weight`, `tags`, `start_time`, `end_time`, `status`
+        SELECT `id`, `creator`, `assigned`, `cooperator`, `name`, `weight`, `tags`, `start_time`, `end_time`, `status`
         FROM `tasks`
         WHERE `pid`=?1 AND (`archive_time`>=?2 AND `archive_time`<=?3)]],
         pid, start_time, end_time);
 
     -- 本周该验收但未验收的任务
     to.not_archived = self:query([[
-        SELECT `id`, `creator`, `assigned`, `name`, `weight`, `tags`, `start_time`, `end_time`, `status`
+        SELECT `id`, `creator`, `assigned`, `cooperator`, `name`, `weight`, `tags`, `start_time`, `end_time`, `status`
         FROM `tasks`
         WHERE `pid`=?1 AND UNIX_TIMESTAMP(`end_time`)<=?2 AND (`archive_time`=-1 OR `archive_time`>?2)]],
         pid, end_time, start_time);
@@ -62,7 +62,7 @@ end
 -- 取得当前用户的所有任务
 function tasks:get_mine(cond)
     local sql   = [[
-        SELECT `tasks`.`id` as id, `pid`, `tasks`.`name` as name, `projects`.`name` as pname, `creator`, `assigned`, `weight`, `tags`, `start_time`, `end_time`, `status`
+        SELECT `tasks`.`id` as id, `pid`, `tasks`.`name` as name, `projects`.`name` as pname, `creator`, `assigned`, `cooperator`, `weight`, `tags`, `start_time`, `end_time`, `status`
         FROM `tasks` LEFT JOIN `projects` ON `tasks`.`pid`=`projects`.`id`
         WHERE `status`<>]] .. C('dashboard/tasks').status.ARCHIVED .. ' AND ' .. cond;
         
@@ -78,11 +78,11 @@ function tasks:add(param)
     xpcall(function()
         self:exec([[
             INSERT INTO
-            `tasks`(`pid`, `creator`, `assigned`, `name`, `weight`, `tags`, `start_time`, `end_time`, `content`)
-            VALUES(?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)]],
-            param.pid, session.uid, param.assigned, param.name, param.weight, param.tags, param.start_time, param.end_time, param.content or '');
+            `tasks`(`pid`, `creator`, `assigned`, `cooperator`, `name`, `weight`, `tags`, `start_time`, `end_time`, `content`)
+            VALUES(?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)]],
+            param.pid, session.uid, param.assigned, param.cooperator, param.name, param.weight, param.tags, param.start_time, param.end_time, param.content or '');
 
-        self:__add_event(self:last_id(), C('dashboard/tasks').events.CREATE);
+        self:__add_event(self:last_id(), C('dashboard/tasks').events.CREATED);
         ok = true;
     end, function(stack)
         log.error(stack);
@@ -125,6 +125,19 @@ function tasks:mod_assign(id, mods)
         WHERE `id`=?2]], mods[2], id);
 
     self:__add_event(id, C('dashboard/tasks').events.MODIFY_ASSIGNED, changes);
+end
+
+-- 修改协作者（测试或验收人员）
+function tasks:mod_cooperator(id, mods)
+    local names = M('user'):get_names();
+    local changes = { names[mods[1]] or '神秘人', names[mods[2]] or '神秘人' };
+
+    self:exec([[
+        UPDATE `tasks`
+        SET `cooperator`=?1
+        WHERE `id`=?2]], mods[2], id);
+
+    self:__add_event(id, C('dashboard/tasks').events.MODIFY_COOPERATOR, changes);
 end
 
 -- 修改时间
@@ -216,6 +229,7 @@ function tasks:__on_loaded(tasks_, events_, comments_)
     for _, info in ipairs(tasks_) do
         info.creator_name = users[info.creator] or '神秘人';
         info.assigned_name = users[info.assigned] or '神秘人';
+        info.cooperator_name = users[info.cooperator] or '神秘人';
         info.tags = json.decode(info.tags or '[]') or {};
     end
 

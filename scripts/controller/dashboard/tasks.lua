@@ -6,20 +6,13 @@
 -- ========================================================
 local tasks = {};
 
--- 任务状态。注意：‘滞后’不是一个状态，而是处于‘进行中’的任务，在规定时间内未完成！
+-- 任务状态。注意：‘滞后’不是一个状态，在规定时间内未开发或未完成！
 tasks.status = {
-    OPENED      = 1,
+    CREATED     = 1,
     UNDERWAY    = 2,
-    CLOSED      = 3,
-    ARCHIVED    = 4,
-}
-
--- 任务状态说明
-tasks.status_desc = {
-    '待办中',
-    '进行中',
-    '已完成',
-    '已验收',
+    TESTING     = 3,
+    FINISHED    = 4,
+    ARCHIVED    = 5,
 }
 
 -- 任务标记
@@ -40,23 +33,25 @@ tasks.weights = {
 
 -- 任务事件定义，前面的需要与tasks.status对应
 tasks.events = {
-    CREATE              = 1,
-    START               = 2,
-    CLOSED              = 3,
-    ARCHIVED            = 4,
-    MODIFY_STARTTIME    = 5,
-    MODIFY_ENDTIME      = 6,
-    MODIFY_ASSIGNED     = 7,
-    MODIFY_WEIGHT       = 8,
-    MODIFY_TAGS         = 9,
-    MODIFY_CONTANT      = 10,
-    ADD_COMMENT         = 11,
-    DEL_COMMENT         = 12,
+    CREATED             = 1,
+    UNDERWAY            = 2,
+    TESTING             = 3,
+    FINISHED            = 4,
+    ARCHIVED            = 5,
+    MODIFY_STARTTIME    = 6,
+    MODIFY_ENDTIME      = 7,
+    MODIFY_ASSIGNED     = 8,
+    MODIFY_COOPERATOR   = 9,
+    MODIFY_WEIGHT       = 10,
+    MODIFY_TAGS         = 11,
+    MODIFY_CONTANT      = 12,
+    ADD_COMMENT         = 13,
+    DEL_COMMENT         = 14,
 };
 
 -- 任务主页
 function tasks:index(req, rsp)
-    local tasks_    = M('tasks'):get_mine('(creator=' .. session.uid .. ' OR assigned=' .. session.uid .. ')');
+    local tasks_    = M('tasks'):get_mine('(creator=' .. session.uid .. ' OR assigned=' .. session.uid .. ' OR cooperator=' .. session.uid .. ')');
     local parsed    = self:__process(session.name .. '【所有】', tasks_);
 
     parsed.dashboard_menu = 'tasks';
@@ -121,6 +116,7 @@ function tasks:do_create(req, rsp)
     local param = req.post;
     param.pid = tonumber(param.pid);
     param.assigned = tonumber(param.assigned);
+    param.cooperator = tonumber(param.cooperator);
     param.weight = tonumber(param.weight);
     param.tags = param.tags or {};
     for n, t in ipairs(param.tags) do param.tags[n] = tonumber(t) end;
@@ -147,6 +143,20 @@ function tasks:mod_assign(req, rsp)
     
     if mod[1] ~= mod[2] then
         ok = M('tasks'):mod_assign(req.post.tid, mod);
+    end
+    
+    rsp:json{ok = true};
+end
+
+-- 修改协作者（测试或验收人员）
+function tasks:mod_cooperator(req, rsp)
+    if req.method ~= 'POST' then return rsp:error(405) end
+
+    local mod = { tonumber(req.post.org_uid), tonumber(req.post.new_uid) };
+    local ok = true;
+    
+    if mod[1] ~= mod[2] then
+        ok = M('tasks'):mod_cooperator(req.post.tid, mod);
     end
     
     rsp:json{ok = true};
@@ -226,7 +236,7 @@ end
 
 -- 我的所有任务
 function tasks:all_of_mine(req, rsp)
-    local tasks_ = M('tasks'):get_mine('(creator=' .. session.uid .. ' OR assigned=' .. session.uid .. ')');
+    local tasks_ = M('tasks'):get_mine('(creator=' .. session.uid .. ' OR assigned=' .. session.uid .. ' OR cooperator=' .. session.uid .. ')');
     self:__layout_tasks(rsp, session.name .. '【所有】', tasks_);
 end
 
@@ -238,19 +248,19 @@ end
 
 -- 选出指派给我的任务
 function tasks:assigned_to_me(req, rsp)
-    local tasks_ = M('tasks'):get_mine('assigned=' .. session.uid);
+    local tasks_ = M('tasks'):get_mine('assigned=' .. session.uid .. ' OR cooperator=' .. session.uid);
     self:__layout_tasks(rsp, '【指派给】' .. session.name, tasks_);
 end
 
 -- 选出指定任务等级的任务
 function tasks:filter_weight(req, rsp)
-    local tasks_ = M('tasks'):get_mine('weight=' .. req.post.p1 .. ' AND (creator=' .. session.uid .. ' OR assigned=' .. session.uid .. ')');
+    local tasks_ = M('tasks'):get_mine('weight=' .. req.post.p1 .. ' AND (creator=' .. session.uid .. ' OR assigned=' .. session.uid .. ' OR cooperator=' .. session.uid .. ')');
     self:__layout_tasks(rsp, session.name .. string.format('【%s】', self.weights[tonumber(req.post.p1)].title), tasks_);
 end
 
 -- 选出指定项目的任务
 function tasks:filter_proj(req, rsp)
-    local tasks_ = M('tasks'):get_mine('pid=' .. req.post.p1 .. ' AND (creator=' .. session.uid .. ' OR assigned=' .. session.uid .. ')');
+    local tasks_ = M('tasks'):get_mine('pid=' .. req.post.p1 .. ' AND (creator=' .. session.uid .. ' OR assigned=' .. session.uid .. ' OR cooperator=' .. session.uid .. ')');
     self:__layout_tasks(rsp, session.name .. string.format('@【%s】', req.post.p2), tasks_);
 end
 
@@ -263,20 +273,19 @@ end
 
 -- 分析任务，分组等
 function tasks:__process(title, tasks_, readonly)
-    local opened, closed, underway, delayed, gantt_data, gantt_map = {}, {}, {}, {}, {}, {};
-    local summary = { title = title, opened = 0, closed = 0, underway = 0, delayed = 0 };
+    local created, underway, testing, finished, gantt_data, gantt_map = {}, {}, {}, {}, {}, {};
+    local summary = { title = title, created = 0, underway = 0, testing = 0, finished = 0 };
     local now = os.time();
 
     for _, info in ipairs(tasks_) do
         local gantt_color = 'grey';
 
-        if info.status == self.status.OPENED then
-            table.insert(opened, info);
-            summary.opened = summary.opened + 1;
+        if info.status == self.status.CREATED then
+            table.insert(created, info);
+            summary.created = summary.created + 1;
 
             if os.time(info.start_time) <= now then
-                table.insert(delayed, info);
-                summary.delayed = summary.delayed + 1;
+                info.delayed = true;
                 gantt_color = 'red';
             end
         elseif info.status == self.status.UNDERWAY then
@@ -284,15 +293,24 @@ function tasks:__process(title, tasks_, readonly)
             summary.underway = summary.underway + 1;
             
             if os.time(info.end_time) <= now then
-                table.insert(delayed, info);
-                summary.delayed = summary.delayed + 1;
+                info.delayed = true;
                 gantt_color = 'red';
             else
-                gantt_color = 'darkcyan';
+                gantt_color = '#17a2b8';
             end
-        elseif info.status == self.status.CLOSED then
-            table.insert(closed, info);
-            summary.closed = summary.closed + 1;
+        elseif info.status == self.status.TESTING then
+            table.insert(testing, info);
+            summary.testing = summary.testing + 1;
+
+            if os.time(info.end_time) <= now then
+                info.delayed = true;
+                gantt_color = 'red';
+            else
+                gantt_color = '#007bff';
+            end
+        elseif info.status == self.status.FINISHED then
+            table.insert(finished, info);
+            summary.finished = summary.finished + 1;
             gantt_color = 'lightgreen';
         end
 
@@ -308,6 +326,7 @@ function tasks:__process(title, tasks_, readonly)
         table.insert(gantt_data[gantt_map[info.assigned]].series, {
             id = info.id,
             name = info.name,
+            cooperator = info.cooperator_name,
             start = tostring(info.start_time),
             ['end'] = tostring(info.end_time),
             options = { color = gantt_color },
@@ -321,10 +340,10 @@ function tasks:__process(title, tasks_, readonly)
         readonly    = readonly,
         gantt_data  = #gantt_data == 0 and '[]' or json.encode(gantt_data),
         tasks       = {
-            opened      = opened,
-            closed      = closed,
+            created     = created,
             underway    = underway,
-            delayed     = delayed,
+            testing     = testing,
+            finished    = finished,
         }
     }
 end
@@ -343,7 +362,7 @@ function tasks:__process_mine(tasks_)
             mine.create_by_me = mine.create_by_me + 1;
         end
         
-        if info.assigned == session.uid then
+        if info.assigned == session.uid or info.cooperator == session.uid then
             mine.assigned_to_me = mine.assigned_to_me + 1;
         end
 
@@ -361,11 +380,13 @@ end
 function tasks:__process_event(evs)
     for _, info in ipairs(evs) do
         info.timepoint = tostring(info.timepoint);
-        if info.event == self.events.CREATE then
+        if info.event == self.events.CREATED then
             info.event_desc = (_ ~= #evs and '重新' or '') .. '发布了任务';
-        elseif info.event == self.events.START then
+        elseif info.event == self.events.UNDERWAY then
             info.event_desc = '开始了任务';
-        elseif info.event == self.events.CLOSED then
+        elseif info.event == self.events.TESTING then
+            info.event_desc = '开启了测试流程';
+        elseif info.event == self.events.FINISHED then
             info.event_desc = '完成了任务';
         elseif info.event == self.events.ARCHIVED then
             info.event_desc = '验收了任务';
@@ -375,6 +396,8 @@ function tasks:__process_event(evs)
             info.event_desc = '修改任务结束时间 : ' .. info.addition[1] .. ' > ' .. info.addition[2];
         elseif info.event == self.events.MODIFY_ASSIGNED then
             info.event_desc = '修改任务指派：' .. info.addition[1] .. ' > ' .. info.addition[2];
+        elseif info.event == self.events.MODIFY_COOPERATOR then
+            info.event_desc = '修改协作人员：' .. info.addition[1] .. ' > ' .. info.addition[2];
         elseif info.event == self.events.MODIFY_WEIGHT then            
             info.event_desc = '修改任务优先级 : ' .. self.weights[info.addition[1]].title .. ' > ' .. self.weights[info.addition[2]].title;
         elseif info.event == self.events.MODIFY_TAGS then

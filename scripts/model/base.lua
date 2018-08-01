@@ -63,49 +63,45 @@ function base:__init()
     end
 end
 
+-- 生成MYSQL的值
+function base:__mkval(v)
+    local t = type(v);
+
+    if t == 'nil' then
+        return 'NULL';
+    elseif t == 'boolean' then
+        return v and 1 or 0;
+    elseif t == 'string' then
+        return "'" .. self.__conn:escape(v, string.len(v)) .. "'";
+    elseif t == 'table' then
+        if v.year and v.month and v.day then
+            if v.hour then
+                return string.format("'%04d-%02d-%02d %02d:%02d:%02d'", v.year, v.month, v.day, v.hour, v.min or 0, v.sec or 0);
+            else
+                return string.format("'%04d-%02d-%02d'", v.year, v.month, v.day);
+            end
+        else
+            local serialized	= json.encode(v);
+            local encrypt		= "'" .. self.__conn:escape(serialized, string.len(serialized)) .. "'";
+            
+            encrypt = string.gsub(encrypt, '%%', '%%%%');
+            return encrypt;
+        end
+    else
+        return tostring(v);
+    end
+end
+
 -- 生成SQL
 function base:__mksql(sql, ...)
     local count	= select('#', ...);
     if count == 0 then return sql end;
 
     local args	= {...};
-    for i = 1, count do
-        local data	= args[i];
-        local dt	= type(data);
-        local key	= '?' .. i;
+    local param = {};
 
-        if dt == 'nil' then
-            sql = string.gsub(sql, key, 'NULL');
-        elseif dt == 'boolean' then
-            sql = string.gsub(sql, key, data and 1 or 0);
-        elseif dt == 'string' then
-            str = self.__conn:escape(data, string.len(data));
-            str = string.gsub(str, '%%', '%%%%');
-            sql = string.gsub(sql, key, "'" .. str .. "'");
-        elseif dt == 'table' then
-            if data.is_datetime then
-                local str = string.format('%04d-%02d-%02d %02d:%02d:%02d', data.year, data.month, data.day, data.hour, data.min, data.sec);
-                sql = string.gsub(sql, key, "'" .. str .. "'");
-            elseif data.is_date then
-                local str = string.format('%04d-%02d-%02d', data.year, data.month, data.day);
-                sql = string.gsub(sql, key, "'" .. str .. "'");
-            elseif data.is_time then
-                local str = string.format('%02d:%02d:%02d', data.hour, data.min, data.sec);
-                sql = string.gsub(sql, key, "'" .. str .. "'");
-            elseif data.is_timestamp then
-                sql = string.gsub(sql, key, tostring(os.time(data)));
-            else
-                local serialized	= json.encode(data);  
-                local encrypt		= self.__conn:escape(serialized, string.len(serialized));
-                
-                encrypt = string.gsub(encrypt, '%%', '%%%%');
-                sql = string.gsub(sql, key, "'" .. encrypt .. "'");
-            end
-        else
-            sql = string.gsub(sql, key, tostring(data));
-        end
-    end
-    
+    for i = 1, count do param[tostring(i)] = self:__mkval(args[i]) end;
+    local sql = string.gsub(sql, '%?(%d+)', param);
     return sql;
 end
 

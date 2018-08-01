@@ -2,11 +2,11 @@
     <div class="col-3">
         <div class="card border-0 rounded-0" style="font-size: .9em;">
             <div class="card-header text-white px-2 py-1 bg-secondary rounded-0">
-                <i class="fa fa-circle-o mr-2"></i>待办中<span class="badge badge-light mt-1 pull-right">{{summary.opened}}</span>
+                <i class="fa fa-circle-o mr-2"></i>待办中<span class="badge badge-light mt-1 pull-right">{{summary.created}}</span>
             </div>
 
             <div class="card-body m-0 p-0" style="background: #eee">
-                {% for _, info in ipairs(tasks.opened) do %}
+                {% for _, info in ipairs(tasks.created) do %}
                 <div class="card m-1 rounded-0">
                     <div class="card-body m-0 py-1 px-2">
                         <span class="d-inline-block text-truncate mw-100">                            
@@ -22,7 +22,7 @@
                         </span><br>
                         {% end %}
                         <small class="d-inline-block text-truncate mw-100" style="min-width: 100%">
-                            <i class="fa fa-calendar mr-1"></i>{{string.format('%02d.%02d', info.end_time.month, info.end_time.day)}}
+                            <span class="{{info.delayed and 'text-danger' or ''}}"><i class="fa fa-calendar mr-1"></i>{{string.format('%02d.%02d', info.end_time.month, info.end_time.day)}}</span>
                             <span class="pull-right">
                                 <span class="badge badge-dark text-white ml-2">{{info.creator_name}}</span>
                                 <i class="fa fa-chevron-right mx-1"></i>
@@ -38,7 +38,7 @@
     <div class="col-3">
         <div class="card border-0 rounded-0" style="font-size: .9em;">
             <div class="card-header text-white px-2 py-1 rounded-0 bg-info">
-                <i class="fa fa-dot-circle-o mr-2"></i>进行中<span class="badge badge-light mt-1 pull-right">{{summary.underway}}</span>
+                <i class="fa fa-dot-circle-o mr-2"></i>开发中<span class="badge badge-light mt-1 pull-right">{{summary.underway}}</span>
             </div>
 
             <div class="card-body m-0 p-0" style="background-color: #eee;">
@@ -58,7 +58,7 @@
                         </span><br>
                         {% end %}
                         <small class="d-inline-block text-truncate mw-100" style="min-width: 100%">
-                            <i class="fa fa-calendar mr-1"></i>{{string.format('%02d.%02d', info.end_time.month, info.end_time.day)}}
+                            <span class="{{info.delayed and 'text-danger' or ''}}"><i class="fa fa-calendar mr-1"></i>{{string.format('%02d.%02d', info.end_time.month, info.end_time.day)}}</span>
                             <span class="pull-right">
                                 <span class="badge badge-dark text-white ml-2">{{info.creator_name}}</span>
                                 <i class="fa fa-chevron-right mx-1"></i>
@@ -73,12 +73,12 @@
     </div>
     <div class="col-3">
         <div class="card border-0 rounded-0" style="font-size: .9em;">
-            <div class="card-header text-white px-2 py-1 rounded-0 bg-danger">
-                <i class="fa fa-exclamation-circle mr-2"></i>已滞后<span class="badge badge-light mt-1 pull-right">{{summary.delayed}}</span>
+            <div class="card-header text-white px-2 py-1 rounded-0 bg-primary">
+                <i class="fa fa-exclamation-circle mr-2"></i>测试中<span class="badge badge-light mt-1 pull-right">{{summary.testing}}</span>
             </div>
 
             <div class="card-body m-0 p-0" style="background-color: #eee">
-                {% for _, info in ipairs(tasks.delayed) do %}
+                {% for _, info in ipairs(tasks.testing) do %}
                 <div class="card m-1 rounded-0">
                     <div class="card-body m-0 py-1 px-2">
                         <span class="d-inline-block text-truncate mw-100">                            
@@ -94,7 +94,7 @@
                         </span><br>
                         {% end %}
                         <small class="d-inline-block text-truncate mw-100" style="min-width: 100%">
-                            <i class="fa fa-calendar mr-1"></i>{{string.format('%02d.%02d', info.end_time.month, info.end_time.day)}}
+                            <span class="{{info.delayed and 'text-danger' or ''}}"><i class="fa fa-calendar mr-1"></i>{{string.format('%02d.%02d', info.end_time.month, info.end_time.day)}}</span>
                             <span class="pull-right">
                                 <span class="badge badge-dark text-white ml-2">{{info.creator_name}}</span>
                                 <i class="fa fa-chevron-right mx-1"></i>
@@ -110,11 +110,11 @@
     <div class="col-3">
         <div class="card border-0 rounded-0" style="font-size: .9em;">
             <div class="card-header text-white px-2 py-1 rounded-0 bg-success">
-                <i class="fa fa-check-circle mr-2"></i>已完成<span class="badge badge-light mt-1 pull-right">{{summary.closed}}</span>
+                <i class="fa fa-check-circle mr-2"></i>已完成<span class="badge badge-light mt-1 pull-right">{{summary.finished}}</span>
             </div>
 
             <div class="card-body m-0 p-0" style="background-color: #eee">
-                {% for _, info in ipairs(tasks.closed) do %}
+                {% for _, info in ipairs(tasks.finished) do %}
                 <div class="card m-1 rounded-0">
                     <div class="card-body m-0 py-1 px-2">
                         <span class="d-inline-block text-truncate mw-100">                            
@@ -130,7 +130,7 @@
                         </span><br>
                         {% end %}
                         <small class="d-inline-block text-truncate mw-100" style="min-width: 100%">
-                            <i class="fa fa-calendar mr-1"></i>{{string.format('%02d.%02d', info.end_time.month, info.end_time.day)}}
+                            <span class="{{info.delayed and 'text-danger' or ''}}"><i class="fa fa-calendar mr-1"></i>{{string.format('%02d.%02d', info.end_time.month, info.end_time.day)}}</span>
                             <span class="pull-right">
                                 <span class="badge badge-dark text-white ml-2">{{info.creator_name}}</span>
                                 <i class="fa fa-chevron-right mx-1"></i>

@@ -16,7 +16,7 @@
         </h4>
     </div>
     
-    {% if enable_archive and task.info.status == 3 then %}
+    {% if enable_archive and task.info.status == 4 then %}
     <a href="#" class="btn-link" onclick="return archive('{{task.info.id}}');" style="position: absolute; right: 1em; top: .5em;"><i class="fa fa-archive mr-1"></i>验收任务</a>
     {% end %}
     <hr class="mx-0 mt-0 mb-1">
@@ -28,6 +28,13 @@
         <div>
             <div class="px-2">
                 <i class="fa fa-hand-o-right mr-1"></i>{{task.info.assigned_name}}
+            </div>
+        </div>
+
+        <!-- 测试 -->
+        <div>
+            <div class="px-2">
+                <i class="fa fa-at mr-1"></i>{{task.info.cooperator_name}}
             </div>
         </div>
 
@@ -44,11 +51,13 @@
                 {% if task.info.status == 1 then %}
                 <i class="fa fa-circle-o mr-1"></i>待办中
                 {% elseif task.info.status == 2 then %}
-                <i class="fa fa-dot-circle-o mr-1"></i>进行中
+                <i class="fa fa-dot-circle-o mr-1"></i>开发中
                 {% elseif task.info.status == 3 then %}
+                <i class="fa fa-exclamation-circle mr-1"></i>测试中
+                {% elseif task.info.status == 4 then %}
                 <i class="fa fa-check-circle mr-1"></i>已完成
-                {% else %}
-                <i class="fa fa-archive mr-1"></i>已验收
+                {% else %}                
+                <i class="fa fa-archive mr-1"></i>已归档
                 {% end %}
             </div>
         </div>
@@ -136,7 +145,7 @@ function close_task() {
 }
 
 function archive(tid) {
-    $.post('/dashboard/tasks/mod_status', {tid : tid, org_status: 3, new_status : 4}, function() {
+    $.post('/dashboard/tasks/mod_status', {tid : tid, org_status: 4, new_status : 5}, function() {
         open_task(tid);
     });
 }
