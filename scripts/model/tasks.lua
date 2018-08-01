@@ -6,6 +6,15 @@
 -- ========================================================
 local tasks = inherit(M('base'));
 
+-- 任务所属过滤
+tasks.filters = {
+    ABOUT       = 1,
+    CREATE_BY   = 2,
+    ASSIGNED_TO = 3,
+    BY_WEIGHT   = 4,
+    BY_PROJ     = 5,
+}
+
 -- 取得一个项目的任务
 function tasks:get_by_proj(pid)
     local find  = self:query([[
@@ -60,7 +69,21 @@ function tasks:report_for_proj(pid, start_time, end_time, to)
 end
 
 -- 取得当前用户的所有任务
-function tasks:get_mine(cond)
+function tasks:get_mine(filter, v)
+    local cond = 'false';
+
+    if filter == self.filters.ABOUT then
+        cond = string.gsub('(`creator`=__ME OR `assigned`=__ME OR `cooperator`=__ME)', '__ME', session.uid);
+    elseif filter == self.filters.CREATE_BY then
+        cond = '`creator`=' .. session.uid;
+    elseif filter == self.filters.ASSIGNED_TO then
+        cond = string.format('(`assigned`=%d OR `cooperator`=%d)', session.uid, session.uid);
+    elseif filter == self.filters.BY_WEIGHT then
+        cond = string.format('(`creator`=%d OR `assigned`=%d OR `cooperator`=%d) AND (`weight`=%d)', session.uid, session.uid, session.uid, tonumber(v));
+    elseif filter == self.filters.BY_PROJ then
+        cond = string.format('(`creator`=%d OR `assigned`=%d OR `cooperator`=%d) AND (`pid`=%d)', session.uid, session.uid, session.uid, tonumber(v));
+    end
+
     local sql   = [[
         SELECT `tasks`.`id` as id, `pid`, `tasks`.`name` as name, `projects`.`name` as pname, `creator`, `assigned`, `cooperator`, `weight`, `tags`, `start_time`, `end_time`, `status`
         FROM `tasks` LEFT JOIN `projects` ON `tasks`.`pid`=`projects`.`id`

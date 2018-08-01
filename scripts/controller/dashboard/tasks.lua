@@ -51,7 +51,8 @@ tasks.events = {
 
 -- 任务主页
 function tasks:index(req, rsp)
-    local tasks_    = M('tasks'):get_mine('(creator=' .. session.uid .. ' OR assigned=' .. session.uid .. ' OR cooperator=' .. session.uid .. ')');
+    local m         = M('tasks');
+    local tasks_    = m:get_mine(m.filters.ABOUT);
     local parsed    = self:__process(session.name .. '【所有】', tasks_);
 
     parsed.dashboard_menu = 'tasks';
@@ -236,31 +237,36 @@ end
 
 -- 我的所有任务
 function tasks:all_of_mine(req, rsp)
-    local tasks_ = M('tasks'):get_mine('(creator=' .. session.uid .. ' OR assigned=' .. session.uid .. ' OR cooperator=' .. session.uid .. ')');
+    local m         = M('tasks');
+    local tasks_    = m:get_mine(m.filters.ABOUT);
     self:__layout_tasks(rsp, session.name .. '【所有】', tasks_);
 end
 
 -- 选出我发布的任务
 function tasks:create_by_me(req, rsp)
-    local tasks_ = M('tasks'):get_mine('creator=' .. session.uid);
+    local m         = M('tasks');
+    local tasks_    = m:get_mine(m.filters.CREATE_BY);
     self:__layout_tasks(rsp, session.name .. '【发布】', tasks_);
 end
 
 -- 选出指派给我的任务
 function tasks:assigned_to_me(req, rsp)
-    local tasks_ = M('tasks'):get_mine('assigned=' .. session.uid .. ' OR cooperator=' .. session.uid);
+    local m         = M('tasks');
+    local tasks_    = m:get_mine(m.filters.ASSIGNED_TO);
     self:__layout_tasks(rsp, '【指派给】' .. session.name, tasks_);
 end
 
 -- 选出指定任务等级的任务
 function tasks:filter_weight(req, rsp)
-    local tasks_ = M('tasks'):get_mine('weight=' .. req.post.p1 .. ' AND (creator=' .. session.uid .. ' OR assigned=' .. session.uid .. ' OR cooperator=' .. session.uid .. ')');
+    local m         = M('tasks');
+    local tasks_    = m:get_mine(m.filters.BY_WEIGHT, req.post.p1);
     self:__layout_tasks(rsp, session.name .. string.format('【%s】', self.weights[tonumber(req.post.p1)].title), tasks_);
 end
 
 -- 选出指定项目的任务
 function tasks:filter_proj(req, rsp)
-    local tasks_ = M('tasks'):get_mine('pid=' .. req.post.p1 .. ' AND (creator=' .. session.uid .. ' OR assigned=' .. session.uid .. ' OR cooperator=' .. session.uid .. ')');
+    local m         = M('tasks');
+    local tasks_    = m:get_mine(m.filters.BY_PROJ, req.post.p1);
     self:__layout_tasks(rsp, session.name .. string.format('@【%s】', req.post.p2), tasks_);
 end
 
