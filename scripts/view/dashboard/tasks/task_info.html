@@ -137,7 +137,7 @@
 
         <div class="tab-content h-100">
             <!-- 评论分页 -->
-            <div class="tab-pane fade show active" id="task-comment-pane" role="tabpanel" aria-labelledby="task-comment-tab">
+            <div class="tab-pane show active" id="task-comment-pane" role="tabpanel" aria-labelledby="task-comment-tab">
                 {% for _, info in ipairs(task.comments) do %}
                 <div class="mt-2 border-bottom">
                     <div class="d-flex mb-2">
@@ -159,7 +159,7 @@
             </div>
 
             <!-- 事件分页 -->
-            <div class="tab-pane fade pt-1" id="task-event-pane" role="tabpanel" aria-labelledby="task-event-tab">
+            <div class="tab-pane pt-1" id="task-event-pane" role="tabpanel" aria-labelledby="task-event-tab">
                 <ul class="p-2" style="list-style-type: none;font-size: .8em;">
                     {% for _, ev in ipairs(task.events) do %}
                     <li class="text-muted">
