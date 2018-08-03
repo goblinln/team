@@ -83,8 +83,6 @@ function base:__mkval(v)
         else
             local serialized	= json.encode(v);
             local encrypt		= "'" .. self.__conn:escape(serialized, string.len(serialized)) .. "'";
-            
-            encrypt = string.gsub(encrypt, '%%', '%%%%');
             return encrypt;
         end
     else
