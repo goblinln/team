@@ -128,7 +128,7 @@ function setup:index(req, rsp)
         end
 
         local lock = io.open(config.app.install_lock, 'w+');
-        lock:write('1');
+        lock:write('Remove this file & visite /install/setup/?override=1 will resetup databases');
         lock:close();
 
         rsp:html('install/success.html');
