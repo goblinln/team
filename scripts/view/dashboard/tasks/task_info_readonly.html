@@ -77,7 +77,7 @@
 
     <!-- 附件 -->
     {% if #task.attachments > 0 then %}
-    <div class="mt-1 mb-2">
+    <div class="mt-1 mb-4">
         <span>附件：</span>  
         {% for _, info in ipairs(task.attachments or {}) do %}
         <small class="border p-1 mr-2">
