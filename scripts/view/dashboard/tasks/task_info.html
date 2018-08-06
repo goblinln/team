@@ -110,6 +110,11 @@
             </div>
         </div>
 
+        <!-- 附件管理 -->
+        <div class="btn-link px-2" onclick="return add_attachment();">
+            <i class="fa fa-upload mr-1"></i>上传附件
+        </div>
+
         <!-- 编辑 -->
         <div class="btn-link px-2" onclick="return edit_content();">
             <i class="fa fa-pencil-square-o mr-1"></i>编辑
@@ -120,6 +125,21 @@
 
 <!-- 任务信息 -->
 <div class="task-detail-info-pane mt-4" editing-comment="false">
+    <!-- 附件 -->
+    {% if #task.attachments > 0 then %}
+    <div class="mt-1 mb-2">
+        <span>附件：</span>
+
+        {% for _, info in ipairs(task.attachments or {}) do %}
+        <small class="border p-1 mr-2">
+            <a href="{{info.url}}">
+                <i class="fa fa-paperclip mr-1"></i>{{info.name}}
+            </a>
+            <i class="fa fa-close ml-2" onclick="return del_attachment('{{info.id}}');"></i>
+        </small>
+        {% end %}
+    </div>
+    {% end %}
 
     <!-- 任务描述 -->
     <div id="task-content-preview" style="min-height: 250px;">{{task.info.content}}</div>
@@ -181,9 +201,11 @@
             data-iconlibrary="fa"
             data-upload="/dashboard/files/upload"
             data-fullscreen = "{ enable: false }"
-            data-footer='<div class="text-right"><button id="btn-close-edit" type="button" class="btn btn-sm btn-secondary mr-2" onclick="return end_comment(false);"><i class="fa fa-ban"></i></button><button id="btn-save-content" type="button" class="btn btn-sm btn-primary" onclick="return end_comment(true);"><i class="fa fa-send-o"></i></button></div>'></textarea>
+            data-footer='<div class="text-right"><button id="btn-close-edit" type="button" class="btn btn-sm btn-secondary mr-2" onclick="return end_comment(false);"><i class="fa fa-close"></i></button><button id="btn-save-content" type="button" class="btn btn-sm btn-primary" onclick="return end_comment(true);"><i class="fa fa-send-o"></i></button></div>'></textarea>
     </div>
 </div>
+
+<input type="file" id="upload-task-attachment" hidden>
 
 <script>
 var content = $('#task-content-preview').get(0).innerHTML;
@@ -214,6 +236,28 @@ $('#trigger-task-comment').focusin(function() {
 });
 
 $('#task-comment-input').markdown();
+
+$('#upload-task-attachment').change(function() {
+    var form = new FormData();
+    form.append('attachment', $('#upload-task-attachment')[0].files[0]);
+    form.append('tid', '{{task.info.id}}');
+
+    $.ajax({
+        url: '/dashboard/tasks/add_attachment',
+        type: 'POST',
+        cache: false,
+        data: form,
+        dataType: 'json',
+        processData: false,
+        contentType: false,
+        success: function (ret) {
+            refresh_task_info();
+        },
+        error: function (err) {
+            alert('上传失败！' + err);
+        }
+    });
+});
 
 function refresh_task_info() {
     open_task('{{task.info.id}}');
@@ -316,6 +360,16 @@ function end_comment(send) {
 
 function del_comment(id) {
     $.post('/dashboard/tasks/del_comment', { id: id }, function(ret) {
+        if (ret.ok) refresh_task_info();
+    });
+}
+
+function add_attachment() {
+    $('#upload-task-attachment').click();
+}
+
+function del_attachment(aid) {
+    $.post('/dashboard/tasks/del_attachment', { tid: '{{task.info.id}}', aid: aid }, function (ret) {
         if (ret.ok) refresh_task_info();
     });
 }

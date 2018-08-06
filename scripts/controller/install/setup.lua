@@ -65,6 +65,12 @@ setup.struct = {
         `uid` INTEGER NOT NULL,
         `comment` TEXT,
         PRIMARY KEY(`id`)]],
+    task_attachments = [[
+        `id` INTEGER NOT NULL AUTO_INCREMENT,
+        `tid` INTEGER NOT NULL,
+        `name` VARCHAR(128) NOT NULL,
+        `url` VARCHAR(128),
+        PRIMARY KEY(`id`)]],
     files = [[
         `id` INTEGER NOT NULL AUTO_INCREMENT,
         `name` VARCHAR(128) NOT NULL,

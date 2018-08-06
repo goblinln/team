@@ -35,19 +35,7 @@ end
 function files:upload(req, rsp)
     if req.method ~= 'POST' then return rsp:error(405) end;
 
-    local dir = 'www/upload';
-    if not os.exists(dir) then os.mkdir(dir) end;
-
-    dir = dir .. '/' .. session.uid;    
-    if not os.exists(dir) then os.mkdir(dir) end;
-
-    local uploaded = { };
-    for name, path in pairs(req.file) do
-        local to = dir .. '/' .. os.time() .. '_' .. name;
-        if os.cp(path, to) then table.insert(uploaded, { ok = true, name = name, url = '/' .. to, size = os.filesize(to) }) end;
-    end
-
-    local data = uploaded[1] or {};
+    local data = self:do_upload(req.file)[1];
     if (not data.ok) or (not req.post.is_share) then return rsp:json(data) end;
 
     xpcall(function()
@@ -75,6 +63,22 @@ function files:delete(req, rsp)
     os.rm('.' .. shared.path);
     M('base'):exec([[DELETE FROM `files` WHERE `id`=?1]], shared.id);
     rsp:json{ok = true};
+end
+
+-------------------------- 内部调用 --------------------------
+
+-- 上传处理
+function files:do_upload(file_map)
+    local dir = 'www/upload/' .. session.uid;
+    if not os.exists(dir) then os.mkdir(dir) end;
+
+    local uploaded = { };
+    for name, path in pairs(file_map) do
+        local to = dir .. '/' .. os.time() .. '_' .. name;
+        if os.cp(path, to) then table.insert(uploaded, { ok = true, name = name, url = '/' .. to, size = os.filesize(to) }) end;
+    end
+
+    return uploaded;
 end
 
 return files;

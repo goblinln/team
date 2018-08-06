@@ -47,6 +47,8 @@ tasks.events = {
     MODIFY_CONTANT      = 12,
     ADD_COMMENT         = 13,
     DEL_COMMENT         = 14,
+    ADD_ATTACHMENT      = 15,
+    DEL_ATTACHMENT      = 16,
 };
 
 -- 任务主页
@@ -122,9 +124,9 @@ function tasks:do_create(req, rsp)
     param.tags = param.tags or {};
     for n, t in ipairs(param.tags) do param.tags[n] = tonumber(t) end;
 
-    local ok, err = M('tasks'):add(param);
+    local ok, err = M('tasks'):add(param, req.file);
     if not ok then return rsp:json({ok = false, err_msg = err}) end;
-    rsp:json{ok = true};
+    rsp:json{ ok = true };
 end
 
 -- 切换预览模式
@@ -231,6 +233,32 @@ function tasks:del_comment(req, rsp)
     if req.method ~= 'POST' then return rsp:error(405) end;
     local ok = M('tasks'):del_comment(req.post.id);
     rsp:json{ok = true};
+end
+
+-- 添加附件
+function tasks:add_attachment(req, rsp)
+    if req.method ~= 'POST' then return rsp:error(405) end;
+
+    local data = C('dashboard/files'):do_upload(req.file);
+    for _, info in ipairs(data) do
+        if info.ok then
+            if not M('tasks'):add_attachment(req.post.tid, info.name, info.url) then
+                return rsp:json{ ok = false, err_msg = '上传文件失败' };
+            end
+        else
+            return rsp:json{ ok = false, err_msg = '上传文件失败' };
+        end
+    end
+    
+    return rsp:json{ok = true};
+end
+
+-- 删除附件
+function tasks:del_attachment(req, rsp)
+    if req.method ~= 'POST' then return rsp:error(405) end;
+
+    local ok, err = M('tasks'):del_attachment(req.post.tid, req.post.aid);
+    rsp:json{ ok = ok, err_msg = err };
 end
 
 ----------------------- 任务筛选 --------------------------
@@ -414,6 +442,10 @@ function tasks:__process_event(evs)
             info.event_desc = '评论了该任务';
         elseif info.event == self.events.DEL_COMMENT then
             info.event_desc = '撤销了一条评论';
+        elseif info.event == self.events.ADD_ATTACHMENT then
+            info.event_desc = '上传了任务附件: ' .. info.addition[1];
+        elseif info.event == self.events.DEL_ATTACHMENT then
+            info.event_desc = '删除了任务附件：' .. info.addition[1];
         else
             info.event_desc = '对任务其他内容进行了修改';
         end

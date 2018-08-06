@@ -70,6 +70,11 @@
         </div>
 
         <div class="form-group">
+            <a href="#" class="btn-link" onclick="return add_attachment();">上传附件</a>
+            <div id="form-attachments" data-counter="0"></div>
+        </div>
+
+        <div class="form-group">
             <div id="err"></div>
         </div>
 
@@ -100,9 +105,36 @@ function get_members_of_proj(pid) {
     }, 'json');
 }
 
+function add_attachment() {
+    var counter = $('#form-attachments').data('counter');
+    counter++;
+    $('#form-attachments').data('counter', counter);
+
+    var input = $('<input type="file" id="attachment_' + counter + '" name="attachment_' + counter + '" class="form-control" hidden>');
+    input.click();
+    input.change(function() {
+        var file = input[0].files[0];
+        var btn_rm = $(
+            '<span id="attachment_label_' + counter + '" class="badge badge-secondary mr-2">' +            
+            '<i class="fa fa-paperclip mr-1"></i>' +
+            file.name +
+            '<i class="fa fa-close ml-2" onclick="return del_attachment(' + counter + ');"></i>' +
+            '</span>');
+
+        $('#form-attachments').append(btn_rm);
+        $('#form-attachments').append(input);
+    });
+}
+
+function del_attachment(id) {
+    $('#attachment_' + id).remove();
+    $('#attachment_label_' + id).remove();
+}
+
 function quit_create() {
     last_filter_menu.click();
     $('.xdsoft_datetimepicker').remove();
+    $('input[type="file"]').remove();
 }
 
 $('#form-create-task #pid').change(function() {

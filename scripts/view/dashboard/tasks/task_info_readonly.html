@@ -75,6 +75,20 @@
 <!-- 任务信息 -->
 <div class="task-detail-info-pane mt-4">
 
+    <!-- 附件 -->
+    {% if #task.attachments > 0 then %}
+    <div class="mt-1 mb-2">
+        <span>附件：</span>  
+        {% for _, info in ipairs(task.attachments or {}) do %}
+        <small class="border p-1 mr-2">
+            <a href="{{info.url}}">
+                <i class="fa fa-paperclip mr-1"></i>{{info.name}}
+            </a>
+        </small>
+        {% end %}
+    </div>
+    {% end %}
+
     <!-- 任务描述 -->
     <div id="task-content-preview" style="min-height: 250px;">{{task.info.content}}</div>
 

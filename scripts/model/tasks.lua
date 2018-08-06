@@ -95,17 +95,41 @@ function tasks:get_mine(filter, v)
 end
 
 -- 新建
-function tasks:add(param)
+function tasks:add(param, files)
     local ok, err = false, '';
+
+    if not param.content or string.len(param.content) == 0 then
+        return false, '任务详情必须写明！';
+    end
+
+    local uploaded = {};
+
+    for name, path in pairs(files) do
+        local dir = 'www/upload/' .. session.uid;
+        if not os.exists(dir) then os.mkdir(dir) end;
+
+        local to = dir .. '/' .. os.time() .. '_' .. name;
+        if os.cp(path, to) then
+            table.insert(uploaded, { name = name, url = '/' .. to });
+        end
+    end
 
     xpcall(function()
         self:exec([[
             INSERT INTO
             `tasks`(`pid`, `creator`, `assigned`, `cooperator`, `name`, `weight`, `tags`, `start_time`, `end_time`, `content`)
             VALUES(?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)]],
-            param.pid, session.uid, param.assigned, param.cooperator, param.name, param.weight, param.tags, param.start_time, param.end_time, param.content or '');
+            param.pid, session.uid, param.assigned, param.cooperator, param.name, param.weight, param.tags, param.start_time, param.end_time, param.content);
 
-        self:__add_event(self:last_id(), C('dashboard/tasks').events.CREATED);
+        local tid = self:last_id();
+        self:__add_event(tid, C('dashboard/tasks').events.CREATED);
+
+        for _, attachment in ipairs(uploaded) do
+            self:exec([[
+                INSERT INTO `task_attachments`(`tid`, `name`, `url`)
+                VALUES(?1, ?2, ?3)]], tid, attachment.name, attachment.url);
+        end
+        
         ok = true;
     end, function(stack)
         log.error(stack);
@@ -125,11 +149,13 @@ function tasks:get(id)
 
         local events_ = self:query([[SELECT * FROM `task_events` WHERE `tid`=?1 ORDER BY `timepoint` DESC]], id);
         local comments_ = self:query([[SELECT * FROM `task_comments` WHERE `tid`=?1 ORDER BY `timepoint` DESC]], id);
+        local attachments_ = self:query([[SELECT * FROM `task_attachments` WHERE `tid`=?1]], id);
         self:__on_loaded(tasks_, events_, comments_);
 
         ret.info = tasks_[1];
         ret.events = events_;
         ret.comments = comments_;
+        ret.attachments = attachments_;
     end, function(stack)
         log.error(stack);
     end);
@@ -235,6 +261,30 @@ function tasks:del_comment(id)
     self:__add_event(id, C('dashboard/tasks').events.DEL_COMMENT);
     return true;
 end
+
+-- 添加附件
+function tasks:add_attachment(id, name, url)
+    self:exec([[
+        INSERT INTO `task_attachments`(`tid`, `name`, `url`)
+        VALUES(?1, ?2, ?3)]], id, name, url);
+    self:__add_event(id, C('dashboard/tasks').events.ADD_ATTACHMENT, {name});
+    return true;
+end
+
+-- 删除附件
+function tasks:del_attachment(id, aid)
+    local info = self:query([[
+        SELECT *
+        FROM `task_attachments`
+        WHERE `id`=?1 AND `tid`=?2]], aid, id)[1];
+    if not info then return false, '附件不存在或已被删除' end;
+
+    os.rm('.' .. info.url);
+    self:exec([[DELETE FROM `task_attachments` WHERE `id`=?1]], aid);
+    return true;
+end
+
+-------------------------- 内部调用 --------------------------
 
 -- 添加事件
 function tasks:__add_event(tid, event, addition)
