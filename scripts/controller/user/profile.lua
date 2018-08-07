@@ -14,6 +14,7 @@ end
 -- 修改名字
 function profile:set_name(req, rsp)
     if req.method ~= 'POST' then return rsp:error(405) end;
+    if config.app.enable_rename ~= 'yes' then return rsp:json{ ok = false } end;
     if req.post.name == session.name then return rsp:json{ ok = false } end;
     local ok, err = M('user'):set_name(req.post.name);
     rsp:json{ok = ok, err_msg = err};
