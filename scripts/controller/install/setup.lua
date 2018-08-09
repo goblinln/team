@@ -24,7 +24,7 @@ setup.struct = {
         `parent_id` INTEGER DEFAULT -1,
         `author` INTEGER NOT NULL,
         `modify_user` INTEGER NOT NULL,
-        `modify_time` DATETIME,
+        `modify_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         `content` TEXT,
         PRIMARY KEY(`id`)]],
     projects = [[
@@ -53,14 +53,14 @@ setup.struct = {
         `content` TEXT,
         PRIMARY KEY(`id`)]],
     task_events = [[
-        `timepoint` DATETIME DEFAULT NOW(),
+        `timepoint` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         `tid` INTEGER NOT NULL,
         `uid` INTEGER NOT NULL,
         `event` INTEGER NOT NULL,
         `addition` VARCHAR(64)]],
     task_comments = [[
         `id` INTEGER NOT NULL AUTO_INCREMENT,
-        `timepoint` DATETIME DEFAULT NOW(),
+        `timepoint` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         `tid` INTEGER NOT NULL,
         `uid` INTEGER NOT NULL,
         `comment` TEXT,
@@ -77,7 +77,7 @@ setup.struct = {
         `path` VARCHAR(512) NOT NULL,
         `creator` INTEGER NOT NULL,
         `size` INTEGER NOT NULL,
-        `upload_time` DATETIME DEFAULT NOW(),
+        `upload_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY(`id`)]]
 };
 
@@ -92,6 +92,14 @@ setup.build_in = {
         }
     }
 };
+
+-- 数据库安装完成后写入锁文件
+setup.lock_content = [[
+This file used to mark database has been successfully initialized.
+
+1. Remove this file and refresh you browser will create data tables not exist.
+2. Remove this file and visit http://{HOST}:{PORT}/install/setup/?override=1 will drop all tables and re-initialize database.
+]]
 
 -- 安装
 function setup:index(req, rsp)
@@ -114,27 +122,29 @@ function setup:index(req, rsp)
             db:exec(code);
         end
 
-        for name, rows in pairs(self.build_in) do         
-            for _, row in ipairs(rows) do
-                code = 'INSERT INTO `' .. name .. '`(';
-                
-                local vals  = {};
-                local param = ' VALUES('
+        if use_drop then
+            for name, rows in pairs(self.build_in) do         
+                for _, row in ipairs(rows) do
+                    code = 'INSERT INTO `' .. name .. '`(';
+                    
+                    local vals  = {};
+                    local param = ' VALUES('
 
-                for key, val in pairs(row) do
-                    table.insert(vals, val);
+                    for key, val in pairs(row) do
+                        table.insert(vals, val);
 
-                    code    = code .. '`' .. key .. '`,';
-                    param   = param .. '?' .. #vals .. ',';
+                        code    = code .. '`' .. key .. '`,';
+                        param   = param .. '?' .. #vals .. ',';
+                    end
+
+                    code = string.sub(code, 1, -2) .. ') ' ..  string.sub(param, 1, -2) .. ')';
+                    db:exec(code, unpack(vals));
                 end
-
-                code = string.sub(code, 1, -2) .. ') ' ..  string.sub(param, 1, -2) .. ')';
-                db:exec(code, unpack(vals));
             end
         end
 
         local lock = io.open(config.app.install_lock, 'w+');
-        lock:write('Remove this file & visite /install/setup/?override=1 will resetup databases');
+        lock:write(self.lock_content);
         lock:close();
 
         rsp:html('install/success.html');
