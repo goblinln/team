@@ -26,11 +26,15 @@
             <div class="btn-link px-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="fa fa-hand-o-right mr-1"></i>{{task.info.assigned_name}}
             </div>
-            <div class="dropdown-menu">
-                {% for _, info in ipairs(members or {}) do %}
-                <a class="dropdown-item" href="#" onclick="return mod_assign('{{info.uid}}')">【{{info.user_role}}】{{info.user}}</a>
-                {% end %}
-            </div>
+            <form class="dropdown-menu p-0 border-0">
+                <select class="custom-select" onchange="return mod_assign(this);">
+                    {% for _, info in ipairs(members or {}) do %} {% if info.uid == task.info.assigned then %}
+                    <option value="{{info.uid}}" selected>【{{info.user_role}}】{{info.user}}</option>
+                    {% else %}
+                    <option value="{{info.uid}}">【{{info.user_role}}】{{info.user}}</option>
+                    {% end %} {% end %}
+                </select>
+            </form>
         </div>
 
         <!-- 协作 -->
@@ -38,11 +42,15 @@
             <div class="btn-link px-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="fa fa-at mr-1"></i>{{task.info.cooperator_name}}
             </div>
-            <div class="dropdown-menu">
-                {% for _, info in ipairs(members or {}) do %}
-                <a class="dropdown-item" href="#" onclick="return mod_cooperator('{{info.uid}}')">【{{info.user_role}}】{{info.user}}</a>
-                {% end %}
-            </div>
+            <form class="dropdown-menu p-0 border-0">
+                <select class="custom-select" onchange="return mod_cooperator(this);">
+                    {% for _, info in ipairs(members or {}) do %} {% if info.uid == task.info.cooperator then %}
+                    <option value="{{info.uid}}" selected>【{{info.user_role}}】{{info.user}}</option>
+                    {% else %}
+                    <option value="{{info.uid}}">【{{info.user_role}}】{{info.user}}</option>
+                    {% end %} {% end %}
+                </select>
+            </form>
         </div>
 
         <!-- 时间: 只有项目管理员可以更改时间 -->
@@ -275,12 +283,12 @@ function close_task() {
     }
 }
 
-function mod_assign(uid) {    
-    $.post('/dashboard/tasks/mod_assign', { tid : '{{task.info.id}}', org_uid : '{{task.info.assigned}}', new_uid : uid }, refresh_task_info);
+function mod_assign(elem) {    
+    $.post('/dashboard/tasks/mod_assign', { tid : '{{task.info.id}}', org_uid : '{{task.info.assigned}}', new_uid : $(elem).val() }, refresh_task_info);
 }
 
-function mod_cooperator(uid) {
-    $.post('/dashboard/tasks/mod_cooperator', { tid : '{{task.info.id}}', org_uid : '{{task.info.assigned}}', new_uid : uid }, refresh_task_info);
+function mod_cooperator(elem) {
+    $.post('/dashboard/tasks/mod_cooperator', { tid : '{{task.info.id}}', org_uid : '{{task.info.assigned}}', new_uid : $(elem).val() }, refresh_task_info);
 }
 
 function mod_time() {
