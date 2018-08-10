@@ -207,7 +207,7 @@ $('#treeview').jstree({
             + '<span class="bg-dark text-white p-1">更新者</span><span class="bg-success text-white px-2 py-1 mr-2">' + ret.modify_user + '</span>'
             + '<span class="bg-dark text-white p-1">更新时间</span><span class="bg-success text-white px-2 py-1">' + ret.last_modify + '</span></small><hr></div>'
             + '<div class="document-toc p-2 border-right shadow"><ul class="md-toc"></ul></div>'
-            + '<div class="md-preview document-view p-2">' + marked(ret.content || '') + '</div>';
+            + '<div class="md-preview document-view pt-2 pl-4">' + marked(ret.content || '') + '</div>';
 
         PR.prettyPrint();
         $('.flowchart').each(function() {
