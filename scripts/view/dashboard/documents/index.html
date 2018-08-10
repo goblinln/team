@@ -203,11 +203,12 @@ $('#treeview').jstree({
             return;
         }
 
-        $('#doc-view').get(0).innerHTML = '<div class="pt-3 text-center"><small><span class="bg-dark text-white p-1">作者</span><span class="bg-success text-white px-2 py-1 mr-2">' + ret.author + '</span>'
-            + '<span class="bg-dark text-white p-1">更新者</span><span class="bg-success text-white px-2 py-1 mr-2">' + ret.modify_user + '</span>'
-            + '<span class="bg-dark text-white p-1">更新时间</span><span class="bg-success text-white px-2 py-1">' + ret.last_modify + '</span></small><hr></div>'
-            + '<div class="document-toc p-2 border-right shadow"><ul class="md-toc"></ul></div>'
-            + '<div class="md-preview document-view pt-2 pl-4">' + marked(ret.content || '') + '</div>';
+        $('#doc-view').get(0).innerHTML = '<div class="document-toc p-2 border-right shadow"><table class="table table-sm text-white"><tbody>'
+            + '<tr><td class="bg-dark">作者</td><td class="bg-success">' + ret.author + '</td></tr>'
+            + '<tr><td class="bg-dark">更新</td><td class="bg-success">' + ret.modify_user + '</td></tr>'
+            + '<tr><td class="bg-dark">时间</td><td class="bg-success">' + ret.last_modify + '</td></tr></tbody></table>'
+            + '<ul class="md-toc"></ul></div>'
+            + '<div class="document-view md-preview mt-1 pt-2 pl-4">' + marked(ret.content || '') + '</div>';
 
         PR.prettyPrint();
         $('.flowchart').each(function() {
