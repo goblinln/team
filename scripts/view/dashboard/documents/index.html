@@ -74,6 +74,7 @@
     </div>
 </div>
 
+<script src="/www/js/jquery.toc.min.js"></script>
 <script>
 $('#treeview').jstree({
 	core: {
@@ -205,7 +206,8 @@ $('#treeview').jstree({
         $('#doc-view').get(0).innerHTML = '<div class="pt-3 text-center"><small><span class="bg-dark text-white p-1">作者</span><span class="bg-success text-white px-2 py-1 mr-2">' + ret.author + '</span>'
             + '<span class="bg-dark text-white p-1">更新者</span><span class="bg-success text-white px-2 py-1 mr-2">' + ret.modify_user + '</span>'
             + '<span class="bg-dark text-white p-1">更新时间</span><span class="bg-success text-white px-2 py-1">' + ret.last_modify + '</span></small><hr></div>'
-            + '<div class="md-preview d-block mh-100">' + marked(ret.content || '') + '</div>';
+            + '<div class="document-toc p-2 border-right shadow"><ul class="md-toc"></ul></div>'
+            + '<div class="md-preview document-view p-2">' + marked(ret.content || '') + '</div>';
 
         PR.prettyPrint();
         $('.flowchart').each(function() {
@@ -214,6 +216,8 @@ $('#treeview').jstree({
             elem.empty();
             diag.drawSVG(elem.get(0));
         });
+
+        $('.md-toc').toc({ content: ".md-preview", headings: "h1, h2, h3, h4, h5, h6"});
     }, 'json');
 });
 
