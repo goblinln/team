@@ -114,7 +114,11 @@ end
 -- 修改头像
 function user:set_avatar(url)
     if not session.uid then return end;
-    self:exec("UPDATE `users` SET avatar=?1 WHERE id=?2", url, session.uid);    
+    self:exec("UPDATE `users` SET avatar=?1 WHERE id=?2", url, session.uid);
+    
+    local old = '.' .. session.avatar;
+    if os.exists(old) then os.rm(old) end;
+    
     session.avatar = url;
 end
 
