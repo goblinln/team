@@ -151,6 +151,10 @@ function M.connect(t, ...)
 	end
 
 	local mysql = assert(C.mysql_init(nil))
+	if mysql == NULL then
+		error('MYSQL error: mysql_init failed');
+	end
+	
 	ffi.gc(mysql, C.mysql_close)
 
 	if options then
