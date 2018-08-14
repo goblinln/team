@@ -51,7 +51,6 @@ local entry = function(controller, action, req, rsp)
 	end);
 
 	-- 解决mysql内存释放不完全BUG
-	collectgarbage()
 	if _G.cleanup_db then _G.cleanup_db() end;
 end
 
