@@ -116,8 +116,10 @@ function user:set_avatar(url)
     if not session.uid then return end;
     self:exec("UPDATE `users` SET avatar=?1 WHERE id=?2", url, session.uid);
     
-    local old = '.' .. session.avatar;
-    if os.exists(old) then os.rm(old) end;
+    if session.avatar ~= '/www/images/default_avatar.png' then
+        local old = '.' .. session.avatar;
+        if os.exists(old) then os.rm(old) end;
+    end
     
     session.avatar = url;
 end
