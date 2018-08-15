@@ -97,6 +97,7 @@ $('#form-create-task #content').markdown();
 
 function get_members_of_proj(pid) {
     $('#form-create-task #assigned').empty();
+    $('#form-create-task #cooperator').empty();
     $.post('/dashboard/tasks/members_of_proj', {pid: pid}, function(ret) {
         $.each(ret, function(_, info) {
             $('#form-create-task #assigned').append('<option value="' + info.uid + '">【' + info.user_role + '】' + info.user + '</option>');
