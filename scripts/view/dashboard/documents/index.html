@@ -1,7 +1,7 @@
 {% layout = 'dashboard/layout_dashboard.html' %}
 
 <!-- 文档目录树 -->
-<div class="menublock border-right pt-2">
+<div class="menublock border-right pt-2" style="font-size: .9em">
     <div id="treeview"></div>
 </div>
 
@@ -75,6 +75,7 @@
 </div>
 
 <script src="/www/js/jquery.toc.min.js"></script>
+<script src="/www/js/bootstrap.notify.min.js"></script>
 <script>
 $('#treeview').jstree({
 	core: {
@@ -148,7 +149,7 @@ $('#treeview').jstree({
                     action: function(obj) {
                         $.post('/dashboard/documents/info', { id: node.id }, function(ret) {
                             if (!ret.ok) {
-                                alert(rsp.err_msg);
+                                $.notify({ message: rsp.err_msg, icon: 'fa fa-exclamation-circle', title: '打开编辑器失败'}, { type: 'danger', delay: 500});
                                 return;
                             }
 
@@ -170,7 +171,11 @@ $('#treeview').jstree({
                                 },
                                 onSave: function(e) {
                                     $.post('/dashboard/documents/edit', { id: node.id, content: e.getContent() }, function(ret) {
-                                        alert(ret.ok ? '保存成功！' : ret.err_msg);
+                                        if (ret.ok) {                                            
+                                            $.notify({ message: '保存成功！', icon: 'fa fa-comment'}, { type: 'success', delay: 500 }); 
+                                        } else {
+                                            $.notify({ message: ret.err_msg, icon: 'fa fa-exclamation-circle', title: '保存失败' }, { type: 'danger', delay: 500 }); 
+                                        }
                                     });
                                 }
                             });
@@ -199,7 +204,7 @@ $('#treeview').jstree({
 
     $.post('/dashboard/documents/info', { id: data.node.id }, function(ret) {
         if (!ret.ok) {
-            alert(rsp.err_msg);
+            $.notify({ message : ret.err_msg, icon: 'fa fa-exclamation-circle' }, {type: 'error', delay: 500});
             return;
         }
 
@@ -212,6 +217,8 @@ $('#treeview').jstree({
             + '<div class="document-view md-preview mt-1 pt-2 pl-4">' + marked(ret.content || '') + '</div>';
 
         PR.prettyPrint();
+        $('[data-toggle="popover"]').popover();
+        $('.md-toc').toc({ content: ".md-preview", headings: "h1, h2, h3, h4, h5, h6"});
         $('.flowchart').each(function() {
             var elem = $(this);
             var diag = flowchart.parse(elem.text());
@@ -219,7 +226,6 @@ $('#treeview').jstree({
             diag.drawSVG(elem.get(0));
         });
 
-        $('.md-toc').toc({ content: ".md-preview", headings: "h1, h2, h3, h4, h5, h6"});
     }, 'json');
 });
 
@@ -238,7 +244,7 @@ $('#btn-add-commit').click(function() {
                 $('.modal').modal('hide');
                 $('#treeview').jstree(true).refresh(true);
             } else {
-                showError('#mdl-add #err', '新建失败', rsp.err_msg);
+                show_error('#mdl-add #err', '新建失败', rsp.err_msg);
             }
         }
     });
@@ -259,7 +265,7 @@ $('#btn-del-commit').click(function() {
                 $('.modal').modal('hide');
                 $('#treeview').jstree(true).refresh(true);
             } else {
-                showError('#mdl-del #err', '删除失败', rsp.err_msg);
+                show_error('#mdl-del #err', '删除失败', rsp.err_msg);
             }
         }
     });

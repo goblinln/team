@@ -234,9 +234,9 @@ function __post(url, form, dialog, err_title) {
             if (ret.ok) {
                 $('.model #err').empty();
                 $('.modal').modal('hide');
-                open_admin('/dashboard/admin/users');
+                last_filter_menu.click();
             } else {
-                showError('#' + dialog + ' #err', err_title, ret.err_msg);
+                show_error('#' + dialog + ' #err', err_title, ret.err_msg);
             }
         }
     });

@@ -4,7 +4,10 @@
 <div class="menublock border-right p-2">
     <ul class="flex-column px-2">
         <li class="d-flex">
-            <a class="menu-link active" href="#" onclick="return open_admin('/dashboard/admin/users');"><i class="fa fa-list-alt mr-2"></i>管理用户</a>
+            <a id="admin-menu-default" class="menu-link active" href="#" onclick="return open_admin(this, '/dashboard/admin/users');"><i class="fa fa-list-alt mr-2"></i>管理用户</a>
+        </li>
+        <li class="d-flex">
+            <a class="menu-link" href="#" onclick="return open_admin(this, '/dashboard/admin/projects');"><i class="fa fa-list-alt mr-2"></i>管理项目</a>
         </li>
     </ul>
 </div>
@@ -14,11 +17,18 @@
 </div>
 
 <script>
-function open_admin(url) {
+
+var last_filter_menu = $('#admin-menu-default');
+function open_admin(menu, url) {
+    if (last_filter_menu) last_filter_menu.removeClass('active');
+    last_filter_menu = $(menu);
+    last_filter_menu.addClass('active');
+    
     $.post(url, function(ret) {
         $('#admin-detail').empty();
         $('#admin-detail').append($(ret));
     }, 'html');
 }
-open_admin('/dashboard/admin/users');
+
+last_filter_menu.click();
 </script>

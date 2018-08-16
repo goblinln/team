@@ -118,10 +118,10 @@
 
 /* Task view panel */
 .task-view-pane {
-    position:absolute;
+    position:fixed;
     display: block;
     z-index: 2;
-    top: 0;
+    top: 40px;
     right: 0;
     bottom: 0;
     width: 720px;
@@ -228,15 +228,14 @@
     text-decoration: none;
 }
 
-/* Profile panel */
-.profile-pane {
+/* Navbar popup panel */
+.navbar-popup {
     position: absolute;
     display: block;
     z-index: 3;
     top: 40px;
     right: 0;
     bottom: 0;
-    width: 250px;
     -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,.3);
     -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,.3);
     box-shadow: 0 0 10px 0 rgba(0,0,0,.3);
@@ -244,7 +243,7 @@
     overflow: auto;
 }
 
-.profile-pane-close {
+.navbar-popup-close {
     position: absolute;
     display: inline-block;
     z-index: 2;
@@ -256,13 +255,26 @@
     outline: 0;
     background: rgba(0,0,0,0);
     cursor: pointer;
+    font-size: 1.5em;
     text-transform: none;
 }
-.profile-pane-close:hover {
+.navbar-popup-close:hover {
     background: lightgrey;
 }
-.profile-pane-close:focus {
+.navbar-popup-close:focus {
     outline: 0;
+}
+.navbar-notifications {
+    display: inline-block;
+    padding: .2em .3em;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .5rem;
+    color: white;
+    background-color: red;
 }
 
 /** Fonts */

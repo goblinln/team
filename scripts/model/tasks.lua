@@ -122,7 +122,7 @@ function tasks:add(param, files)
             param.pid, session.uid, param.assigned, param.cooperator, param.name, param.weight, param.tags, param.start_time, param.end_time, param.content);
 
         local tid = self:last_id();
-        self:__add_event(tid, C('dashboard/tasks').events.CREATED);
+        self:__add_event(tid, C('dashboard/tasks').events.CREATED, {1});
 
         for _, attachment in ipairs(uploaded) do
             self:exec([[
@@ -161,6 +161,16 @@ function tasks:get(id)
     end);
 
     return ret;
+end
+
+-- 修改名字
+function tasks:mod_name(id, name)
+    self:exec([[
+        UPDATE `tasks`
+        SET `name`=?1
+        WHERE `id`=?2]], name, id);
+
+    self:__add_event(id, C('dashboard/tasks').events.RENAME);
 end
 
 -- 修改指派人
@@ -293,6 +303,67 @@ function tasks:__add_event(tid, event, addition)
         `task_events`(`tid`, `uid`, `event`, `addition`)
         VALUES(?1, ?2, ?3, ?4)]],
         tid, session.uid, event, addition);
+
+    local info = self:query([[SELECT * FROM `tasks` WHERE `id`=?1]], tid)[1];
+    local evs = C('dashboard/tasks').events;
+    local who = '<label class="text-muted mr-1 mb-0">' .. session.name .. '</label>';
+    local action = '';
+    local task_link = '<a href="#" class="task-link mx-1" onclick="return open_task_via_notice(' .. tid .. ');">' .. info.name .. '</a>';
+
+    if event == evs.CREATED then
+        action = who .. (addition and '' or '重新') .. '发布了任务' .. task_link;
+    elseif event == evs.UNDERWAY then
+        action = who .. '开始了任务' .. task_link;
+    elseif event == evs.TESTING then
+        action = who .. '对任务' .. task_link .. '开启了测试流程';
+    elseif event == evs.FINISHED then
+        action = who .. '完成了任务' .. task_link;
+    elseif event == evs.ARCHIVED then
+        action = who .. '验收了任务' .. task_link;
+    elseif event == evs.MODIFY_STARTTIME then
+        action = who .. '修改任务' .. task_link .. '的开始时间 : ' .. addition[1] .. ' > ' .. addition[2];
+    elseif event == evs.MODIFY_ENDTIME then      
+        action = who .. '修改任务' .. task_link .. '的结束时间 : ' .. addition[1] .. ' > ' .. addition[2];
+    elseif event == evs.MODIFY_ASSIGNED then
+        action = who .. '修改任务' .. task_link .. '的指派：' .. addition[1] .. ' > ' .. addition[2];
+    elseif event == evs.MODIFY_COOPERATOR then
+        action = who .. '修改任务' .. task_link .. '的协作人员：' .. addition[1] .. ' > ' .. addition[2];
+    elseif event == evs.MODIFY_WEIGHT then            
+        action = who .. '修改任务' .. task_link .. '的优先级 : ' .. C('dashboard/tasks').weights[addition[1]].title .. ' > ' .. C('dashboard/tasks').weights[addition[2]].title;
+    elseif event == evs.MODIFY_TAGS then
+        action = who .. '修改任务' .. task_link .. '的标签';
+    elseif event == evs.MODIFY_CONTANT then
+        action = who .. '修改任务' .. task_link .. '的内容';
+    elseif event == evs.ADD_COMMENT then
+        action = who .. '评论了' .. task_link;
+    elseif event == evs.DEL_COMMENT then
+        action = who .. '撤销了' .. task_link .. '中一条评论';
+    elseif event == evs.ADD_ATTACHMENT then
+        action = who .. '上传了附件: ' .. addition[1] .. '到' .. task_link;
+    elseif event == evs.DEL_ATTACHMENT then
+        action = who .. '删除了任务' .. task_link .. '的附件：' .. addition[1];
+    elseif event == evs.RENAME then
+        action = who .. '修改了任务' .. task_link .. '的名称';
+    else
+        action = who .. '对任务' .. task_link .. '其他内容进行了修改';
+    end
+
+    local notified = {};
+
+    if info.creator ~= session.uid and not notified[info.creator] then
+        M('notification'):add(info.creator, action);
+        notified[info.creator] = true;
+    end
+
+    if info.assigned ~= session.uid and not notified[info.assigned] then
+        M('notification'):add(info.assigned, action);
+        notified[info.assigned] = true;
+    end
+
+    if info.cooperator ~= session.uid and not notified[info.cooperator] then
+        M('notification'):add(info.cooperator, action);
+        notified[info.cooperator] = true;
+    end
 end
 
 -- 后处理
@@ -308,7 +379,7 @@ function tasks:__on_loaded(tasks_, events_, comments_)
 
     for _, info in ipairs(events_ or {}) do
         info.user = users[info.uid] or '神秘人';
-        info.addition = json.decode(info.addition or 'null');
+        info.addition = json.decode(info.addition or '[]');
     end
 
     for _, info in ipairs(comments_ or {}) do

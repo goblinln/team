@@ -152,10 +152,10 @@ function M.connect(t, ...)
 
 	local mysql = assert(C.mysql_init(nil))
 	if mysql == NULL then
-		error('MYSQL error: mysql_init failed');
+		error('mysql error: mysql_init failed');
 	end
-	
-	ffi.gc(mysql, C.mysql_close)
+
+	ffi.gc(mysql, C.mysql_close);
 
 	if options then
 		for k,v in pairs(options) do

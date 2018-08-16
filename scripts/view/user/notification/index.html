@@ -1,0 +1,50 @@
+<!-- 消息列表 -->
+<div id="notification-list" style="position: absolute; top: 2px; left: 4px; right: 0; bottom: 48px; overflow-y: auto;">
+    {% for _, msg in ipairs(messages) do %}
+    <div class="card m-1 rounded-0 border border-success">
+        <div class="card-body d-flex justify-content-between m-0 p-0">
+            <div class="h-100" style="margin-left: 4px;">
+                <p class="mt-2 mb-0">
+                    {*msg.message*}
+                </p>
+                <small class="text-muted">
+                    <i class="fa fa-clock-o mr-1"></i>{{tostring(msg.timepoint)}}
+                </small>
+            </div>
+            <button class="btn btn-success rounded-0 text-center" style="width: 40px;" onclick="return read_notification('{{msg.id}}');">
+                <i class="fa fa-trash text-white"></i>
+            </button>
+        </div>
+    </div>
+    {% end %}
+</div>
+
+<!-- 底部 -->
+<div style="position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; padding: 8px; -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,.3); -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,.3); box-shadow: 0 0 10px 0 rgba(0,0,0,.3);">
+    <button type="button" class="btn btn-success btn-sm" onclick="return read_all_notifications();">全部删除</button>
+    <button type="button" class="btn btn-default btn-sm" onclick="return navbar_popup_close();">关闭</button>
+</div>
+
+<script>
+function refresh_notifications() {
+    get_notification_count();
+    navbar_popup('/user/notification/', 400);
+}
+
+function read_notification(id) {
+    $.post('/user/notification/read', { id: id }, refresh_notifications);
+}
+
+function read_all_notifications() {
+    $.post('/user/notification/read_all', refresh_notifications);
+}
+
+function open_task_via_notice(id) {
+    if (typeof(open_task) == 'function') {
+        open_task(id);
+        navbar_popup_close();
+    } else {
+        alert('该视图下不能直接打开任务面板！')
+    }
+}
+</script>

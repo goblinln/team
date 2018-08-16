@@ -18,6 +18,12 @@ setup.struct = {
         `is_locked` BOOLEAN DEFAULT 0,
         `auto_login_expire` INTEGER UNSIGNED DEFAULT 0,
         PRIMARY KEY(`id`)]],
+    notifications = [[
+        `id` INTEGER NOT NULL AUTO_INCREMENT,
+        `timepoint` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        `uid` INTEGER NOT NULL,
+        `message` TEXT,
+        PRIMARY KEY(`id`)]],
     documents = [[
         `id` INTEGER NOT NULL AUTO_INCREMENT,
         `name` VARCHAR(64) NOT NULL,
@@ -43,7 +49,7 @@ setup.struct = {
         `creator` INTEGER NOT NULL,
         `assigned` INTEGER NOT NULL,
         `cooperator` INTEGER NOT NULL,
-        `name` VARCHAR(32) NOT NULL,
+        `name` VARCHAR(64) NOT NULL,
         `weight` INTEGER DEFAULT 1,
         `tags` VARCHAR(64) DEFAULT '[]',
         `start_time` DATE NOT NULL,

@@ -20,7 +20,7 @@ tasks.tags = {
     { title = 'BUG', desc = "缺陷", color = 'bg-danger' },
     { title = 'QUICKFIX', desc = "快速修正", color = 'bg-secondary' },
     { title = 'ENHANCEMENT', desc = "优化", color = 'bg-info' },
-    { title = 'FEATURE', desc = "特性", color = 'bg-success' },
+    { title = 'FEATURE', desc = "新功能", color = 'bg-success' },
 }
 
 -- 任务优先级
@@ -49,6 +49,7 @@ tasks.events = {
     DEL_COMMENT         = 14,
     ADD_ATTACHMENT      = 15,
     DEL_ATTACHMENT      = 16,
+    RENAME              = 17,
 };
 
 -- 任务主页
@@ -68,12 +69,31 @@ function tasks:info(req, rsp)
 
     local task_ = M('tasks'):get(req.post.id);
     self:__process_event(task_.events);
+
+    local members = M('projects'):get_members(task_.info.pid);
+    local assignable = {};
+    local cooperators = {};
+
+    for _, info in ipairs(members) do
+        if info.role == 3 then
+            table.insert(assignable, info);
+        elseif info.role == 4 then
+            table.insert(cooperators, info);
+        end
+    end
+
+    for _, info in ipairs(members) do
+        if info.role ~= 3 then table.insert(assignable, info) end;
+        if info.role ~= 4 then table.insert(cooperators, info) end;
+    end
+
     rsp:html('dashboard/tasks/task_info.html', {
         task        = task_,
         tags        = self.tags,
         weights     = self.weights,
         is_admin    = M('projects'):is_admin(task_.info.pid),
-        members     = M('projects'):get_members(task_.info.pid),
+        assignable  = assignable,
+        cooperators = cooperators,
     });
 end
 
@@ -136,6 +156,19 @@ function tasks:switch_viewmode(req, rsp)
 end
 
 ----------------------- 修改任务 --------------------------
+
+-- 修改名字
+function tasks:mod_name(req, rsp)    
+    if req.method ~= 'POST' then return rsp:error(405) end
+
+    local ok = true;
+    
+    if req.post.org_name ~= req.post.name and req.post.name then
+        ok = M('tasks'):mod_name(req.post.tid, req.post.name);
+    end
+    
+    rsp:json{ok = true};
+end
 
 -- 修改指派人
 function tasks:mod_assign(req, rsp)
@@ -317,35 +350,22 @@ function tasks:__process(title, tasks_, readonly)
         if info.status == self.status.CREATED then
             table.insert(created, info);
             summary.created = summary.created + 1;
-
-            if os.time(info.start_time) <= now then
-                info.delayed = true;
-                gantt_color = 'red';
-            end
+            info.delayed = os.time(info.start_time) <= now;
         elseif info.status == self.status.UNDERWAY then
             table.insert(underway, info);
             summary.underway = summary.underway + 1;
-            
-            if os.time(info.end_time) <= now then
-                info.delayed = true;
-                gantt_color = 'red';
-            else
-                gantt_color = '#17a2b8';
-            end
+            gantt_color = '#17a2b8';
+            info.delayed = os.time(info.end_time) <= now;
         elseif info.status == self.status.TESTING then
             table.insert(testing, info);
             summary.testing = summary.testing + 1;
-
-            if os.time(info.end_time) <= now then
-                info.delayed = true;
-                gantt_color = 'red';
-            else
-                gantt_color = '#007bff';
-            end
+            gantt_color = '#007bff';
+            info.delayed = os.time(info.end_time) <= now;
         elseif info.status == self.status.FINISHED then
             table.insert(finished, info);
             summary.finished = summary.finished + 1;
             gantt_color = 'lightgreen';
+            info.delayed = false;
         end
 
         if not gantt_map[info.assigned] then
@@ -360,12 +380,18 @@ function tasks:__process(title, tasks_, readonly)
         table.insert(gantt_data[gantt_map[info.assigned]].series, {
             id = info.id,
             name = info.name,
+            creator = info.creator_name,
             cooperator = info.cooperator_name,
+            is_delayed = info.delayed,
             start = tostring(info.start_time),
             ['end'] = tostring(info.end_time),
             options = { color = gantt_color },
         });
     end
+
+    table.sort(created, function(l, r)
+        return os.time(l.start_time) < os.time(r.start_time);
+    end)
 
     return {
         summary     = summary,
@@ -415,7 +441,7 @@ function tasks:__process_event(evs)
     for _, info in ipairs(evs) do
         info.timepoint = tostring(info.timepoint);
         if info.event == self.events.CREATED then
-            info.event_desc = (_ ~= #evs and '重新' or '') .. '发布了任务';
+            info.event_desc = (info.addition[1] and '' or '重新') .. '发布了任务';
         elseif info.event == self.events.UNDERWAY then
             info.event_desc = '开始了任务';
         elseif info.event == self.events.TESTING then
@@ -446,6 +472,8 @@ function tasks:__process_event(evs)
             info.event_desc = '上传了任务附件: ' .. info.addition[1];
         elseif info.event == self.events.DEL_ATTACHMENT then
             info.event_desc = '删除了任务附件：' .. info.addition[1];
+        elseif info.event == self.events.RENAME then
+            info.event_desc = '修改了任务名称';
         else
             info.event_desc = '对任务其他内容进行了修改';
         end

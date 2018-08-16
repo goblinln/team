@@ -50,8 +50,8 @@ local entry = function(controller, action, req, rsp)
 		rsp:error(500);
 	end);
 
-	-- 解决mysql内存释放不完全BUG
-	if _G.cleanup_db then _G.cleanup_db() end;
+	-- 解决MySQL内存无法释放完全的BUG
+	if clean_up_db then clean_up_db() end;
 end
 
 -- 主页

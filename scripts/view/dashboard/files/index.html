@@ -134,7 +134,7 @@ function share_file() {
                 $('.modal').modal('hide');
                 location.reload();
             } else {
-                showError('#mdl-share-file #err', '上传文件失败', '未知问题');
+                show_error('#mdl-share-file #err', '上传文件失败', '未知问题');
             }
         }
     });
@@ -154,7 +154,7 @@ function del_share_file() {
                 $('.modal').modal('hide');
                 location.reload();
             } else {
-                showError('#mdl-del-share-file #err', '删除文件失败', ret.err_msg);
+                show_error('#mdl-del-share-file #err', '删除文件失败', ret.err_msg);
             }
         }
     });

@@ -47,7 +47,7 @@ $('#form-login').on('submit', function(e) {
             if (rsp.ok) {
                 location.href = '/dashboard/tasks/';
             } else {
-                showError('#err', '登录失败', rsp.err_msg);
+                show_error('#err', '登录失败', rsp.err_msg);
             }
         }
     });

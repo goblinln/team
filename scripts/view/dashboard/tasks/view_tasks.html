@@ -36,9 +36,6 @@ function open_task(tid) {
 }
 
 function switch_viewmode() {
-    $.post('/dashboard/tasks/switch_viewmode', function(ret) {
-        if (location.pathname == '/' || location.pathname == '/dashboard/tasks/') location.reload();
-        else last_pressed_button.click();
-    }, 'json');
+    $.post('/dashboard/tasks/switch_viewmode', function(ret) { last_filter_menu.click(); }, 'json');
 }
 </script>

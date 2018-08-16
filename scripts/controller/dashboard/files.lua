@@ -36,6 +36,7 @@ function files:upload(req, rsp)
     if req.method ~= 'POST' then return rsp:error(405) end;
 
     local data = self:do_upload(req.file)[1];
+    if not data then return rsp:json{ ok = false } end;
     if (not data.ok) or (not req.post.is_share) then return rsp:json(data) end;
 
     xpcall(function()

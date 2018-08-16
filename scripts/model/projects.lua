@@ -6,6 +6,26 @@
 -- ========================================================
 local projects = inherit(M('base'));
 
+-- 取得所有的项目列表
+function projects:all()
+    local projs     = self:query([[SELECT * FROM `projects`]]);
+    local admins    = self:query([[SELECT * FROM `project_members` WHERE `is_admin`=1]]);
+    local names     = M('user'):get_names();
+
+    local admin_map = {};
+    for _, info in ipairs(admins) do
+        if not admin_map[info.pid] then
+            admin_map[info.pid] = names[info.uid] or '神秘人';
+        end
+    end
+    
+    for _, info in ipairs(projs) do
+        info.owner = admin_map[info.id] or '神秘人';
+    end
+    
+    return projs;
+end
+
 -- 取得当前用户参与的项目列表
 function projects:all_of_mine()
     local find = self:query([[
@@ -18,7 +38,7 @@ function projects:all_of_mine()
 end
 
 -- 创建项目
-function projects:add(name, role, repo)
+function projects:add(name, uid, role, repo)
     local ok, err = false, '';
 
     xpcall(function()
@@ -28,7 +48,7 @@ function projects:add(name, role, repo)
             return;
         end
 
-        self:exec('INSERT INTO `project_members`(`uid`, `pid`, `role`, `is_admin`) VALUES(?1, ?2, ?3, 1)', session.uid, self:last_id(), role or 1);
+        self:exec('INSERT INTO `project_members`(`uid`, `pid`, `role`, `is_admin`) VALUES(?1, ?2, ?3, 1)', uid, self:last_id(), role or 1);
         if self:affected_rows() == 0 then
             err = '未知原因';
         else
@@ -41,15 +61,23 @@ function projects:add(name, role, repo)
     return ok, err;
 end
 
--- 检测是否是项目的管理员
-function projects:is_admin(pid)
-    local find = self:query([[
-        SELECT `is_admin` 
-        FROM `project_members`
-        WHERE pid = ?1 AND uid = ?2]],
-        pid, session.uid);
+-- 修改项目
+function projects:modify(id, name, repo)
+    local ok, err = false, '';
 
-    return #find > 0 and find[1].is_admin == 1;
+    xpcall(function()
+        self:exec('UPDATE `projects` SET `name`=?1, `repo`=?2 WHERE `id`=?3', name, repo, id);
+        if self:affected_rows() == 0 then
+            err = '项目不存在！';
+            return;
+        end
+        
+        ok = true;
+    end, function(stack)
+        err = stack;
+    end);
+
+    return ok, err;
 end
 
 -- 删除项目
@@ -73,6 +101,17 @@ function projects:delete(pid)
     return ok, err;
 end
 
+-- 检测是否是项目的管理员
+function projects:is_admin(pid)
+    local find = self:query([[
+        SELECT `is_admin` 
+        FROM `project_members`
+        WHERE pid = ?1 AND uid = ?2]],
+        pid, session.uid);
+
+    return #find > 0 and find[1].is_admin == 1;
+end
+
 -- 添加成员
 function projects:add_member(pid, uid, role, is_admin)
     local ok, err = false, '';
@@ -89,13 +128,22 @@ end
 
 -- 取得项目的成员
 function projects:get_members(pid)
-    local find  = self:query([[SELECT * FROM `project_members` WHERE `pid`=?1]], pid);
-    local names = M('user'):get_names();
+    local find  = self:query([[
+        SELECT `uid`,`pid`,`role`,`is_admin`,`account`,`name` as `user`,`avatar`
+        FROM `project_members`
+        INNER JOIN `users` ON `project_members`.`uid`=`users`.`id` AND `pid`=?1 AND `is_locked`=0]], pid);
 
     for _, info in ipairs(find) do
-        info.user = names[info.uid] or '神秘人';
         info.user_role = C('dashboard/projects').roles[info.role];
     end
+
+    table.sort(find, function(l, r)
+        if l.role == r.role then
+            return l.account < r.account;
+        else
+            return l.role < r.role;
+        end
+    end);
 
     return find;
 end

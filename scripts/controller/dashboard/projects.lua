@@ -25,26 +25,6 @@ function projects:index(req, rsp)
         roles           = self.roles});
 end
 
--- 创建项目
-function projects:add(req, rsp)
-    if req.method ~= 'POST' then return rsp:error(405) end;
-
-    local ok, err = M('projects'):add(req.post.name, req.post.role, req.post.repo);
-    if not ok then return rsp:json{ ok = false, err_msg = err } end;
-    rsp:json{ ok = true };
-end
-
--- 删除项目
-function projects:delete(req, rsp)
-    if req.method ~= 'POST' then return rsp:error(405) end;
-    if not M('projects'):is_admin(req.post.id) then return rsp:error(403) end;
-    if req.post.name ~= req.post.org_name then return rsp:json{ ok = false, err_msg = '项目名称不匹配！' } end;
-
-    local ok, err = M('projects'):delete(req.post.id);
-    if not ok then return rsp:json{ ok = false, err_msg = err } end;
-    rsp:json{ ok = true };
-end
-
 -- 取得指定项目任务信息
 function projects:get_tasks(req, rsp)
     if req.method ~= 'POST' then return rsp:error(405) end;

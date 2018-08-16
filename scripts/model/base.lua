@@ -60,8 +60,8 @@ end
 function base:__init()
     if not self.__conn then
         self.__conn = T('mysql/mysql').config().connect(self.settings);
-        if not _G.cleanup_db then
-            _G.cleanup_db = T('mysql/mysql').C.mysql_server_end;
+        if not _G.clean_up_db then
+            _G.clean_up_db = T('mysql/mysql').C.mysql_server_end;
         end
     end
 end

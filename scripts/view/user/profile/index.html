@@ -12,9 +12,8 @@
         <p class="text-muted">{{session.account}}</p>
         <button type="button" class="btn btn-primary mt-4" data-toggle="modal" data-target="#mdl-mod-pswd">修改密码</button><br>
         <a href="/user/logout/" class="btn btn-default mt-2">退出登录</a>
-        <a class="text-center profile-pane-close text-muted" onclick="return closeProfile();" style="font-size: 1.5em;">
-            <i class="fa fa-close"></i>
-        </a>
+
+        <a class="navbar-popup-close text-center text-muted" onclick="return navbar_popup_close();"><i class="fa fa-close"></i></a>
     </div>
 </div>
 
@@ -72,9 +71,9 @@
 </div>
 
 <script>
-$('#profile-pane .modal').on('shown.bs.modal', function(e) {
+$('.navbar-popup .modal').on('shown.bs.modal', function(e) {
     var mask = $('.modal-backdrop').detach();
-    mask.appendTo('#profile-pane');
+    mask.appendTo('.navbar-popup');
 });
 
 function open_edit_name() {
@@ -142,7 +141,7 @@ function mod_pswd() {
         cache: false,
         success: function(ret) {
             if (!ret.ok) {
-                showError('#mdl-mod-pswd #err', '更改密码失败', ret.err_msg);
+                show_error('#mdl-mod-pswd #err', '更改密码失败', ret.err_msg);
             } else {
                 $('.model #err').empty();
                 $('.modal').modal('hide');

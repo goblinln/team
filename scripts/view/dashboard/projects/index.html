@@ -4,8 +4,9 @@
 <div class="menublock border-right p-2">
     <div class="container-fluid p-0">
         <i class="fa fa-list mr-2"></i><label class="title">项目列表</label>
-        <div class="d-inline pull-right btn-link" data-toggle="modal" data-target="#mdl-add-proj">
-            <i class="fa fa-plus mr-1"></i>新建项目
+        
+        <div class="btn-link pull-right" onclick="return create_task();">
+            <i class="fa fa-plus mr-1"></i>发布任务
         </div>
     </div>
     
@@ -19,11 +20,6 @@
                     <b>{{info.name}}</b>
                     {% if info.repo and #info.repo > 0 then %}
                     <a href="{{info.repo}}"><i class="fa fa-link"></i></a>
-                    {% end %}
-                    {% if info.is_admin == 1 then %}
-                    <div class="d-inline btn-link-danger" data-toggle="modal" data-target="#mdl-del-proj" data-pid="{{info.id}}" data-pname="{{info.name}}">
-                        <i class="fa fa-close mr-1"></i>
-                    </div>
                     {% end %}
                     <div class="pull-right">
                         <span class="badge badge-info">{{roles[info.role]}}</span>
@@ -50,130 +46,20 @@
 <div id="project-detail" class="contentblock">
 </div>
 
-<!-- 新建项目对话框 -->
-<div id="mdl-add-proj" class="modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">新建项目</h5>
-            </div>
-            <div class="modal-body">
-                <div id="err"></div>
-                <form id="form-add-proj">
-                    <div class="form-group">
-                        <label for="add-proj-name">项目名</label>
-                        <input id="add-proj-name" name="name" type="text" class="form-control" placeholder="项目名理应简短唯一" required autofocus>
-                    </div>
-                    <div class="form-group">
-                        <label for="add-proj-role">您的职位分工</label>
-                        <select class="form-control" id="add-proj-role" name="role">
-                            {% for idx, title in ipairs(roles) do %}
-                            <option value="{{idx}}">{{title}}</option>
-                            {% end %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="add-proj-repo">项目仓库，非必填</label>
-                        <input id="add-proj-repo" name="repo" type="text" class="form-control" placeholder="将在项目后显示连接">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="return add_proj();">确  定</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">取  消</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 删除项目对话框 -->
-<div id="mdl-del-proj" class="modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">删除项目</h5>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-warning" role="alert">
-                    <strong>警告：</strong>
-                    <ul>
-                        <li>只有创建者本人可以删除项目！</li>
-                        <li>删除项目同时影响到该项目的所有任务及成员！</li>
-                        <li>需要确认要删除的项目</li>
-                    </ul>
-                </div>
-
-                <div id="err"></div>
-                
-                <form id="form-del-proj">
-                    <input id="id" name="id" type="number" hidden>
-                    <input id="org_name" name="org_name" type="text" hidden>
-
-                    <div class="form-group">
-                        <label for="del-proj-name">请确认删除的项目</label>
-                        <input id="del-proj-name" name="name" type="text" class="form-control" required autofocus>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="return del_proj();">确  定</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">取  消</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
 
-$('#mdl-del-proj').on('show.bs.modal', function(e) {
-    var btn = $(e.relatedTarget);
-    $('#mdl-del-proj #id').val(btn.data('pid'));
-    $('#mdl-del-proj #org_name').val(btn.data('pname'));
-});
-
-function add_proj() {
-    $.ajax({
-        url: '/dashboard/projects/add',
-        type: 'POST',
-        data: new FormData(document.getElementById('form-add-proj')),
-        dataType: 'json',
-        processData: false,
-        contentType: false,
-        cache: false,
-        success: function(rsp) {
-            if (rsp.ok) {
-                location.href = '/dashboard/projects/';
-            } else {
-                showError('#mdl-add-proj #err', '创建项目失败', rsp.err_msg);
-            }
-        }
-    });
+function create_task() {
+    $.post('/dashboard/tasks/try_create', {}, function(ret) {
+        $('#project-detail').empty();
+        $('#project-detail').append($(ret));
+    }, 'html');
 }
 
-function del_proj() {
-    $.ajax({
-        url: '/dashboard/projects/delete',
-        type: 'POST',
-        data: new FormData(document.getElementById('form-del-proj')),
-        dataType: 'json',
-        processData: false,
-        contentType: false,
-        cache: false,
-        success: function(rsp) {
-            if (rsp.ok) {
-                location.href = '/dashboard/projects/';
-            } else {
-                showError('#mdl-del-proj #err', '删除项目失败', rsp.err_msg);
-            }
-        }
-    });
-}
-
-var last_pressed_button = null;
+var last_filter_menu = $('#projects .card:first .card-body a:first');
 function get_proj_info(btn, url, id, name) {
-    if (last_pressed_button) $(last_pressed_button).removeClass('list-group-item-secondary');
-    last_pressed_button = btn;
-    $(last_pressed_button).addClass('list-group-item-secondary');
+    if (last_filter_menu) $(last_filter_menu).removeClass('list-group-item-secondary');
+    last_filter_menu = btn;
+    $(last_filter_menu).addClass('list-group-item-secondary');
     
     $('.xdsoft_datetimepicker').remove();
     $('#project-detail').empty();
@@ -185,4 +71,5 @@ function get_proj_info(btn, url, id, name) {
     }, 'html');
 }
 
+last_filter_menu.click();
 </script>

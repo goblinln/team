@@ -105,4 +105,44 @@ function admin:del_user(req, rsp)
     end
 end
 
+-- 取得项目列表
+function admin:projects(req, rsp)
+    if not session.is_su then return rsp:error(403) end;
+    rsp:html('dashboard/admin/projects.html', {
+        projs = M('projects'):all(),
+        users = M('user'):all(),
+        roles = C('dashboard/projects').roles,
+    });
+end
+
+-- 创建项目
+function admin:add_proj(req, rsp)
+    if req.method ~= 'POST' then return rsp:error(405) end;
+    if not session.is_su then return rsp:error(403) end;
+
+    local ok, err = M('projects'):add(req.post.name, req.post.uid, req.post.role, req.post.repo);
+    if not ok then return rsp:json{ ok = false, err_msg = err } end;
+    rsp:json{ ok = true };
+end
+
+-- 修改项目
+function admin:edit_proj(req, rsp)
+    if req.method ~= 'POST' then return rsp:error(405) end;
+    if not session.is_su then return rsp:error(403) end;
+
+    local ok, err = M('projects'):modify(req.post.id, req.post.name, req.post.repo);
+    if not ok then return rsp:json{ ok = false, err_msg = err } end;
+    rsp:json{ ok = true };
+end
+
+-- 删除项目
+function admin:del_proj(req, rsp)
+    if req.method ~= 'POST' then return rsp:error(405) end;
+    if not session.is_su then return rsp:error(403) end;
+
+    local ok, err = M('projects'):delete(req.post.id);
+    if not ok then return rsp:json{ ok = false, err_msg = err } end;
+    rsp:json{ ok = true };
+end
+
 return admin;

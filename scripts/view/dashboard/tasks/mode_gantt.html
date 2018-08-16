@@ -5,15 +5,16 @@
         <span class="bg-dark text-white p-1">测试中</span><span class="bg-primary text-white px-2 py-1 mr-2">{{summary.testing}}</span>
         <span class="bg-dark text-white p-1">已完成</span><span class="bg-success text-white px-2 py-1 mr-2">{{summary.finished}}</span>
     </small>
+    <p style="margin: 10px 0 4px 0; font-size: .4em;">任务的状态看颜色，有<i class="fa fa-exclamation-circle text-danger mx-1"></i>的表明该任务已经 <b>滞后了</b></p>
 
-    <div id="gantt-view" class="mt-3"></div>
+    <div id="gantt-view"></div>
 </div>
 
 <script type='text/javascript'>
 $('#gantt-view').ganttView({
     data: $.parseJSON('{*gantt_data*}'),
     showWeekends: true,
-    vtHeaderWidth: 300,
+    vtHeaderWidth: 480,
     behavior: {
         clickable: true,
         draggable: false,

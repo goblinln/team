@@ -43,19 +43,23 @@ end
 function user:auto_login(req, rsp)
     if not req.cookie.login_token then return false end;
 
-    local data  = json.decode(b64.decode(req.cookie.login_token));
-    local ok    = false;
+    local ok = false;
 
-    if data.account and data.ip == req.remote then
-        local sign = md5(data.account .. '|' .. req.remote .. '|' .. self.SECRET_AUTOLOGIN);
-        if sign == data.sign then
-            local find = self:query("SELECT * FROM `users` WHERE account=?1", data.account)[1];
-            if find and find.is_locked == 0 and find.auto_login_expire > os.time() then
-                self:__on_login(find);
-                ok = true;
+    xpcall(function()        
+        local data  = json.decode(b64.decode(req.cookie.login_token));
+        if data.account and data.ip == req.remote then
+            local sign = md5(data.account .. '|' .. req.remote .. '|' .. self.SECRET_AUTOLOGIN);
+            if sign == data.sign then
+                local find = self:query("SELECT * FROM `users` WHERE account=?1", data.account)[1];
+                if find and find.is_locked == 0 and find.auto_login_expire > os.time() then
+                    self:__on_login(find);
+                    ok = true;
+                end
             end
         end
-    end
+    end, function(stack)
+        log.error('Failed to parse req.cookie.login_token');
+    end)
 
     if not ok then rsp:cookie('login_token', '', -3600, '/') end;
     return ok;

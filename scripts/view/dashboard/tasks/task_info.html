@@ -5,16 +5,29 @@
 
     <!-- 标题 -->
     <div class="d-flex">
-        <h4>
-            {{task.info.name}}
-            {% if #task.info.tags > 0 then %}
-            <small class="ml-2 mt-1" style="font-size: 12px; vertical-align: middle;">
-                {% for _, tag in ipairs(task.info.tags) do %}
-                <span class="badge {{tags[tag].color}} mr-1">{{tags[tag].title}}</span>
-                {% end %}
-            </small>
+        <div class="dropdown">
+            <div class="btn-link px-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <h4>
+                    {{task.info.name}}
+                </h4>
+            </div>
+            <form id="form-mod-name" class="dropdown-menu p-2">
+                <div class="form-group">                    
+                    <input type="text" class="form-control" value="{{task.info.name}}">
+                </div>
+                <div class="form-group mb-0">
+                    <button type="button" class="btn btn-sm btn-primary form-control my-0" onclick="return mod_name();">重命名</button>
+                </div>
+            </form>
+        </div>
+
+        {% if #task.info.tags > 0 then %}
+        <small class="ml-2 mt-1" style="font-size: 12px; vertical-align: middle;">
+            {% for _, tag in ipairs(task.info.tags) do %}
+            <span class="badge {{tags[tag].color}} mr-1">{{tags[tag].title}}</span>
             {% end %}
-        </h4>
+        </small>
+        {% end %}
     </div>
     <hr class="mx-0 mt-0 mb-1">
 
@@ -28,11 +41,13 @@
             </div>
             <form class="dropdown-menu p-0 border-0">
                 <select class="custom-select" onchange="return mod_assign(this);">
-                    {% for _, info in ipairs(members or {}) do %} {% if info.uid == task.info.assigned then %}
+                    {% for _, info in ipairs(assignable or {}) do %}
+                    {% if info.uid == task.info.assigned then %}
                     <option value="{{info.uid}}" selected>【{{info.user_role}}】{{info.user}}</option>
-                    {% else %}
+                    {% else %}                    
                     <option value="{{info.uid}}">【{{info.user_role}}】{{info.user}}</option>
-                    {% end %} {% end %}
+                    {% end %}
+                    {% end %}
                 </select>
             </form>
         </div>
@@ -44,20 +59,42 @@
             </div>
             <form class="dropdown-menu p-0 border-0">
                 <select class="custom-select" onchange="return mod_cooperator(this);">
-                    {% for _, info in ipairs(members or {}) do %} {% if info.uid == task.info.cooperator then %}
+                    {% for _, info in ipairs(cooperators or {}) do %}
+                    {% if info.uid == task.info.cooperator then %}
                     <option value="{{info.uid}}" selected>【{{info.user_role}}】{{info.user}}</option>
-                    {% else %}
+                    {% else %}                    
                     <option value="{{info.uid}}">【{{info.user_role}}】{{info.user}}</option>
-                    {% end %} {% end %}
+                    {% end %}
+                    {% end %}
                 </select>
             </form>
         </div>
+
+        <!-- 优先级 -->
+        {% if is_admin then %}
+        <div class="dropdown">
+            <div class="btn-link px-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-tag mr-1 {{weights[task.info.weight].color}}"></i>{{weights[task.info.weight].title}}
+            </div>
+            <div class="dropdown-menu">
+                {% for i, info in ipairs(weights or {}) do %}
+                <a class="dropdown-item" href="#" onclick="return mod_weight('{{i}}')">{{info.title}}</a>
+                {% end %}
+            </div>
+        </div>
+        {% else %}
+        <div>
+            <div class="px-2">
+                <i class="fa fa-tag mr-1"></i>{{weights[task.info.weight].title}}
+            </div>
+        </div>
+        {% end %}
 
         <!-- 时间: 只有项目管理员可以更改时间 -->
         {% if is_admin then %}
         <div class="dropdown">
             <div class="btn-link px-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fa fa-calendar mr-1"></i>{{tostring(task.info.start_time) .. ' ~ ' .. tostring(task.info.end_time)}}
+                <i class="fa fa-calendar mr-1"></i>{{string.format('%d月%d日 - %d月%d日', task.info.start_time.month, task.info.start_time.day, task.info.end_time.month, task.info.end_time.day)}}
             </div>
             <form id="form-mod-time" class="dropdown-menu p-4">                
                 <div class="form-group">
@@ -78,7 +115,7 @@
         {% else %}
         <div>
             <div class="px-2">
-                <i class="fa fa-calendar mr-1"></i>{{tostring(task.info.start_time) .. ' ~ ' .. tostring(task.info.end_time)}}
+                <i class="fa fa-calendar mr-1"></i>{{string.format('%d月%d日 - %d月%d日', task.info.start_time.month, task.info.start_time.day, task.info.end_time.month, task.info.end_time.day)}}
             </div>
         </div>
         {% end %}
@@ -103,18 +140,6 @@
                 <a class="dropdown-item" href="#" onclick="return mod_status(2)"><i class="fa fa-dot-circle-o mr-1"></i>开发中</a>
                 <a class="dropdown-item" href="#" onclick="return mod_status(3)"><i class="fa fa-exclamation-circle mr-1"></i>测试中</a>
                 <a class="dropdown-item" href="#" onclick="return mod_status(4)"><i class="fa fa-check-circle mr-1"></i>已完成</a>
-            </div>
-        </div>
-
-        <!-- 优先级 -->
-        <div class="dropdown">
-            <div class="btn-link px-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fa fa-tag mr-1"></i>{{weights[task.info.weight].title}}
-            </div>
-            <div class="dropdown-menu">
-                {% for i, info in ipairs(weights or {}) do %}
-                <a class="dropdown-item" href="#" onclick="return mod_weight('{{i}}')">{{info.title}}</a>
-                {% end %}
             </div>
         </div>
 
@@ -176,6 +201,8 @@
                                 <i class="fa fa-clock-o mr-1"></i>{{tostring(info.timepoint)}}
                                 {% if info.uid == session.uid then %}
                                 <a href="#" class="btn-link ml-2" onclick="return del_comment('{{info.id}}');">撤回该评论</a>
+                                {% else %}
+                                <a href="#" class="btn-link ml-2" onclick="return rep_comment('{{info.user}}');">回复</a>
                                 {% end %}
                             </small>
                         </div>
@@ -276,19 +303,23 @@ function close_task() {
     $('#task-view').addClass('invisible');
     $('.xdsoft_datetimepicker').remove();
 
-    if (location.pathname == '/' || location.pathname == '/dashboard/tasks/') {
-        location.reload();
-    } else {
-        last_pressed_button.click();
-    }
+    if (last_filter_menu) last_filter_menu.click();
 }
 
-function mod_assign(elem) {    
+function mod_name() {
+    $.post('/dashboard/tasks/mod_name', {
+        tid: '{{task.info.id}}', 
+        org_name: '{{task.info.name}}',
+        name: $('#form-mod-name input').val()
+    }, refresh_task_info);
+}
+
+function mod_assign(elem) {
     $.post('/dashboard/tasks/mod_assign', { tid : '{{task.info.id}}', org_uid : '{{task.info.assigned}}', new_uid : $(elem).val() }, refresh_task_info);
 }
 
 function mod_cooperator(elem) {
-    $.post('/dashboard/tasks/mod_cooperator', { tid : '{{task.info.id}}', org_uid : '{{task.info.assigned}}', new_uid : $(elem).val() }, refresh_task_info);
+    $.post('/dashboard/tasks/mod_cooperator', { tid : '{{task.info.id}}', org_uid : '{{task.info.cooperator}}', new_uid : $(elem).val() }, refresh_task_info);
 }
 
 function mod_time() {
@@ -370,6 +401,11 @@ function del_comment(id) {
     $.post('/dashboard/tasks/del_comment', { id: id }, function(ret) {
         if (ret.ok) refresh_task_info();
     });
+}
+
+function rep_comment(user) {
+    $('#task-comment-input').val('<i class="fa fa-at mr-1"></i><b class="mr-1">' + user + ':</b>');
+    $('#trigger-task-comment').focusin();
 }
 
 function add_attachment() {
