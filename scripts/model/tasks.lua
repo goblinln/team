@@ -29,11 +29,25 @@ end
 
 -- 取得一个项目可归档的任务列表
 function tasks:get_archivable_by_proj(pid)
-    local find  = self:query([[
+    local timepoint = os.time();
+    local calc_start = os.date('*t', timepoint);
+
+    -- 偏移到星期日
+    if calc_start.wday ~= 1 then
+        local sunday = timepoint - (calc_start.wday - 1) * 3600 * 24;
+        calc_start = os.date('*t', sunday);
+    end
+
+    calc_start.hour = 0;
+    calc_start.min = 0;
+    calc_start.sec = 0;
+
+    local week_start = os.time(calc_start);
+    local find = self:query([[
             SELECT `id`, `creator`, `assigned`, `cooperator`, `name`, `weight`, `tags`, `start_time`, `end_time`, `status`
             FROM `tasks`
-            WHERE `pid`=?1 AND `status`>?2]],
-            pid, C('dashboard/tasks').status.UNDERWAY);
+            WHERE `pid`=?1 AND `status`>?2 AND (`archive_time`=-1 OR `archive_time`>=?3)]],
+            pid, C('dashboard/tasks').status.UNDERWAY, week_start);
 
     self:__on_loaded(find);
     return find;
@@ -60,11 +74,13 @@ function tasks:report_for_proj(pid, start_time, end_time, to)
     for _, info in ipairs(to.archived) do
         info.creator_name = users[info.creator] or '神秘人';
         info.assigned_name = users[info.assigned] or '神秘人';
+        info.cooperator_name = users[info.cooperator] or '神秘人';
     end
 
     for _, info in ipairs(to.not_archived) do
         info.creator_name = users[info.creator] or '神秘人';
         info.assigned_name = users[info.assigned] or '神秘人';
+        info.cooperator_name = users[info.cooperator] or '神秘人';
     end
 end
 

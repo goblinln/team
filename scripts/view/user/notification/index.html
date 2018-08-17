@@ -1,5 +1,6 @@
 <!-- 消息列表 -->
 <div id="notification-list" style="position: absolute; top: 2px; left: 4px; right: 0; bottom: 48px; overflow-y: auto;">
+    {% if #messages > 0 then %}
     {% for _, msg in ipairs(messages) do %}
     <div class="card m-1 rounded-0 border border-success">
         <div class="card-body d-flex justify-content-between m-0 p-0">
@@ -17,11 +18,18 @@
         </div>
     </div>
     {% end %}
+    {% else %}
+    <div class="container text-center mt-4 pt-4">
+        <h1 style="color: #e9e9e9">当前消息列表为空~</h1>
+    </div>
+    {% end%}
 </div>
 
 <!-- 底部 -->
 <div style="position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; padding: 8px; -webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,.3); -moz-box-shadow: 0 0 10px 0 rgba(0,0,0,.3); box-shadow: 0 0 10px 0 rgba(0,0,0,.3);">
+    {% if #messages > 0 then %}
     <button type="button" class="btn btn-success btn-sm" onclick="return read_all_notifications();">全部删除</button>
+    {% end %}
     <button type="button" class="btn btn-default btn-sm" onclick="return navbar_popup_close();">关闭</button>
 </div>
 

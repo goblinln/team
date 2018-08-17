@@ -209,9 +209,9 @@ $('#treeview').jstree({
         }
 
         $('#doc-view').get(0).innerHTML = '<div class="document-toc p-2 border-right shadow"><table class="table table-sm text-white"><tbody>'
-            + '<tr><td class="bg-dark">作者</td><td class="bg-success">' + ret.author + '</td></tr>'
-            + '<tr><td class="bg-dark">更新</td><td class="bg-success">' + ret.modify_user + '</td></tr>'
-            + '<tr><td class="bg-dark">时间</td><td class="bg-success">' + ret.last_modify + '</td></tr></tbody></table>'
+            + '<tr><td class="bg-dark">作者</td><td class="bg-secondary">' + ret.author + '</td></tr>'
+            + '<tr><td class="bg-dark">更新</td><td class="bg-secondary">' + ret.modify_user + '</td></tr>'
+            + '<tr><td class="bg-dark">时间</td><td class="bg-secondary">' + ret.last_modify + '</td></tr></tbody></table>'
             + '<i class="fa fa-list mr-2"></i><label class="title">章节目录</label>'
             + '<ul class="md-toc"></ul></div>'
             + '<div class="document-view md-preview mt-1 pt-2 pl-4">' + marked(ret.content || '') + '</div>';

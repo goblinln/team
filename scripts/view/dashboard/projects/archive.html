@@ -8,10 +8,12 @@
                 <ul class="mt-2 px-0" style="list-style-type: none">
                     {% for _, info in ipairs(tasks) do %}
                     {% if info.status == 4 then %}
-                    <li class="d-block text-truncate text-muted mw-100 mb-1">
-                        <i class="fa fa-clock-o mr-1"></i>{{string.format('%04d.%02d.%02d', info.end_time.year, info.end_time.month, info.end_time.day)}}
+                    <li class="d-block text-truncate mw-100 mb-1">
+                        <i class="fa fa-clock-o mr-1"></i>{{tostring(info.end_time)}}
                         <a href="#" class="task-link" onclick="return open_task('{{info.id}}');">{{info.name}}</a>
-                        <span class="badge badge-secondary text-white ml-1">{{info.creator_name}}</span><i class="fa fa-chevron-right mx-1"></i><span class="badge badge-secondary text-white">{{info.assigned_name}}</span>
+                        <small class="text-muted ml-2 mt-1 pull-right align-baseline">
+                            {{info.creator_name}}<i class="fa fa-chevron-right mx-1"></i>{{info.assigned_name}}<i class="fa fa-chevron-right mx-1"></i>{{info.cooperator_name}}
+                        </small>
                     </li>
                     {% end %}
                     {% end %}
@@ -25,10 +27,12 @@
                 <ul class="mt-2 px-0" style="list-style-type: none">
                     {% for _, info in ipairs(tasks) do %}
                     {% if info.status == 5 then %}
-                    <li class="d-block text-truncate text-muted mw-100 mb-1">
-                        <i class="fa fa-check text-success mr-1"></i>{{string.format('%04d.%02d.%02d', info.end_time.year, info.end_time.month, info.end_time.day)}}
+                    <li class="d-block text-truncate mw-100 mb-1">
+                        <i class="fa fa-check text-success mr-1"></i>{{tostring(info.end_time)}}
                         <a href="#" class="task-link" onclick="return open_task('{{info.id}}');">{{info.name}}</a>
-                        <span class="badge badge-secondary text-white ml-1">{{info.creator_name}}</span><i class="fa fa-chevron-right mx-1"></i><span class="badge badge-secondary text-white">{{info.assigned_name}}</span>
+                        <small class="text-muted ml-2 mt-1 pull-right align-baseline">
+                            {{info.creator_name}}<i class="fa fa-chevron-right mx-1"></i>{{info.assigned_name}}<i class="fa fa-chevron-right mx-1"></i>{{info.cooperator_name}}
+                        </small>
                     </li>
                     {% end %}
                     {% end %}
