@@ -295,15 +295,7 @@ $('#upload-task-attachment').change(function() {
 });
 
 function refresh_task_info() {
-    open_task('{{task.info.id}}');
-}
-
-function close_task() {
-    $('#task-view').removeClass('visible');
-    $('#task-view').addClass('invisible');
-    $('.xdsoft_datetimepicker').remove();
-
-    if (last_filter_menu) last_filter_menu.click();
+    open_task('{{task.info.id}}', true);
 }
 
 function mod_name() {

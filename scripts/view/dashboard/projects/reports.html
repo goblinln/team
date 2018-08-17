@@ -46,13 +46,10 @@
 </div>
 
 <script>
-function goto_week(week_offset) {
-    $.post('/dashboard/projects/get_reports', {pid: '{{proj_id}}', pname: '{{proj_name}}', week_offset: week_offset}, function(ret) {
-        $('#project-detail').empty();
-        $('#project-detail').append($(ret));
-    }, 'html');
-}
-function open_task(tid) {
+var task_info_changed = false;
+function open_task(tid, changed) {
+    if (changed) task_info_changed = true;
+
     $('#task-info-pane').empty();
     $('#task-info-pane').get(0).innerHTML = '<div class="text-center text-muted" style="margin-top: 40%"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div>';
     $('#task-view').removeClass('invisible');
@@ -61,6 +58,21 @@ function open_task(tid) {
     $.post('/dashboard/tasks/readonly_info', {id : tid}, function(ret) {
         $('#task-info-pane').empty();
         $('#task-info-pane').append($(ret));
+    }, 'html');
+}
+
+function close_task() {
+    $('#task-view').removeClass('visible');
+    $('#task-view').addClass('invisible');
+    $('.xdsoft_datetimepicker').remove();
+
+    if (last_filter_menu && task_info_changed) last_filter_menu.click();
+}
+
+function goto_week(week_offset) {
+    $.post('/dashboard/projects/get_reports', {pid: '{{proj_id}}', pname: '{{proj_name}}', week_offset: week_offset}, function(ret) {
+        $('#project-detail').empty();
+        $('#project-detail').append($(ret));
     }, 'html');
 }
 </script>

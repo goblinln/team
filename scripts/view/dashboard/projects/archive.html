@@ -44,15 +44,28 @@
 </div>
 
 <script>
-function open_task(tid) {
+
+var task_info_changed = false;
+function open_task(tid, changed) {
+    if (changed) task_info_changed = true;
+
     $('#task-info-pane').empty();
     $('#task-info-pane').get(0).innerHTML = '<div class="text-center text-muted" style="margin-top: 40%"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div>';
     $('#task-view').removeClass('invisible');
     $('#task-view').addClass('visible');
 
-    $.post('/dashboard/tasks/readonly_info', {id : tid, enable_archive : true}, function(ret) {
+    $.post('/dashboard/tasks/readonly_info', { id : tid, enable_archive: true }, function(ret) {
         $('#task-info-pane').empty();
         $('#task-info-pane').append($(ret));
     }, 'html');
 }
+
+function close_task() {
+    $('#task-view').removeClass('visible');
+    $('#task-view').addClass('invisible');
+    $('.xdsoft_datetimepicker').remove();
+
+    if (last_filter_menu && task_info_changed) last_filter_menu.click();
+}
+
 </script>

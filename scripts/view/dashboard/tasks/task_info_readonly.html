@@ -174,20 +174,11 @@ $('#trigger-task-comment').focusin(function() {
 $('#task-comment-input').markdown();
 
 function refresh_task_info() {
-    open_task('{{task.info.id}}');
-}
-
-function close_task() {
-    $('#task-view').removeClass('visible');
-    $('#task-view').addClass('invisible');
-
-    if (last_filter_menu) last_filter_menu.click();
+    open_task('{{task.info.id}}', true);
 }
 
 function archive(tid) {
-    $.post('/dashboard/tasks/mod_status', {tid : tid, org_status: 4, new_status : 5}, function() {
-        refresh_task_info();
-    });
+    $.post('/dashboard/tasks/mod_status', {tid : tid, org_status: 4, new_status : 5}, refresh_task_info);
 }
 
 function end_comment(send) {

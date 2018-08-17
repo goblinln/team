@@ -47,14 +47,6 @@
 </div>
 
 <script>
-
-function create_task() {
-    $.post('/dashboard/tasks/try_create', {}, function(ret) {
-        $('#project-detail').empty();
-        $('#project-detail').append($(ret));
-    }, 'html');
-}
-
 var last_filter_menu = $('#projects .card:first .card-body a:first');
 function get_proj_info(btn, url, id, name) {
     if (last_filter_menu) $(last_filter_menu).removeClass('list-group-item-secondary');
@@ -72,4 +64,11 @@ function get_proj_info(btn, url, id, name) {
 }
 
 last_filter_menu.click();
+
+function create_task() {
+    $.post('/dashboard/tasks/try_create', {}, function(ret) {
+        $('#project-detail').empty();
+        $('#project-detail').append($(ret));
+    }, 'html');
+}
 </script>
