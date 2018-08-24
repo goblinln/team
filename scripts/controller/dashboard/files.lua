@@ -39,10 +39,14 @@ function files:upload(req, rsp)
     if not data then return rsp:json{ ok = false } end;
     if (not data.ok) or (not req.post.is_share) then return rsp:json(data) end;
 
+    if req.post.desc then
+        req.post.desc = string.gsub(req.post.desc, '\n', '<br>');
+    end
+
     xpcall(function()
         M('base'):exec([[
-            INSERT INTO `files`(`name`, `path`, `creator`, `size`)
-            VALUES(?1, ?2, ?3, ?4)]], data.name, data.url, session.uid, data.size);
+            INSERT INTO `files`(`name`, `path`, `creator`, `size`, `desc`)
+            VALUES(?1, ?2, ?3, ?4, ?5)]], data.name, data.url, session.uid, data.size, req.post.desc);
     end, function(e)
         data.ok = false;
     end);

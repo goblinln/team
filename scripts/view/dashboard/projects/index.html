@@ -33,6 +33,7 @@
                     <a href="#" class="list-group-item list-group-item-action py-1" onclick="return get_proj_info(this, '/dashboard/projects/get_reports', '{{info.id}}', '{{info.name}}');">项目周报</a>
                     {% if info.is_admin == 1 then %}
                     <a href="#" class="list-group-item list-group-item-action py-1" onclick="return get_proj_info(this, '/dashboard/projects/get_can_archive', '{{info.id}}', '{{info.name}}');">验收管理</a>
+                    <a href="#" class="list-group-item list-group-item-action py-1" onclick="return get_proj_info(this, '/dashboard/projects/get_holidays', '{{info.id}}', '{{info.name}}');">假日管理</a>
                     <a href="#" class="list-group-item list-group-item-action py-1" onclick="return get_proj_info(this, '/dashboard/projects/get_members', '{{info.id}}', '{{info.name}}');">管理成员</a>
                     {% end %}
                 </div>
@@ -53,7 +54,6 @@ function get_proj_info(btn, url, id, name) {
     last_filter_menu = btn;
     $(last_filter_menu).addClass('list-group-item-secondary');
     
-    $('.xdsoft_datetimepicker').remove();
     $('#project-detail').empty();
     $('#project-detail').get(0).innerHTML = '<div class="text-center text-muted" style="margin-top: 40%"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div>';
 

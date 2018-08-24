@@ -87,10 +87,9 @@
 
 <script>
     
-$('#form-create-task .form-datetime').datetimepicker({
-    format: 'Y-m-d',
-    timepicker: false,
-    lang: 'zh'
+$('#form-create-task .form-datetime').datepicker({
+    autoclose: true,
+    format: 'yyyy-mm-dd'
 });
 
 $('#form-create-task #content').markdown();
@@ -139,7 +138,6 @@ function del_attachment(id) {
 
 function quit_create() {
     last_filter_menu.click();
-    $('.xdsoft_datetimepicker').remove();
     $('input[type="file"]').remove();
 }
 

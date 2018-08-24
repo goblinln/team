@@ -15,7 +15,7 @@ end
 
 -- 取得一个人的所有的消息通知
 function m:all()
-    return self:query([[SELECT * FROM `notifications` WHERE `uid`=?1]], session.uid);
+    return self:query([[SELECT * FROM `notifications` WHERE `uid`=?1 ORDER BY `timepoint` DESC]], session.uid);
 end
 
 -- 删除一条消息

@@ -25,6 +25,7 @@
                 <td>{{tostring(info.upload_time)}}</td>
                 <td>{{tostring(info.size)}}</td>
                 <td>
+                    <button type="button" class="btn btn-sm btn-info" data-toggle="popover" data-trigger="hover" title="{{info.name}}" data-html="true" data-content="{*info.desc or '上传人没有写任何说明'*}"><i class="fa fa-info-circle"></i></button>
                     <a href="{{info.path}}" class="btn btn-sm btn-primary"><i class="fa fa-download"></i></a>
                     {% if session.uid == info.creator or session.is_su then %}
                     <a onclick="return confirm_del_share('{{info.id}}', '{{info.name}}');" class="btn btn-sm btn-secondary"><i class="fa fa-trash"></i></a>
@@ -51,6 +52,11 @@
                         <div class="form-group">
                             <label for="share-file-selector">选择文件</label>
                             <input id="share-file-selector" name="file" type="file" class="form-control" required autofocus>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="share-file-desc">描述</label>
+                            <textarea id="share-file-desc" name="desc" class="form-control" rows="4"></textarea>
                         </div>
                     </form>
 
@@ -91,6 +97,8 @@
 </div>
 
 <script>
+
+$('[data-toggle="popover"]').popover();
 
 $('.modal').on('shown.bs.modal', function(e) {
     var mask = $('.modal-backdrop').detach();

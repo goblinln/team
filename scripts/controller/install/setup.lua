@@ -43,6 +43,13 @@ setup.struct = {
         `pid` INTEGER NOT NULL,
         `role` INTEGER NOT NULL,
         `is_admin` BOOLEAN DEFAULT FALSE]],
+    project_holidays = [[
+        `id` INTEGER NOT NULL AUTO_INCREMENT,
+        `pid` INTEGER NOT NULL,
+        `name` VARCHAR(64) NOT NULL,
+        `start` DATE NOT NULL,
+        `end` DATE NOT NULL,
+        PRIMARY KEY(`id`)]],
     tasks = [[
         `id` INTEGER NOT NULL AUTO_INCREMENT,
         `pid` INTEGER DEFAULT -1,
@@ -84,6 +91,7 @@ setup.struct = {
         `creator` INTEGER NOT NULL,
         `size` INTEGER NOT NULL,
         `upload_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        `desc` TEXT,
         PRIMARY KEY(`id`)]]
 };
 

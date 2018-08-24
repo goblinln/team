@@ -1,19 +1,22 @@
 {% layout = 'dashboard/layout_dashboard.html' %}
 
 <!-- 功能列表 -->
-<div class="menublock border-right p-2">
+<div class="menublock border-right p-2" style="width: 160px;">
     <ul class="flex-column px-2">
         <li class="d-flex">
             <a id="admin-menu-default" class="menu-link active" href="#" onclick="return open_admin(this, '/dashboard/admin/users');"><i class="fa fa-list-alt mr-2"></i>管理用户</a>
         </li>
         <li class="d-flex">
-            <a class="menu-link" href="#" onclick="return open_admin(this, '/dashboard/admin/projects');"><i class="fa fa-list-alt mr-2"></i>管理项目</a>
+            <a class="menu-link" href="#" onclick="return open_admin(this, '/dashboard/admin/projects');"><i class="fa fa-tasks mr-2"></i>管理项目</a>
+        </li>
+        <li class="d-flex">
+            <a class="menu-link" href="#" onclick="return open_admin(this, '/dashboard/admin/broadcast_page');"><i class="fa fa-podcast mr-2"></i>系统公告</a>
         </li>
     </ul>
 </div>
 
 <!-- 内容面板 -->
-<div id="admin-detail" class="contentblock">
+<div id="admin-detail" class="contentblock" style="left: 160px;">
 </div>
 
 <script>

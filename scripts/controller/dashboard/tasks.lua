@@ -68,6 +68,7 @@ function tasks:info(req, rsp)
     if req.method ~= 'POST' then return rsp:error(405) end;
 
     local task_ = M('tasks'):get(req.post.id);
+    if not task_.info then return rsp:echo[[<div class="container text-center mt-4 pt-4"><h1 style="color: #e9e9e9">任务不存在或已被删除</h1></div>]] end;
     self:__process_event(task_.events);
 
     local members = M('projects'):get_members(task_.info.pid);
@@ -153,6 +154,13 @@ end
 function tasks:switch_viewmode(req, rsp)
     session.gantt_mode = (not session.gantt_mode);
     rsp:json{ok = true};
+end
+
+-- 删除任务
+function tasks:del_task(req, rsp)
+    if req.method ~= 'POST' then return rsp:error(405) end;
+    local ok, err_msg = M('tasks'):delete(req.post.id);
+    rsp:json{ok = ok, err_msg = err_msg};
 end
 
 ----------------------- 修改任务 --------------------------
@@ -334,33 +342,40 @@ end
 -----------------------------------------------------------
 
 -- 布局任务列表
-function tasks:__layout_tasks(rsp, title, tasks_, readonly) 
-    rsp:html('dashboard/tasks/view_tasks.html', self:__process(title, tasks_, readonly));
+function tasks:__layout_tasks(rsp, title, tasks_, readonly, enable_holiday) 
+    rsp:html('dashboard/tasks/view_tasks.html', self:__process(title, tasks_, readonly, enable_holiday));
 end
 
 -- 分析任务，分组等
-function tasks:__process(title, tasks_, readonly)
+function tasks:__process(title, tasks_, readonly, enable_holiday)
     local created, underway, testing, finished, gantt_data, gantt_map = {}, {}, {}, {}, {}, {};
     local summary = { title = title, created = 0, underway = 0, testing = 0, finished = 0 };
     local now = os.time();
+    local holiday_time = { start_time = now, end_time = 0 };
+    local holidays = {};
 
     for _, info in ipairs(tasks_) do
         local gantt_color = 'grey';
+        local start_time = os.time(info.start_time);
+        local end_time = os.time(info.end_time);
+
+        if holiday_time.start_time > start_time then holiday_time.start_time = start_time end;
+        if holiday_time.end_time < end_time then holiday_time.end_time = end_time end;
 
         if info.status == self.status.CREATED then
             table.insert(created, info);
             summary.created = summary.created + 1;
-            info.delayed = os.time(info.start_time) <= now;
+            info.delayed = start_time <= now;
         elseif info.status == self.status.UNDERWAY then
             table.insert(underway, info);
             summary.underway = summary.underway + 1;
             gantt_color = '#17a2b8';
-            info.delayed = os.time(info.end_time) <= now;
+            info.delayed = end_time <= now;
         elseif info.status == self.status.TESTING then
             table.insert(testing, info);
             summary.testing = summary.testing + 1;
             gantt_color = '#007bff';
-            info.delayed = os.time(info.end_time) <= now;
+            info.delayed = end_time <= now;
         elseif info.status == self.status.FINISHED then
             table.insert(finished, info);
             summary.finished = summary.finished + 1;
@@ -389,6 +404,19 @@ function tasks:__process(title, tasks_, readonly)
         });
     end
 
+    if enable_holiday and #tasks_ > 0 then
+        local find = M('projects'):get_holidays(tasks_[1].pid, {
+            start_time = os.date('%F', holiday_time.start_time),
+            end_time = os.date('%F', holiday_time.end_time + 7 * 24 * 3600)
+        });
+        for _, info in ipairs(find) do
+            table.insert(holidays, {
+                ['start'] = info.startDate,
+                ['end'] = info.endDate
+            });
+        end
+    end
+
     table.sort(created, function(l, r)
         return os.time(l.start_time) < os.time(r.start_time);
     end)
@@ -398,6 +426,7 @@ function tasks:__process(title, tasks_, readonly)
         tags        = self.tags,
         weights     = self.weights,
         readonly    = readonly,
+        holidays    = json.encode(holidays),
         gantt_data  = #gantt_data == 0 and '[]' or json.encode(gantt_data),
         tasks       = {
             created     = created,

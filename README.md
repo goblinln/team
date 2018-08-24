@@ -91,12 +91,15 @@
 
 * [OmniWeb](https://gitee.com/love_linger/OmniWeb.git)
 * [JQuery](https://jquery.com)
-* [JQuery Datetimepicker](https://github.com/xdan/datetimepicker)
-* [jsTree](https://www.jstree.com)
+* [JQuery TOC](http://github.com/ndabas/toc)
 * [Bootstrap 4](http://getbootstrap.com/)
 * [Bootstrap Markdown](https://github.com/toopay/bootstrap-markdown)
+* [Bootstrap Datepicker](https://github.com/uxsolutions/bootstrap-datepicker)
+* [Bootstrap Year Calendar](https://github.com/Paul-DS/bootstrap-year-calendar)
+* [Bootstrap Notify](https://github.com/mouse0270/bootstrap-notify)
 * [FontAwesome 4](http://www.fontawesome.com.cn/)
 * [Gantt Chart](https://github.com/982964399/jQuery-ganttView)
+* [jsTree](https://www.jstree.com)
 
 > 【注】`Bootstrap markdown`是个人定制版，集成了`markedjs`, `flowchart.js`, `katexjs`。
 

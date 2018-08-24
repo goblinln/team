@@ -145,4 +145,26 @@ function admin:del_proj(req, rsp)
     rsp:json{ ok = true };
 end
 
+-- 系统公告
+function admin:broadcast_page(req, rsp)
+    if req.method ~= 'POST' then return rsp:error(405) end;
+    if not session.is_su then return rsp:error(403) end;
+    rsp:html('dashboard/admin/broadcast.html');
+end
+
+-- 发送公告
+function admin:broadcast(req, rsp)
+    if req.method ~= 'POST' then return rsp:error(405) end;
+    if not session.is_su then return rsp:error(403) end;
+    if not req.post.content or #req.post.content == 0 then
+        rsp:json{ok = false, err_msg = '公告内容不能为空'};
+    else
+        local users = M('user'):all();
+        for _, info in ipairs(users) do
+            M('notification'):add(info.id, req.post.content);
+        end
+        rsp:json{ok = true};
+    end
+end
+
 return admin;

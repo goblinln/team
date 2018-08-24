@@ -139,7 +139,9 @@
                 <a class="dropdown-item" href="#" onclick="return mod_status(1)"><i class="fa fa-circle-o mr-1"></i>待办中</a>
                 <a class="dropdown-item" href="#" onclick="return mod_status(2)"><i class="fa fa-dot-circle-o mr-1"></i>开发中</a>
                 <a class="dropdown-item" href="#" onclick="return mod_status(3)"><i class="fa fa-exclamation-circle mr-1"></i>测试中</a>
+                {% if is_admin or session.uid == task.info.creator or session.uid == task.info.cooperator then %}
                 <a class="dropdown-item" href="#" onclick="return mod_status(4)"><i class="fa fa-check-circle mr-1"></i>已完成</a>
+                {% end %}
             </div>
         </div>
 
@@ -152,6 +154,13 @@
         <div class="btn-link px-2" onclick="return edit_content();">
             <i class="fa fa-pencil-square-o mr-1"></i>编辑
         </div>
+
+        {% if task.info.creator == session.uid or is_admin then %}        
+        <!-- 如果是发布者，可以删除任务 -->
+        <div class="btn-link pl-2" data-toggle="modal" data-target="#mdl-del-task">
+            <i class="fa fa-trash mr-1"></i>删除
+        </div>
+        {% end %}
     </div>
     <hr class="mt-2">
 </div>
@@ -227,6 +236,34 @@
     </div>
 </div>
 
+<!-- 删除任务确认 -->
+<div id="mdl-del-task" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">删除任务</h5>                
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning" role="alert">
+                    <strong>警告：</strong>
+                    <ul>
+                        <li>只有发布者本人或管理员可以删除文档！</li>
+                        <li>删除任务不可恢复</li>
+                    </ul>
+                </div>
+
+                <div id="err"></div>
+                
+                请确认需要删除的任务：<span class="text-danger">{{task.info.name}}</span>                    
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="return del_task();">确  定</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取  消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- 底部评论工具 -->
 <div class="task-comment-pane px-2" editing-comment="false">
     <input id="trigger-task-comment" type="text" class="form-control" placeholder="发表评论...">
@@ -246,6 +283,12 @@
 var content = $('#task-content-preview').get(0).innerHTML;
 var editor = null;
 
+$('.modal').on('shown.bs.modal', function(e) {
+    var mask = $('.modal-backdrop').detach();
+    mask.appendTo('.task-view-pane');
+    $('.modal #err').empty();
+});
+
 $(document).ready(function() {
     $('#task-content-preview').empty();
     $('#task-content-preview').append('<div class="md-preview d-block mh-100">' + marked(content || '') + '</div>');
@@ -258,10 +301,9 @@ $(document).ready(function() {
     });
 });
 
-$('#form-mod-time .form-datetime').datetimepicker({
-    format: 'Y-m-d',
-    timepicker: false,
-    lang: 'zh'
+$('#form-mod-time .form-datetime').datepicker({
+    format: 'yyyy-mm-dd',
+    autoclose: true
 });
 
 $('#trigger-task-comment').focusin(function() {
@@ -407,6 +449,13 @@ function add_attachment() {
 function del_attachment(aid) {
     $.post('/dashboard/tasks/del_attachment', { tid: '{{task.info.id}}', aid: aid }, function (ret) {
         if (ret.ok) refresh_task_info();
+    });
+}
+
+function del_task() {
+    $.post('/dashboard/tasks/del_task', {id: '{{task.info.id}}'}, function(ret) {
+        if (ret.ok) close_task(true);
+        else show_error('#mdl-del-task #err', '删除任务失败', ret.err_msg);
     });
 }
 </script>

@@ -18,7 +18,7 @@ tasks.filters = {
 -- 取得一个项目的任务
 function tasks:get_by_proj(pid)
     local find  = self:query([[
-            SELECT `id`, `creator`, `assigned`, `cooperator`, `name`, `weight`, `tags`, `start_time`, `end_time`, `status`
+            SELECT `id`, `pid`, `creator`, `assigned`, `cooperator`, `name`, `weight`, `tags`, `start_time`, `end_time`, `status`
             FROM `tasks`
             WHERE `pid`=?1 AND `status`<>?2]],
             pid, C('dashboard/tasks').status.ARCHIVED);
@@ -177,6 +177,17 @@ function tasks:get(id)
     end);
 
     return ret;
+end
+
+-- 删除
+function tasks:delete(id)
+    local info = self:query([[SELECT * FROM `tasks` WHERE `id`=?1]], id)[1];
+    if session.uid ~= info.creator and not M('projects'):is_admin(info.pid) then
+        return false, '您没有权限删除任务！';
+    end
+
+    self:exec([[DELETE FROM `tasks` WHERE `id`=?1]], id);
+    return true;
 end
 
 -- 修改名字

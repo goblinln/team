@@ -72,7 +72,6 @@ function open_task(tid, changed) {
 function close_task() {
     $('#task-view').removeClass('visible');
     $('#task-view').addClass('invisible');
-    $('.xdsoft_datetimepicker').remove();
 
     if (last_filter_menu && task_info_changed) last_filter_menu.click();
 }

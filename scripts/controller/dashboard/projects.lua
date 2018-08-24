@@ -31,7 +31,7 @@ function projects:get_tasks(req, rsp)
 
     local tasks = M('tasks'):get_by_proj(req.post.pid);
     local is_admin = M('projects'):is_admin(req.post.pid);
-    C('dashboard/tasks'):__layout_tasks(rsp, req.post.pname, tasks, not is_admin);
+    C('dashboard/tasks'):__layout_tasks(rsp, req.post.pname, tasks, not is_admin, true);
 end
 
 -- 取得指定项目成员信息
@@ -111,6 +111,42 @@ function projects:get_can_archive(req, rsp)
         tags = C('dashboard/tasks').tags,
         weights = C('dashboard/tasks').weights,
     });
+end
+
+-- 假日管理首页
+function projects:get_holidays(req, rsp)
+    if req.method ~= 'POST' then return rsp:error(405) end;
+
+    local holidays = M('projects'):get_holidays(req.post.pid, {});
+    rsp:html('dashboard/projects/holidays.html', {
+        proj_id = req.post.pid,
+        proj_pname = req.post.pname,
+        holidays = json.encode(holidays)
+    });
+end
+
+-- 添加假日
+function projects:add_holiday(req, rsp)
+    if req.method ~= 'POST' then return rsp:error(405) end;
+
+    local ok, err = M('projects'):add_holiday(req.post);
+    rsp:json{ok = ok, err_msg = err};
+end
+
+-- 更新假日
+function projects:edit_holiday(req, rsp)
+    if req.method ~= 'POST' then return rsp:error(405) end;
+
+    local ok, err = M('projects'):edit_holiday(req.post);
+    rsp:json{ok = ok, err_msg = err};
+end
+
+-- 删除假日
+function projects:del_holiday(req, rsp)
+    if req.method ~= 'POST' then return rsp:error(405) end;
+
+    local ok, err = M('projects'):del_holiday(req.post);
+    rsp:json{ok = ok, err_msg = err};
 end
 
 return projects;

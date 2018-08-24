@@ -30,7 +30,6 @@ function open_task(tid, changed) {
     $('#task-info-pane').get(0).innerHTML = '<div class="text-center text-muted" style="margin-top: 40%"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></div>';
     $('#task-view').removeClass('invisible');
     $('#task-view').addClass('visible');
-    $('.xdsoft_datetimepicker').remove();
 
     $.post("{*readonly and '/dashboard/tasks/readonly_info' or '/dashboard/tasks/info'*}", {id : tid}, function(ret) {
         $('#task-info-pane').empty();
@@ -38,12 +37,11 @@ function open_task(tid, changed) {
     }, 'html');
 }
 
-function close_task() {
+function close_task(force_refresh) {
     $('#task-view').removeClass('visible');
     $('#task-view').addClass('invisible');
-    $('.xdsoft_datetimepicker').remove();
 
-    if (last_filter_menu && task_info_changed) last_filter_menu.click();
+    if (force_refresh || (last_filter_menu && task_info_changed)) last_filter_menu.click();
 }
 
 function switch_viewmode() {

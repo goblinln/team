@@ -225,4 +225,68 @@ function projects:get_reports(pid, week_offset)
     return report;
 end
 
+-- 取得指定项目的节假日
+function projects:get_holidays(pid, time)
+    if not time.start_time then        
+        time.start_time = '2000-01-01';
+        time.end_time = '2100-12-31';
+    end
+        
+    local find = self:query("SELECT * FROM `project_holidays` WHERE `pid`=?1 AND `end`>=?2 AND `start`<=?3", pid, time.start_time, time.end_time);    
+    local ret = {};
+
+    for _, info in ipairs(find) do
+        table.insert(ret, {
+            id = info.id,
+            name = info.name,
+            startDate = tostring(info["start"]),
+            endDate = tostring(info["end"])
+        });
+    end
+
+    return ret;
+end
+
+-- 添加假日
+function projects:add_holiday(holiday)    
+    local ok, err = false, '';
+
+    xpcall(function()
+        self:exec('INSERT INTO `project_holidays`(`pid`, `name`, `start`, `end`) VALUES(?1, ?2, ?3, ?4)', holiday.pid, holiday.name, holiday.start_time, holiday.end_time);
+        ok = true;
+    end, function(stack)
+        err = stack;
+    end);
+
+    return ok, err;
+end
+
+-- 更新假日
+function projects:edit_holiday(holiday)
+    local ok, err = false, '';
+
+    xpcall(function()
+        self:exec('UPDATE `project_holidays` SET `name`=?1, `start`=?2, `end`=?3 WHERE `id`=?4 AND `pid`=?5', holiday.name, holiday.start_time, holiday.end_time, holiday.id, holiday.pid);
+        ok = true;
+    end, function(stack)
+        err = stack;
+    end);
+
+    return ok, err;
+end
+
+-- 删除假日
+function projects:del_holiday(holiday)
+    local ok, err = false, '';
+
+    xpcall(function()
+        self:exec('DELETE FROM `project_holidays` WHERE `id`=?1 AND `pid`=?2', holiday.id, holiday.pid);
+        ok = true;
+    end, function(stack)
+        err = stack;
+    end);
+
+    return ok, err;
+end
+
 return projects;
