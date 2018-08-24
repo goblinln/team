@@ -19,6 +19,14 @@
 
 ## 更新日志
 
+* 2018/08/24
+    1. OmniWeb升级到4.6
+    2. 项目增加自定义节假日
+    3. Gantt图中节假日显示
+    4. 使用Bootstrap-datepicker替换Jquery.datetimepicker
+    5. 增加公告功能
+    6. 其他修改
+
 * 2018/08/16
     1. OmniWeb升级到4.5，删除自定义错误页，使用OmniWeb内置
     2. 修复Markdown上传图片BUG
