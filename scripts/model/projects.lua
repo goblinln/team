@@ -219,7 +219,7 @@ function projects:get_reports(pid, week_offset)
     report.week = os.date('%U', week_start);
     report.week_offset = week_offset;
     report.week_start = os.date('%Y/%m/%d', week_start);
-    report.week_end = os.date('%Y/%m/%d', week_end);
+    report.week_end = os.date('%Y/%m/%d', week_end - 24 * 3600);
     
     M('tasks'):report_for_proj(pid, week_start, week_end, report);
     return report;
