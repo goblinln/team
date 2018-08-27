@@ -412,7 +412,8 @@ function tasks:__process(title, tasks_, readonly, enable_holiday)
         for _, info in ipairs(find) do
             table.insert(holidays, {
                 ['start'] = info.startDate,
-                ['end'] = info.endDate
+                ['end'] = info.endDate,
+                ['tip'] = info.name,
             });
         end
     end

@@ -80,8 +80,8 @@
 	}
 
 	var navbar_popup_url = null;
-	function navbar_popup(url, width) {
-		if (url == navbar_popup_url && $('.navbar-popup').hasClass('visible')) {
+	function navbar_popup(url, width, is_refresh) {
+		if (!is_refresh && url == navbar_popup_url && $('.navbar-popup').hasClass('visible')) {
 			navbar_popup_close();
 			return;
 		}
