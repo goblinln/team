@@ -385,22 +385,21 @@ function tasks:__process(title, tasks_, readonly, enable_holiday)
 
         if not gantt_map[info.assigned] then
             table.insert(gantt_data, {
-                id = info.assigned,
-                name = info.assigned_name,
-                series = {},
+                owner = info.assigned_name,
+                tasks = {},
             });
             gantt_map[info.assigned] = #gantt_data;
         end
         
-        table.insert(gantt_data[gantt_map[info.assigned]].series, {
+        table.insert(gantt_data[gantt_map[info.assigned]].tasks, {
             id = info.id,
             name = info.name,
             creator = info.creator_name,
-            cooperator = info.cooperator_name,
-            is_delayed = info.delayed,
+            acceptor = info.cooperator_name,
+            color = gantt_color,
             start = tostring(info.start_time),
             ['end'] = tostring(info.end_time),
-            options = { color = gantt_color },
+            icon = info.delayed and 'fa fa-exclamation-circle text-danger' or nil
         });
     end
 
@@ -413,7 +412,7 @@ function tasks:__process(title, tasks_, readonly, enable_holiday)
             table.insert(holidays, {
                 ['start'] = info.startDate,
                 ['end'] = info.endDate,
-                ['tip'] = info.name,
+                ['desc'] = info.name,
             });
         end
     end

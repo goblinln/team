@@ -9,23 +9,15 @@
         <i class="fa fa-exclamation-circle text-danger mx-1"></i>滞后了<i class="fa fa-square ml-2 mr-1" style="color: rgba(140, 136, 136, .25)"></i>节假日
     </p>
 
-    <div id="gantt-view"></div>
+    <div id="gantt-view" style="height: calc(100vh - 200px);"></div>
 </div>
 
 <script type='text/javascript'>
-$('#gantt-view').ganttView({
+$('#gantt-view').gantt({
     data: $.parseJSON('{*gantt_data*}'),
     holidays: $.parseJSON('{*holidays*}'),
-    showWeekends: true,
-    vtHeaderWidth: 480,
-    behavior: {
-        clickable: true,
-        draggable: false,
-        resizable: false,
-        onClick: function(node) {
-            if (node.is_summary) return;
-            open_task(node.id);
-        }
+    onclick: function(task) {
+        open_task(task.id);
     }
 });
 </script>

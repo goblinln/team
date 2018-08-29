@@ -120,7 +120,7 @@
 .task-view-pane {
     position:fixed;
     display: block;
-    z-index: 2;
+    z-index: 8;
     top: 40px;
     right: 0;
     bottom: 0;
@@ -134,7 +134,7 @@
 .task-view-pane-close {
     position: absolute;
     display: inline-block;
-    z-index: 2;
+    z-index: 8;
     top: 0;
     bottom: 0;
     width: 24px;
@@ -232,7 +232,7 @@
 .navbar-popup {
     position: absolute;
     display: block;
-    z-index: 3;
+    z-index: 10;
     top: 40px;
     right: 0;
     bottom: 0;
@@ -246,7 +246,7 @@
 .navbar-popup-close {
     position: absolute;
     display: inline-block;
-    z-index: 2;
+    z-index: 10;
     left: 0;
     right: 0;
     bottom: 0;
