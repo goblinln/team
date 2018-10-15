@@ -353,11 +353,14 @@ function tasks:__process(title, tasks_, readonly, enable_holiday)
     local now = os.time();
     local holiday_time = { start_time = now, end_time = 0 };
     local holidays = {};
+    local all_assigned = {};
 
     for _, info in ipairs(tasks_) do
         local gantt_color = 'grey';
         local start_time = os.time(info.start_time);
         local end_time = os.time(info.end_time);
+
+        all_assigned[info.assigned_name] = info.assigned;
 
         if holiday_time.start_time > start_time then holiday_time.start_time = start_time end;
         if holiday_time.end_time < end_time then holiday_time.end_time = end_time end;
@@ -385,8 +388,9 @@ function tasks:__process(title, tasks_, readonly, enable_holiday)
 
         if not gantt_map[info.assigned] then
             table.insert(gantt_data, {
-                owner = info.assigned_name,
-                tasks = {},
+                owner       = info.assigned_name,
+                owner_id    = info.assigned, 
+                tasks       = {},
             });
             gantt_map[info.assigned] = #gantt_data;
         end
@@ -421,10 +425,15 @@ function tasks:__process(title, tasks_, readonly, enable_holiday)
         return os.time(l.start_time) < os.time(r.start_time);
     end)
 
+    table.sort(finished, function(l, r)
+        return os.time(l.end_time) < os.time(r.end_time);
+    end)
+
     return {
         summary     = summary,
         tags        = self.tags,
         weights     = self.weights,
+        all_assigned   = all_assigned,
         readonly    = readonly,
         holidays    = json.encode(holidays),
         gantt_data  = #gantt_data == 0 and '[]' or json.encode(gantt_data),

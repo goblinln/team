@@ -113,6 +113,10 @@ end
 -- 新建
 function tasks:add(param, files)
     local ok, err = false, '';
+  
+    if not param.name or string.len(param.name) == 0 then
+        return false, '任务名不可为空！';
+    end
 
     if not param.content or string.len(param.content) == 0 then
         return false, '任务详情必须写明！';

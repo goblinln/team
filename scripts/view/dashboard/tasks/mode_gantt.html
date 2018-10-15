@@ -13,11 +13,32 @@
 </div>
 
 <script type='text/javascript'>
-$('#gantt-view').gantt({
-    data: $.parseJSON('{*gantt_data*}'),
-    holidays: $.parseJSON('{*holidays*}'),
-    onclick: function(task) {
-        open_task(task.id);
+var gantt_data = $.parseJSON('{*gantt_data*}');
+var gantt_holidays = $.parseJSON('{*holidays*}');
+
+function create_gantt(data, holidays) {
+    $('#gantt-view').gantt({
+        data: data,
+        holidays: holidays,
+        onclick: function(task) {
+            open_task(task.id);
+        }
+    });
+}
+
+function filter_task_by_assigned(elem) {
+    var user_id = $(elem).val();
+    if (user_id == '-1') {
+        create_gantt(gantt_data, gantt_holidays);
+    } else {
+        var filtered = [];
+        for (var i = 0; i < gantt_data.length; ++i) {
+            var one = gantt_data[i];
+            if (user_id == one.owner_id) filtered.push(one);
+        }
+        create_gantt(filtered, gantt_holidays);
     }
-});
+}
+
+create_gantt(gantt_data, gantt_holidays);
 </script>
