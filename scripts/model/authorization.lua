@@ -17,7 +17,7 @@ function authorization:check(req, rsp)
             return true;
         end
     elseif not os.exists(config.app.install_lock) then
-        rsp:redirect('/install/setup/');
+        rsp:redirect('/install/setup/?override=1');
         return false;
     end
 
