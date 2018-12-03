@@ -426,7 +426,7 @@ function tasks:__process(title, tasks_, readonly, enable_holiday)
     end)
 
     table.sort(finished, function(l, r)
-        return os.time(l.end_time) < os.time(r.end_time);
+        return os.time(l.end_time) > os.time(r.end_time);
     end)
 
     return {

@@ -44,6 +44,15 @@ function documents:add(req, rsp)
     return rsp:json{ok = true};
 end
 
+-- 重命名文档
+function documents:rename(req, rsp)
+    if req.method ~= 'POST' then return rsp:error(405) end;
+
+    local ok, err = M('documents'):rename(req.post.name, req.post.rename_id);
+    if not ok then return rsp:json{ ok = false, err_msg = err } end;
+    return rsp:json{ok = true};
+end
+
 -- 编辑文档
 function documents:edit(req, rsp)
     if req.method ~= 'POST' then return rsp:error(405) end;

@@ -61,6 +61,14 @@ function documents:add(name, parent_id)
     return true;
 end
 
+-- 重命名
+function documents:rename(name, id)
+    self:exec(
+        "UPDATE `documents` SET `name`=?1 WHERE `id`=?2",
+        name, id);
+    return true;
+end
+
 -- 编辑文档
 function documents:edit(id, content)
     self:exec(

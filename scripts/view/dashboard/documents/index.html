@@ -38,6 +38,32 @@
     </div>
 </div>
 
+<!-- 重命名文档 -->
+<div id="mdl-rename" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">重命名</h5>                
+            </div>
+            <div class="modal-body">
+                <div id="err"></div>
+                <form id="form-rename">
+                    <input id="rename_id" name="rename_id" type="number" hidden>
+                    <div class="form-group">
+                        <label for="rename-doc-name">文档名</label>
+                        <input id="rename-doc-name" name="name" type="text" class="form-control" placeholder="同目录下文档名唯一" required autofocus>
+                    </div>
+                    <p>原始文档名<span id="old_name" class="badge badge-info"></span></p>                    
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-rename-commit" type="button" class="btn btn-primary">确  定</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取  消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- 删除文档对话框 -->
 <div id="mdl-del" class="modal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -140,6 +166,16 @@ $('#treeview').jstree({
                                 $('#mdl-add').modal('show');
                             }
                         }
+                    }
+                },
+                rename: {
+                    label: '重命名',
+                    icon: 'fa fa-hand-o-right',
+                    _disabled: node.id == -1,
+                    action: function(obj) {
+                        $('#mdl-rename #rename_id').val(node.id);
+                        $('#mdl-rename #old_name').text(node.text);
+                        $('#mdl-rename').modal('show');
                     }
                 },
                 edit: {
@@ -245,6 +281,27 @@ $('#btn-add-commit').click(function() {
                 $('#treeview').jstree(true).refresh(true);
             } else {
                 show_error('#mdl-add #err', '新建失败', rsp.err_msg);
+            }
+        }
+    });
+});
+
+$('#btn-rename-commit').click(function() {
+    $.ajax({
+        url: '/dashboard/documents/rename',
+        type: 'POST',
+        data: new FormData(document.getElementById('form-rename')),
+        dataType: 'json',
+        processData: false,
+        contentType: false,
+        cache: false,
+        success: function(ret) {
+            if (ret.ok) {
+                $('.model #err').empty();
+                $('.modal').modal('hide');
+                $('#treeview').jstree(true).refresh(true);
+            } else {
+                show_error('#mdl-rename #err', '重命名失败', rsp.err_msg);
             }
         }
     });
