@@ -10,7 +10,7 @@
 
     * Windows：下载[Mysql Connector C](http://iso.mirrors.ustc.edu.cn/mysql-ftp/Downloads/Connector-C/mysql-connector-c-6.1.11-winx64.zip)，将lib目录下的libmysql.dll，放在项目根目录，并重命名为mysql.dll
     * CentOS: `yum install mariadb-devel`, `ln -s /usr/lib64/mysql/libmysqlclient.so /usr/lib64/libmysqlclient.so`
-    * MacOS: `brew install libmysqlclient`
+    * MacOS: `brew install mysql-connector-c`
 
 2. 现在有些属性只有项目管理员可以更改
 
