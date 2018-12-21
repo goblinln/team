@@ -4,7 +4,13 @@
 
 ## 重要提醒
 
-1. 代码库中没有`omni`的可执行文件，请到**发行版**中下载带预编译的版本，或自行到[OmniWeb](https://gitee.com/love_linger/OmniWeb.git)中下载编译
+1. 代码库中没有`omni`的可执行文件，请到[OmniWeb](https://gitee.com/love_linger/OmniWeb.git)中下载编译好的二进制文件
+
+2. 依赖mysql库  
+
+    * Windows：下载[Mysql Connector C](http://iso.mirrors.ustc.edu.cn/mysql-ftp/Downloads/Connector-C/mysql-connector-c-6.1.11-winx64.zip)，将lib目录下的libmysql.dll，放在项目根目录，并重命名为mysql.dll
+    * CentOS: `yum install mariadb-devel`, `ln -s /usr/lib64/mysql/libmysqlclient.so /usr/lib64/libmysqlclient.so`
+    * MacOS: `brew install libmysqlclient`
 
 2. 现在有些属性只有项目管理员可以更改
 
@@ -15,61 +21,7 @@
 3. 关于验收
 
     * 测试通过后状态为【已完成】的任务才会出现在【验收管理】中。
-    * 验收操作也是归档操作。验收后，任务不再出现在任务视图中，可在项目验收管理及周报中查看。
-
-## 更新日志
-
-* 2018/10/15
-    1. 新建任务选择人员优化，记录最近选择的三个人员
-    2. 任务列表可按指派人筛选
-    3. 其他界面修改
-
-* 2018/08/24
-    1. OmniWeb升级到4.6
-    2. 项目增加自定义节假日
-    3. Gantt图中节假日显示
-    4. 使用Bootstrap-datepicker替换Jquery.datetimepicker
-    5. 增加公告功能
-    6. 其他修改
-
-* 2018/08/16
-    1. OmniWeb升级到4.5，删除自定义错误页，使用OmniWeb内置
-    2. 修复Markdown上传图片BUG
-    3. 修复发布任务视图合作者列表未重置BUG
-    4. 成员选择列表进行了合理的排序
-    5. 增加通知功能
-    6. 其他BUG修复及优化
-    7. 现在项目需要系统管理员创建并管理
-    8. 升级时请重置数据库
-
-* 2018/08/14  
-    1. 调整页面布局
-    2. Markdown编辑器定制
-        * 禁用快捷键，以支持tab输入
-        * 禁止Shift, Ctrl, Atl等键按起时乱补全
-    3. 上传新头像时，删除旧头像
-    4. 修复内存泄露的BUG：主要原因是mysql_close()未能完全释放占用资源，需要调用mysql_server_end()
-    5. 修复Gantt图未对齐BUG
-
-* 2018/08/10
-    1. 多个页面布局的修改
-    2. 增加错误静态页面
-    3. 修复SQL在旧版本的MySQL(<5.6)中执行错误
-
-* 2018/08/06
-
-    1. Markdown编辑器增加语法说明
-    2. 一些视图Layout修改
-    3. 任务现在支持上传附件
-    4. 使用最新的omni 4.4.2
-
-* 2018/08/01
-
-    1. 修复SQL语句中不能使用超过9个参数的BUG
-    2. 重新设计任务的状态，新增加`测试中`状态
-    3. 任务常规视图中，不再显示【已滞后】列表，改为截止时间显示红字
-    4. 在任务表中增加`cooperator`用于指定测试/验收人员
-    5. 重新定制`jQuery.GanttView`用于支持显示测试验收人员 
+    * 验收操作也是归档操作。验收后，任务不再出现在任务视图中，可在项目验收管理及周报中查看。 
 
 ## 预览
 
@@ -118,7 +70,11 @@
 
 ## 安装
 
-发行版中提供了基于`Window 10`及`CentOS 7`的预编译版，直接下载，配置完`omni.ini`中数据库，运行`omni`或`omni.exe`即可。
+1. Clone代码库
+2. 将下载omni可执行文件到项目根目录
+3. 根据平台，提供mysql动态库，供脚本调用，方法见 #重要提示
+4. 更改omni.ini，配置数据库
+5. 运行omni
 
 ## 默认帐号
 
