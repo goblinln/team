@@ -4,7 +4,7 @@
 
 ## 重要提醒
 
-1. 代码库中没有`omni`的可执行文件，请到[OmniWeb](https://gitee.com/love_linger/OmniWeb.git)中下载编译好的二进制文件
+1. 代码库中只提供了windows10 x64下的`omni`的可执行文件，其他平台请到[OmniWeb](https://gitee.com/love_linger/OmniWeb.git)中下载编译好的二进制文件
 
 2. 依赖mysql库  
 
