@@ -19,6 +19,7 @@ type MySQL struct {
 type Env struct {
 	Installed bool   `json:"-"`
 	AppName   string `json:"appName"`
+	AppPort   string `json:"appPort"`
 	MySQL     MySQL  `json:"mysql"`
 }
 
@@ -36,6 +37,7 @@ func (e *Env) Save() error {
 var Environment = &Env{
 	Installed: false,
 	AppName:   "协作系统",
+	AppPort:   ":8080",
 	MySQL: MySQL{
 		Host:     "127.0.0.1:3306",
 		User:     "root",

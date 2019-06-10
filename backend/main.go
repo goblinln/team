@@ -65,5 +65,5 @@ func main() {
 		middleware.MustLoginedAsAdmin)
 
 	// Start service.
-	web.Start(":8080", router)
+	web.Start(model.Environment.AppPort, router)
 }
