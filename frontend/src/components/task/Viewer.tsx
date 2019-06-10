@@ -99,7 +99,8 @@ const CommonHeader = (props: {task: ITask, titleWidth: number}) => {
 
             <Col style={{ fontWeight: 'normal', fontSize: '.5em' }}>
                 <span style={{ marginRight: 16 }}><Icon type='pie-chart' /> {task.proj.name}</span>
-                <span><Icon type='branches' /> {task.proj.branches[task.branch] || '默认'}</span>
+                <span style={{ marginRight: 16 }}><Icon type='branches' /> {task.proj.branches[task.branch] || '默认'}</span>
+                <span><Icon type={TaskStatus[task.state].icon}/> {TaskStatus[task.state].name}</span>
             </Col>
         </Row>
     );
@@ -114,7 +115,7 @@ const ReadOnlyViewer = (props: {task: ITask}) => {
     return (
         <Drawer
             title={<CommonHeader task={task} titleWidth={500}/>}
-            width={700}
+            width={600}
             bodyStyle={{ padding: '4px 0px' }}
             visible={true}
             closable={false}
@@ -125,7 +126,6 @@ const ReadOnlyViewer = (props: {task: ITask}) => {
                 <Col style={{ marginRight: 16 }}><Icon type='experiment' /> {task.tester.name}</Col>
                 <Col style={{ marginRight: 16 }}><Icon type='calendar' /> {moment(task.startTime).format('MM月DD日')} - {moment(task.endTime).format('MM月DD日')}</Col>
                 <Col style={{ marginRight: 16 }}><Icon type='tag' /> {TaskWeight[task.weight].name}</Col>
-                <Col style={{ marginRight: 16 }}><Icon type={TaskStatus[task.state].icon} /> {TaskStatus[task.state].name}</Col>
             </Row>
 
             <Divider style={{ marginTop: 4, marginBottom: 4 }} />
@@ -425,7 +425,7 @@ const EditableViewer = (props: {task: ITask}) => {
     return (
         <Drawer
             title={<CommonHeader task={task} titleWidth={600}/>}
-            width={700}
+            width={750}
             bodyStyle={{ padding: '4px 0px' }}
             visible={true}
             closable={false}
@@ -438,12 +438,7 @@ const EditableViewer = (props: {task: ITask}) => {
                 <Col><WeightEditor current={task.weight}/></Col>
                 <Col><TimeEditor start={task.startTime} end={task.endTime}/></Col>
                 <Col>
-                    <Button type='link' size='small' style={{padding: '0 4px', color: 'rgba(0,0,0,.65)'}}>
-                        <Icon type={TaskStatus[task.state].icon} />{TaskStatus[task.state].name}
-                    </Button>
-                </Col>
-                <Col>
-                    <Button type='link' size='small' style={{padding: '0 4px', color: 'rgba(0,0,0,.65)'}}>
+                    <Button type='link' size='small' style={{padding: '0 4px', color: 'rgba(0,0,0,.65)'}} onClick={() => setEditorShow(true)}>
                         <Icon type='edit' />编辑
                     </Button>
                 </Col>
