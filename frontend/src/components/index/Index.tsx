@@ -4,13 +4,14 @@ import * as ReactDOM from 'react-dom';
 import {
     Avatar,
     Badge,
+    Icon,
     Layout,
     Menu,
-    Icon,
+    Spin,
 } from 'antd';
 
 import { INotice, IUser } from '../../common/Protocol';
-import { Fetch } from '../../common/Request';
+import { Fetch, FetchStateNotifier } from '../../common/Request';
 import * as Login from '../user/Login';
 import * as Profile from '../user/Profile';
 import * as Task from '../task/Page';
@@ -30,7 +31,9 @@ export const Index = () => {
     const [user, setUser] = React.useState<IUser>(null);
     const [notices, setNoticies] = React.useState<INotice[]>([]);
     const [subpage, setSubpage] = React.useState<JSX.Element>(null);
+    const [loading, setLoading] = React.useState<boolean>(false);
     const popupAnchor = React.useRef<any>();
+    const loadingDely = React.useRef<any>();
 
     /**
      * 主菜单
@@ -73,6 +76,17 @@ export const Index = () => {
      * 取帐号信息并且取一次通知
      */
     React.useEffect(() => {
+        Fetch.notifier = new FetchStateNotifier(state => {
+            if (loadingDely.current) {
+                clearTimeout(loadingDely.current)
+                loadingDely.current = null;
+            }
+
+            loadingDely.current = setTimeout(isFetching => {
+                setLoading(isFetching);
+                loadingDely.current = null;
+            }, 20, state);
+        });
         fetchUser();
     }, []);
 
@@ -165,9 +179,14 @@ export const Index = () => {
                 </div>
             </Layout.Sider>
 
-            <Layout.Content>
+            <Layout.Content>                   
                 {subpage || <Task.Page />}
                 <div ref={popupAnchor} />
+                {loading && (
+                    <div style={{position: "absolute", left: 64, right: 0, top: 0, bottom: 0, display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, .25)'}} onClick={() => null}>
+                        <Spin tip="加载中..." size='large' />
+                    </div>
+                )}
             </Layout.Content>
         </Layout>
     );
