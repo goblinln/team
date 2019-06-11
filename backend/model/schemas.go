@@ -380,10 +380,7 @@ func AfterTaskOperation(task *Task, operator int64, ev int, extra string) {
 		Content: MakeTaskNotice(task, "<b>"+operatorName+"</b>", event),
 	}
 
-	_, err := orm.Insert(event)
-	if err != nil {
-
-	}
+	orm.Insert(event)
 
 	if task.Creator != operator {
 		notice.UID = task.Creator
