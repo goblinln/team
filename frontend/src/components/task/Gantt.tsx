@@ -50,8 +50,8 @@ export const Gantt = (props: IGanttProps) => {
     React.useEffect(() => {
         let counter: {[key: string]: number} = {created: 0, underway: 0, testing: 0, finished: 0};
         let groups: Map<number, ITask[]> = new Map<number, ITask[]>();
-        let start = moment();
-        let end = moment();
+        let start = moment().startOf('d');
+        let end = moment().startOf('d');
 
         props.tasks.forEach(task => {
             switch (task.state) {
