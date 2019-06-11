@@ -107,6 +107,8 @@ func (t *Task) create(c *web.Context) {
 		return
 	}
 
+	task.ID = tid
+
 	for i := 0; i < len(uploaded); i++ {
 		uploaded[i].TID = tid
 		orm.Insert(uploaded[i])
