@@ -55,7 +55,7 @@ export const Tasks = (props: {proj: IProject, isReadonly: boolean}) => {
             <Form layout='inline'>
                 <Form.Item label='相关人员'>
                     {getFieldDecorator('user', {})(
-                        <Select id='user' style={{minWidth: 128}} onChange={ev => formProps.onChange({user: ev.valueOf()})}>
+                        <Select id='user' style={{minWidth: 160}} onChange={ev => formProps.onChange({user: ev.valueOf()})}>
                             {props.proj.members.map(member => {
                                 return <Select.Option key={member.user.id} value={member.user.id}>【{ProjectRole[member.role]}】{member.user.name}</Select.Option>
                             })}

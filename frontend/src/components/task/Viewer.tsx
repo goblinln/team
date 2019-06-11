@@ -254,7 +254,7 @@ const EditableViewer = (props: {task: ITask}) => {
                 trigger='hover'
                 onVisibleChange={onVisibleChange}
                 content={
-                    <Select value={selected.id} onChange={modify}>
+                    <Select value={selected.id} onChange={modify} style={{minWidth: 160}}>
                         {sorted.map(member => {
                             return <Select.Option key={member.user.id} value={member.user.id}>【{ProjectRole[member.role]}】{member.user.name}</Select.Option>
                         })}
