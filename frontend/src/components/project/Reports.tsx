@@ -50,7 +50,18 @@ export const Reports = (props: {proj: IProject, isReadonly: boolean}) => {
         let w = whichWeek || moment().startOf('week');
 
         Fetch.get(`/api/project/${props.proj.id}/report/${w.unix()}`, rsp => {
-            rsp.err ? message.error(rsp.err, 1) : setData(rsp.data)
+            if (rsp.err) {
+                message.error(rsp.err);
+            } else {
+                rsp.data.unarchived = rsp.data.unarchived.sort((a: ITask, b: ITask) => {
+                    if (a.state != b.state) {
+                        return b.state - a.state;
+                    } else {
+                        return moment(a.endTime).diff(moment(b.endTime), 'd');
+                    }
+                })
+                setData(rsp.data);
+            }
         })
     };
 

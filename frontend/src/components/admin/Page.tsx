@@ -109,7 +109,7 @@ export const Page = () => {
      */
     const fetchUsers = () => {
         Fetch.get('/admin/user/list', rsp => {
-            rsp.err ? message.error(rsp.err, 1) : setUsers(rsp.data);
+            rsp.err ? message.error(rsp.err, 1) : setUsers(rsp.data.sort((a: IUser, b: IUser) => a.name.localeCompare(b.name)));
         });
     };
 

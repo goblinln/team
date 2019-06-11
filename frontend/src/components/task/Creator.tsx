@@ -56,6 +56,19 @@ export const Creator = Form.create<IProps>()((props: IProps) => {
      */
     React.useEffect(() => {
         Fetch.get(`/api/project/mine`, rsp => {
+            if (rsp.err) {
+                message.error(rsp.err, 1)
+            } else {
+                rsp.data.forEach((proj: IProject) => {
+                    proj.members = proj.members.sort((a, b) => {
+                        if (a.role != b.role) {
+                            return a.role - b.role;
+                        } else {
+                            return a.user.name.localeCompare(b.user.name);
+                        }
+                    })
+                })
+            }
             rsp.err ? message.error(rsp.err, 1) : setProjs(rsp.data);
         });
     }, []);

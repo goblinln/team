@@ -46,6 +46,15 @@ export const Board = (props: IBoardProps) => {
         <Row type='flex' justify='space-between' style={{margin: 8}}>
             {groups.map((group, idx) => {
                 const state = TaskStatus[idx];
+                const sortedGroup = group.sort((a, b) => {
+                    if (a.bringTop != b.bringTop) {
+                        return a.bringTop ? -1 : 1;
+                    } else if (a.weight != b.weight) {
+                        return b.weight - a.weight;
+                    } else {
+                        moment(a.endTime).diff(moment(b.endTime), 'd');
+                    }
+                })
                 
                 return (
                     <Col key={state.type} span={6}>
@@ -56,7 +65,7 @@ export const Board = (props: IBoardProps) => {
                             bodyStyle={{padding: 0, margin: 4}}
                             style={{margin: 4}}>
                             
-                            {group.length == 0 ? <Empty description='暂无数据' /> : group.map(task => {
+                            {group.length == 0 ? <Empty description='暂无数据' /> : sortedGroup.map(task => {
                                 const weight = TaskWeight[task.weight];
                                 const now = moment();
                                 const endTime = moment(task.endTime);

@@ -216,6 +216,13 @@ const EditableViewer = (props: {task: ITask}) => {
     const MemberEditor = (props: {icon: string, current: IUser, kind: string}) => {
         const [selected, setSelected] = React.useState<IUser>(props.current);
         const titles: any = {'creator': '修改负责人', 'developer': '修改开发人员', 'tester': '修改测试人员'}
+        const sorted = task.proj.members.sort((a, b) => {
+            if (a.role != b.role) {
+                return a.role - b.role;
+            } else {
+                return a.user.name.localeCompare(b.user.name);
+            }
+        })
 
         const modify = (val: number) => {
             let find: IUser = null;
@@ -248,7 +255,7 @@ const EditableViewer = (props: {task: ITask}) => {
                 onVisibleChange={onVisibleChange}
                 content={
                     <Select value={selected.id} onChange={modify}>
-                        {task.proj.members.map(member => {
+                        {sorted.map(member => {
                             return <Select.Option key={member.user.id} value={member.user.id}>【{ProjectRole[member.role]}】{member.user.name}</Select.Option>
                         })}
                     </Select>
