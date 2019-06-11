@@ -100,6 +100,8 @@ export const Gantt = (props: IGanttProps) => {
         setSummary(
             <div style={{color: 'white', textAlign: 'center', marginBottom: 16}}>
                 {TaskStatus.map(status => {
+                    if (status.type == 'archived') return null;
+
                     return [
                         <span key={`${status.type}_title`} style={{backgroundColor: '#343a40', padding: '0 8px'}}>{status.name}</span>,
                         <span key={`${status.type}_number`} style={{backgroundColor: status.color, padding: '0 8px', marginRight: 16}}>{counter[status.type]}</span>,
