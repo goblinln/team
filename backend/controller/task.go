@@ -55,6 +55,11 @@ func (t *Task) create(c *web.Context) {
 		creator = uid
 	}
 
+	if developer == 0 || tester == 0 {
+		c.JSON(200, &web.JObject{"err": "人员配置出错"})
+		return
+	}
+
 	uploaded := []*model.TaskAttachment{}
 	fhs, ok := c.MultipartForm().File["files[]"]
 	if ok {
