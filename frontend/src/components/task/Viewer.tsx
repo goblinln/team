@@ -378,7 +378,8 @@ const EditableViewer = (props: {task: ITask}) => {
                 if (rsp.err) {
                     message.error(rsp.err, 1);
                 } else {
-                    setCommentEditorShow(false); 
+                    setCommentEditorShow(false);
+                    setDirty(true);
                 }
             });
         }
@@ -393,7 +394,7 @@ const EditableViewer = (props: {task: ITask}) => {
                     </Mentions>
                 </Row>
                 <Row type='flex' justify='center' style={{marginTop: 8}}>
-                    <Button type='primary' style={{marginRight: 8}} onClick={() => sendComment()}>修改</Button>
+                    <Button type='primary' style={{marginRight: 8}} onClick={() => sendComment()}>发表</Button>
                     <Button onClick={() => setCommentEditorShow(false)}>取消</Button>
                 </Row>
             </div>

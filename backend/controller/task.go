@@ -112,14 +112,7 @@ func (t *Task) create(c *web.Context) {
 		orm.Insert(uploaded[i])
 	}
 
-	orm.Insert(&model.TaskEvent{
-		TID:   tid,
-		UID:   uid,
-		Event: model.TaskEventCreate,
-		Time:  time.Now(),
-		Extra: "",
-	})
-
+	model.AfterTaskOperation(task, uid, model.TaskEventCreate, "")
 	c.JSON(200, &web.JObject{})
 }
 
@@ -152,14 +145,7 @@ func (t *Task) moveNext(c *web.Context) {
 		return
 	}
 
-	orm.Insert(&model.TaskEvent{
-		TID:   tid,
-		UID:   c.Session.Get("uid").(int64),
-		Event: ev,
-		Time:  time.Now(),
-		Extra: "",
-	})
-
+	model.AfterTaskOperation(task, c.Session.Get("uid").(int64), ev, "")
 	c.JSON(200, &web.JObject{})
 }
 
@@ -247,14 +233,7 @@ func (t *Task) setCreator(c *web.Context) {
 	}
 
 	oldCreator, _ := model.FindUserInfo(old)
-	orm.Insert(&model.TaskEvent{
-		TID:   tid,
-		UID:   c.Session.Get("uid").(int64),
-		Event: model.TaskEventModCreator,
-		Time:  time.Now(),
-		Extra: oldCreator,
-	})
-
+	model.AfterTaskOperation(task, c.Session.Get("uid").(int64), model.TaskEventModCreator, oldCreator)
 	c.JSON(200, &web.JObject{})
 }
 
@@ -277,14 +256,7 @@ func (t *Task) setDeveloper(c *web.Context) {
 	}
 
 	oldDeveloper, _ := model.FindUserInfo(old)
-	orm.Insert(&model.TaskEvent{
-		TID:   tid,
-		UID:   c.Session.Get("uid").(int64),
-		Event: model.TaskEventModDeveloper,
-		Time:  time.Now(),
-		Extra: oldDeveloper,
-	})
-
+	model.AfterTaskOperation(task, c.Session.Get("uid").(int64), model.TaskEventModDeveloper, oldDeveloper)
 	c.JSON(200, &web.JObject{})
 }
 
@@ -307,14 +279,7 @@ func (t *Task) setTester(c *web.Context) {
 	}
 
 	oldTester, _ := model.FindUserInfo(old)
-	orm.Insert(&model.TaskEvent{
-		TID:   tid,
-		UID:   c.Session.Get("uid").(int64),
-		Event: model.TaskEventModTester,
-		Time:  time.Now(),
-		Extra: oldTester,
-	})
-
+	model.AfterTaskOperation(task, c.Session.Get("uid").(int64), model.TaskEventModTester, oldTester)
 	c.JSON(200, &web.JObject{})
 }
 
@@ -336,14 +301,7 @@ func (t *Task) setWeight(c *web.Context) {
 		return
 	}
 
-	orm.Insert(&model.TaskEvent{
-		TID:   tid,
-		UID:   c.Session.Get("uid").(int64),
-		Event: model.TaskEventModWeight,
-		Time:  time.Now(),
-		Extra: old,
-	})
-
+	model.AfterTaskOperation(task, c.Session.Get("uid").(int64), model.TaskEventModWeight, old)
 	c.JSON(200, &web.JObject{})
 }
 
@@ -360,26 +318,12 @@ func (t *Task) setTime(c *web.Context) {
 	}
 
 	if !task.StartTime.Equal(startTime) {
-		orm.Insert(&model.TaskEvent{
-			TID:   tid,
-			UID:   uid,
-			Event: model.TaskEventModStartTime,
-			Time:  time.Now(),
-			Extra: task.StartTime.Format(model.TaskTimeFormat),
-		})
-
+		model.AfterTaskOperation(task, uid, model.TaskEventModStartTime, task.StartTime.Format(model.TaskTimeFormat))
 		task.StartTime = startTime
 	}
 
 	if !task.EndTime.Equal(endTime) {
-		orm.Insert(&model.TaskEvent{
-			TID:   tid,
-			UID:   uid,
-			Event: model.TaskEventModEndTime,
-			Time:  time.Now(),
-			Extra: task.EndTime.Format(model.TaskTimeFormat),
-		})
-
+		model.AfterTaskOperation(task, uid, model.TaskEventModEndTime, task.EndTime.Format(model.TaskTimeFormat))
 		task.EndTime = endTime
 	}
 
@@ -411,30 +355,30 @@ func (t *Task) setContent(c *web.Context) {
 		return
 	}
 
-	orm.Insert(&model.TaskEvent{
-		TID:   tid,
-		UID:   uid,
-		Event: model.TaskEventModContent,
-		Time:  time.Now(),
-		Extra: "",
-	})
-
+	model.AfterTaskOperation(task, uid, model.TaskEventModContent, "")
 	c.JSON(200, &web.JObject{})
 }
 
 func (t *Task) addComment(c *web.Context) {
 	tid := atoi(c.RouteValue("id"))
-	_, err := orm.Insert(&model.TaskComment{
+	task := &model.Task{ID: tid}
+	err := orm.Read(task)
+	if err != nil {
+		c.JSON(200, &web.JObject{"err": "任务不存在或已被删除"})
+		return
+	}
+
+	_, err = orm.Insert(&model.TaskComment{
 		TID:     tid,
 		UID:     c.Session.Get("uid").(int64),
 		Time:    time.Now(),
 		Comment: c.PostFormValue("content"),
 	})
-
 	if err != nil {
 		c.JSON(200, &web.JObject{"err": "发送评论失败"})
 		return
 	}
 
+	model.AfterTaskOperation(task, c.Session.Get("uid").(int64), model.TaskEventComment, "")
 	c.JSON(200, &web.JObject{})
 }

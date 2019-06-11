@@ -105,7 +105,7 @@ export const Index = () => {
         Fetch.get('/api/user', rsp => {
             if (!rsp.err) {
                 setUser(rsp.data);
-                fetchNotice();
+                fetchNotice(true);
             }
         })
     };
@@ -113,8 +113,8 @@ export const Index = () => {
     /**
      * 取一次通知消息
      */
-    const fetchNotice = () => {
-        if (!user) return;
+    const fetchNotice = (force?: boolean) => {
+        if (!user && !force) return;
         Fetch.get('/api/notice/list', rsp => { !rsp.err && setNoticies(rsp.data) });
     };
 

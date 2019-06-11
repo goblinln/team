@@ -117,6 +117,7 @@ export const View = (props: IProps) => {
      * 状态机
      */
     const [avatar, setAvatar] = React.useState<string>(props.avatar);
+    const [notices, setNotices] = React.useState<INotice[]>(props.notices);
     const [isResetPassword, setIsResetPassword] = React.useState<boolean>(false);
     const [needUpdateNotice, setNeedUpdateNotice] = React.useState<boolean>(false);
 
@@ -139,7 +140,20 @@ export const View = (props: IProps) => {
      */
     const delNoticeOne = (id: number) => {
         Fetch.delete(`/api/notice/${id}`, rsp => {
-            rsp.err ? message.error(rsp.err) : setNeedUpdateNotice(true);
+            if (rsp.err) {
+                message.error(rsp.err, 1);
+            } else {
+                setNotices(prev => {
+                    let list: INotice[] = [];
+
+                    for (let i = 0; i < prev.length; ++i) {
+                        if (prev[i].id != id) list.push(prev[i])
+                    }
+
+                    return list;
+                });
+                setNeedUpdateNotice(true);
+            }
         });
     };
 
@@ -148,7 +162,12 @@ export const View = (props: IProps) => {
      */
     const delNoticeAll = () => {
         Fetch.delete(`/api/notice/all`, rsp => {
-            rsp.err ? message.error(rsp.err) : setNeedUpdateNotice(true);
+            if (rsp.err) {
+                message.error(rsp.err, 1);
+            } else {
+                setNotices(null);
+                setNeedUpdateNotice(true);
+            }
         });
     };
 
@@ -169,12 +188,12 @@ export const View = (props: IProps) => {
             </div>
 
             <Card title='消息列表' extra={<Button size='small' type='link' onClick={() => delNoticeAll()}>清空</Button>} bodyStyle={{padding: 0}} style={{marginTop: 16}}>
-                {props.notices.length == 0 ? <Empty description='暂无数据'/> : (
+                {notices.length == 0 ? <Empty description='暂无数据'/> : (
                     <ul style={{margin: '0 8px', paddingInlineStart: 12}}>
-                        {props.notices.map(notice => {
+                        {notices.map(notice => {
                             return (
                                 <li key={notice.id} style={{margin: 4}}>
-                                    <p style={{marginBottom: 2}}>{notice.content}</p>
+                                    <p style={{marginBottom: 2}} dangerouslySetInnerHTML={{__html: notice.content}}></p>
                                     <Row type='flex' justify='space-between' align='middle'>                                    
                                         <small><Icon type='calendar' /> {notice.time}</small>
                                         <small><a onClick={() => delNoticeOne(notice.id)}>删除</a></small>

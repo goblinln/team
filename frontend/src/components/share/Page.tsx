@@ -53,8 +53,8 @@ export const Page = () => {
             key: 'size',
             render: (text: any, record: IShare, index: number) => {
                 let size = record.size;
-                if (size > 1024 * 1024) return `${size / (1024 * 1024)} MB`;
-                if (size > 1024) return `${size / 1024} KB`;
+                if (size > 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(3)} MB`;
+                if (size > 1024) return `${(size / 1024).toFixed(3)} KB`;
                 return `${size} B`;
             }
         },

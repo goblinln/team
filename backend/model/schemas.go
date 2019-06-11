@@ -19,6 +19,7 @@ const (
 	TaskEventModTester    = 9
 	TaskEventModWeight    = 10
 	TaskEventModContent   = 11
+	TaskEventComment      = 12
 )
 
 var (
@@ -319,7 +320,83 @@ func MakeTaskEventDesc(ev *TaskEvent) string {
 		return "修改了任务优先级，原优先级：" + ev.Extra
 	case TaskEventModContent:
 		return "修改了任务的具体内容"
+	case TaskEventComment:
+		return "评论了任务"
 	}
 
 	return "未定义操作"
+}
+
+// MakeTaskNotice returns notice content
+func MakeTaskNotice(task *Task, operator string, event *TaskEvent) string {
+	link := "<a href='#'>" + task.Name + "</a>"
+
+	switch event.Event {
+	case TaskEventCreate:
+		return operator + "创建了任务: " + link
+	case TaskEventUnderway:
+		return operator + "接手了任务: " + link
+	case TaskEventTesting:
+		return operator + "开启了任务：" + link + "的测试/验收流程"
+	case TaskEventFinished:
+		return operator + "将任务：" + link + "设置为完成"
+	case TaskEventArchived:
+		return operator + "归档了任务：" + link
+	case TaskEventModStartTime:
+		return operator + "修改了任务：" + link + "计划开始时间，原时间：" + event.Extra
+	case TaskEventModEndTime:
+		return operator + "修改了任务计划截止时间，原时间：" + event.Extra
+	case TaskEventModCreator:
+		return operator + "移交了任务：" + link + "，原负责人：" + event.Extra
+	case TaskEventModDeveloper:
+		return operator + "修改了任务：" + link + "的开发者，原开发者：" + event.Extra
+	case TaskEventModTester:
+		return operator + "修改了任务：" + link + "的验收/测试者，原测试人：" + event.Extra
+	case TaskEventModWeight:
+		return operator + "修改了任务：" + link + "的优先级，原优先级：" + event.Extra
+	case TaskEventModContent:
+		return operator + "修改了任务：" + link + "的具体内容"
+	case TaskEventComment:
+		return operator + "评论了任务：" + link
+	}
+
+	return operator + "修改了任务：" + link
+}
+
+// AfterTaskOperation generates event and notify
+func AfterTaskOperation(task *Task, operator int64, ev int, extra string) {
+	operatorName, _ := FindUserInfo(operator)
+
+	event := &TaskEvent{
+		TID:   task.ID,
+		UID:   operator,
+		Event: ev,
+		Time:  time.Now(),
+		Extra: extra,
+	}
+
+	notice := &Notice{
+		Time:    time.Now(),
+		Content: MakeTaskNotice(task, "<b>"+operatorName+"</b>", event),
+	}
+
+	_, err := orm.Insert(event)
+	if err != nil {
+
+	}
+
+	if task.Creator != operator {
+		notice.UID = task.Creator
+		orm.Insert(notice)
+	}
+
+	if task.Developer != operator {
+		notice.UID = task.Developer
+		orm.Insert(notice)
+	}
+
+	if task.Tester != operator {
+		notice.UID = task.Tester
+		orm.Insert(notice)
+	}
 }

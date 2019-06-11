@@ -365,9 +365,9 @@ func serialize(v reflect.Value) (interface{}, error) {
 	switch v.Kind() {
 	case reflect.Bool:
 		return v.Bool(), nil
-	case reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return v.Int(), nil
-	case reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		return v.Uint(), nil
 	case reflect.Float32, reflect.Float64:
 		return v.Float(), nil
@@ -410,14 +410,14 @@ func deserialize(v reflect.Value, raw []byte) error {
 		}
 
 		v.SetBool(n != 0)
-	case reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		n, err := strconv.ParseInt(string(raw), 10, 64)
 		if err != nil {
 			return err
 		}
 
 		v.SetInt(n)
-	case reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		n, err := strconv.ParseUint(string(raw), 10, 64)
 		if err != nil {
 			return err

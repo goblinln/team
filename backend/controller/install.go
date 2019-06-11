@@ -118,6 +118,7 @@ func (i *Install) setup(appName, host, user, pswd, db string) {
 	model.Environment = &model.Env{
 		Installed: false,
 		AppName:   appName,
+		AppPort:   ":8080",
 		MySQL: model.MySQL{
 			Host:     host,
 			User:     user,

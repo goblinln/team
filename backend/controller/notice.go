@@ -27,12 +27,17 @@ func (n *Notice) mine(c *web.Context) {
 
 	defer rows.Close()
 
-	notices := []*model.Notice{}
+	notices := []map[string]interface{}{}
 	for rows.Next() {
 		notice := &model.Notice{}
 		err = orm.Scan(rows, notice)
-		if err != nil {
-			notices = append(notices, notice)
+		if err == nil {
+			notices = append(notices, map[string]interface{}{
+				"id":      notice.ID,
+				"uid":     uid,
+				"time":    notice.Time.Format("2006-01-02 15:04:05"),
+				"content": notice.Content,
+			})
 		}
 	}
 
