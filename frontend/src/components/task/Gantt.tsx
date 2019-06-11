@@ -191,7 +191,7 @@ export const Gantt = (props: IGanttProps) => {
 
             tasks.forEach((task, idx) => {
                 let startY = posY + idx * CellHeight;
-                graphs.push(<text x={230} y={startY + CellHeight*0.5}>{task.name.length > 32 ? task.name.substr(0, 32) : task.name}</text>);
+                graphs.push(<text x={230} y={startY + CellHeight*0.5}>{task.name.length > 20 ? task.name.substr(0, 20) + '...' : task.name}</text>);
                 graphs.push(<text x={420} y={startY + CellHeight*0.5}>{task.creator.name}</text>);
                 graphs.push(<text x={500} y={startY + CellHeight*0.5}>{task.tester.name}</text>);
             });
