@@ -93,8 +93,8 @@ export const Manage = (props: {pid: number}) => {
             if (rsp.err) {
                 message.error(rsp.err, 1);
             } else {
-                rsp.data.members = rsp.data.members.sort((a: IUser, b: IUser) => {
-                    return a.name.localeCompare(b.name);
+                rsp.data.members = rsp.data.members.sort((a: IProjectMember, b: IProjectMember) => {
+                    return a.user.account.localeCompare(b.user.account);
                 })
                 setProj(rsp.data);
             }

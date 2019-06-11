@@ -64,7 +64,7 @@ export const Creator = Form.create<IProps>()((props: IProps) => {
                         if (a.role != b.role) {
                             return a.role - b.role;
                         } else {
-                            return a.user.name.localeCompare(b.user.name);
+                            return a.user.account.localeCompare(b.user.account);
                         }
                     })
                 })
