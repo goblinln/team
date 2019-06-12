@@ -38,13 +38,15 @@ export const Fetch = {
         Fetch.notifier.invoke(true);
 
         if (callback == null) {
-            fetch(url, param).catch(e => console.error(e)).finally(() => Fetch.notifier.invoke(false))
+            fetch(url, param).catch(e => Fetch.notifier.invoke(false)).then(() => Fetch.notifier.invoke(false))
         } else {
             fetch(url, param)
                 .then(res => res.json())
-                .then(rsp => callback(rsp))
-                .catch(e => console.error(e))
-                .finally(() => Fetch.notifier.invoke(false))
+                .then(rsp => {
+                    callback(rsp);
+                    Fetch.notifier.invoke(false);
+                })
+                .catch(() => Fetch.notifier.invoke(false));
         }
     },
 
@@ -53,9 +55,11 @@ export const Fetch = {
 
         fetch(url)
             .then(res => res.json())
-            .then(rsp => callback(rsp))
-            .catch(e => console.error(e))
-            .finally(() => Fetch.notifier.invoke(false));
+            .then(rsp => {
+                callback(rsp);
+                Fetch.notifier.invoke(false);
+            })
+            .catch(() => Fetch.notifier.invoke(false));
     },
 
     post: (url: string, data?: any, callback?: (rsp: IResponse) => void) => {
@@ -75,8 +79,10 @@ export const Fetch = {
 
         fetch(url, {method: 'DELETE'})
             .then(res => res.json())
-            .then(rsp => callback(rsp))
-            .catch(e => console.log(e))
-            .finally(() => Fetch.notifier.invoke(false));
+            .then(rsp => {
+                callback(rsp);
+                Fetch.notifier.invoke(false);
+            })
+            .catch(() => Fetch.notifier.invoke(false));
     }
 }
