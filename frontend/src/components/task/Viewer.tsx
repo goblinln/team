@@ -354,6 +354,15 @@ const EditableViewer = (props: {task: ITask}) => {
     const ContentEditor = (props: {content: string}) => {
         const [content, setContent] = React.useState<string>(props.content);
 
+        const uploadImage = (img: File, done: (url: string) => void) => {
+            let param = new FormData();
+            param.append('img', img, img.name);
+    
+            Fetch.post('/api/file/upload', param, rsp => {
+                rsp.err ? message.error(rsp.err, 1) : done(rsp.data.url);
+            });
+        };
+
         const modify = () => {
             Fetch.patch(`/api/task/${task.id}/content`, new URLSearchParams({content: content}), rsp => {
                 if (rsp.err) {
@@ -368,7 +377,7 @@ const EditableViewer = (props: {task: ITask}) => {
         return (
             <div>
                 <Row>
-                    <Markdown.Editor rows={16} value={content} onChange={data => setContent(data)}/>
+                    <Markdown.Editor rows={16} value={content} onChange={data => setContent(data)} onUpload={uploadImage}/>
                 </Row>
                 <Row type='flex' justify='center' style={{marginTop: 8}}>
                     <Button type='primary' style={{marginRight: 8}} onClick={() => modify()}>修改</Button>
