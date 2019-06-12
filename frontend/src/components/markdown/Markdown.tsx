@@ -163,8 +163,8 @@ export const Editor = (props: IEditorProps) => {
             content.substr(end),
         ];
 
-        let modified = action(data[1]);
-        setContent(data[0]+modified+(data[2] || ''));
+        let modified = (data[0] || '') + action(data[1]) + (data[2] || '');
+        setContent(modified);
         props.onChange && props.onChange(modified);
 
         elem.focus();
@@ -174,7 +174,7 @@ export const Editor = (props: IEditorProps) => {
      * 插入图片功能
      */
     const insertImage = (url: string) => {
-        if (url && url.length > 0) modifyContent(data => `${data[0] || ''}![${data[1] || '输入内容'}](${url})${data[2] || ''}`);
+        if (url && url.length > 0) modifyContent(data => `![${data || '输入图片TIPS'}](${url})}`);
         setShowUploader(false);
     };
     
