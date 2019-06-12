@@ -60,5 +60,6 @@ func main() {
 		middleware.MustLoginedAsAdmin)
 
 	// Start service.
+	web.Logger.Info("Service started at %s", model.Environment.AppPort)
 	web.Start(model.Environment.AppPort, router)
 }

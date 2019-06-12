@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as moment from 'moment';
+import * as Cookie from 'js-cookie';
 
 import {
     Button,
@@ -18,7 +19,7 @@ import {
 } from 'antd';
 
 import { TaskWeight, TaskTag, ProjectRole } from '../../common/Consts';
-import { IProject } from '../../common/Protocol';
+import { IProject, IProjectMember } from '../../common/Protocol';
 import { Fetch } from '../../common/Request';
 import * as Markdown from '../markdown/Markdown';
 
@@ -38,6 +39,113 @@ export interface IProps {
 }
 
 /**
+ * 历史记录
+ */
+class SelectHistory {
+    proj: IProject;
+    c: number[];
+    d: number[];
+    t: number[];
+
+    constructor() {
+        this.proj = null;
+        this.c = [];
+        this.d = [];
+        this.t = [];
+    }
+
+    static load(proj: IProject) {
+        let record = Cookie.getJSON(`creator_history_${proj.id}`);
+        let ret = new SelectHistory();
+        ret.proj = proj;
+
+        if (record) {
+            ret.c = record.c;
+            ret.d = record.d;
+            ret.t = record.t;
+        }
+
+        return ret;
+    }
+
+    save() {
+        Cookie.set(`creator_history_${this.proj.id}`, {
+            c: this.c,
+            d: this.d,
+            t: this.t,
+        })
+    }
+
+    get(group: string) {
+        switch (group) {
+        case 'creator':
+            return this.safeGet(this.c)
+        case 'developer':
+            return this.safeGet(this.d)
+        case 'tester':
+            return this.safeGet(this.t)
+        }
+    }
+
+    getFirst(group: string) {
+        switch (group) {
+        case 'creator':
+            return this.safeGetFirst(this.c)
+        case 'developer':
+            return this.safeGetFirst(this.d)
+        case 'tester':
+            return this.safeGetFirst(this.t)
+        }
+    }
+
+    safeGet(desire: number[]) {
+        let ret: IProjectMember[] = [];
+
+        if (this.proj) {
+            this.proj.members.forEach(m => {
+                let idx = desire.indexOf(m.user.id);
+                if (idx >= 0) ret.push(m);
+            });
+        }
+
+        return ret;
+    }
+
+    safeGetFirst(desire: number[]) {
+        let ret = this.safeGet(desire);
+        if (ret.length > 0) return ret[0].user.id;
+        return this.proj.members[0].user.id;
+    }
+
+    push(group: string, id: number) {
+        switch (group) {
+        case 'creator':
+            this.c = this.safePush(this.c, id);
+            break;
+        case 'developer':
+            this.d = this.safePush(this.d, id);
+            break;
+        case 'tester':
+            this.t = this.safePush(this.t, id);
+            break;
+        }
+    }
+
+    safePush(old: number[], id: number) {
+        let idx = old.indexOf(id);
+
+        if (idx >= 0) {
+            old.splice(idx, 1)
+            old = [id, ...old]
+        } else {
+            old = [id, ...old]
+        }
+
+        return old.length > 3 ? old.slice(0, 3) : old;
+    }
+}
+
+/**
  * 发布任务子页
  */
 export const Creator = Form.create<IProps>()((props: IProps) => {
@@ -50,6 +158,7 @@ export const Creator = Form.create<IProps>()((props: IProps) => {
     const [attachments, setAttachments] = React.useState<File[]>([]);
     const [projs, setProjs] = React.useState<IProject[]>([]);
     const [selectedProj, setSelectedProj] = React.useState<IProject>(null);
+    const [history, setHistory] = React.useState<SelectHistory>(new SelectHistory());
 
     /**
      * 取项目列表
@@ -68,8 +177,9 @@ export const Creator = Form.create<IProps>()((props: IProps) => {
                         }
                     })
                 })
+
+                setProjs(rsp.data);
             }
-            rsp.err ? message.error(rsp.err, 1) : setProjs(rsp.data);
         });
     }, []);
 
@@ -77,16 +187,34 @@ export const Creator = Form.create<IProps>()((props: IProps) => {
      * 选择项目一系列操作
      */
     const selProject = (pid: any) => {
-        resetFields(['branch', 'branch_mask', 'creator', 'creator_mask', 'developer', 'developer_mask', 'tester', 'tester_mask']);
         setFieldsValue({proj: pid});
 
         for (let i = 0; i < projs.length; ++i) {
             if (projs[i].id == pid) {
+                let last = SelectHistory.load(projs[i]);
+                let lastCreator = last.getFirst('creator');
+                let lastDeveloper = last.getFirst('developer');
+                let lastTester = last.getFirst('tester');
+
+                setHistory(last);
                 setSelectedProj(projs[i]);
+
+                setFieldsValue({
+                    branch: 0,
+                    branch_mask: 0,
+                    creator: isModifyCreator ? lastCreator : null,
+                    creator_mask: isModifyCreator ? lastCreator : null,
+                    developer: lastDeveloper,
+                    developer_mask: lastDeveloper,
+                    tester: lastTester,
+                    tester_mask: lastTester,
+                });
                 return;
             }
         }
 
+        resetFields(['branch', 'branch_mask', 'creator', 'creator_mask', 'developer', 'developer_mask', 'tester', 'tester_mask']);
+        setHistory(new SelectHistory());
         setSelectedProj(null);
     }
 
@@ -131,6 +259,13 @@ export const Creator = Form.create<IProps>()((props: IProps) => {
                 let tags: number[] = getFieldValue('tags[]') || []
                 tags.forEach(tag => {param.append('tags[]', tag.toString())});
 
+                let record = SelectHistory.load(selectedProj)
+                let creator = getFieldValue('creator')
+                if (creator) record.push('creator', creator)
+                record.push('developer', getFieldValue('developer'))
+                record.push('tester', getFieldValue('tester'))
+                record.save()
+
                 Fetch.post('/api/task', param, rsp => {
                     rsp.err ? message.error(rsp.err, 1) : props.onFinish();
                 });
@@ -152,10 +287,10 @@ export const Creator = Form.create<IProps>()((props: IProps) => {
                     <Col span={4} style={{padding: '0px 2px'}}>
                         <Form.Item label='项目' style={{marginBottom: 8}} required={true}>
                             {getFieldDecorator('proj', {
-                                rules: [{required: true, message: '请指定所属项目'}]
-                            })(<Input id='proj' name='proj' hidden={true}/>)}                            
-
-                            <Select onChange={(ev) => { selProject(ev.valueOf()) }}>
+                                rules: [{required: true, message: '请指定所属项目'}],
+                            })(<Input id='proj' name='proj' hidden={true}/>)}
+                            
+                            <Select id='proj_mask' defaultValue={null} onChange={(ev: number) => { selProject(ev) }}>
                                 {projs.map(proj => {
                                     return <Select.Option key={proj.id} value={proj.id}>{proj.name}</Select.Option>
                                 })}
@@ -166,11 +301,11 @@ export const Creator = Form.create<IProps>()((props: IProps) => {
                     <Col span={4} style={{padding: '0px 2px'}}>
                         <Form.Item label='分支' style={{marginBottom: 8}} required={true}>
                             {getFieldDecorator('branch', {
-                                rules: [{required: true, message: '请指定所属分支'}]
+                                rules: [{required: true, message: '请指定所属分支'}],
                             })(<Input id='branch' name='branch' hidden={true}/>)}
 
                             {getFieldDecorator('branch_mask', {})(
-                                <Select id='branch_mask' onChange={(ev) => { setFieldsValue({branch: ev.valueOf()}) }}>
+                                <Select id='branch_mask' onChange={(ev: number) => { setFieldsValue({branch: ev}) }}>
                                     {selectedProj && selectedProj.branches.map((branch, idx) => {
                                         return <Select.Option key={idx} value={idx}>{branch}</Select.Option>
                                     })}
@@ -182,10 +317,11 @@ export const Creator = Form.create<IProps>()((props: IProps) => {
                     <Col span={4} style={{padding: '0px 2px'}}>
                         <Form.Item label='优先级' style={{marginBottom: 8}} required={true}>
                             {getFieldDecorator('weight', {
-                                rules: [{required: true, message: '请指定优先级'}]
+                                rules: [{required: true, message: '请指定优先级'}],
+                                initialValue: 0,
                             })(<Input id='weight' name='weight' hidden={true}/>)}
 
-                            <Select onChange={(ev) => { setFieldsValue({weight: ev.valueOf()}) }}>
+                            <Select defaultValue={0} onChange={(ev: number) => { setFieldsValue({weight: ev.valueOf()}) }}>
                                 {TaskWeight.map((weight, idx) => {
                                     return <Select.Option key={idx} value={idx}><span style={{color: weight.color}}>{weight.name}</span></Select.Option>
                                 })}
@@ -199,10 +335,17 @@ export const Creator = Form.create<IProps>()((props: IProps) => {
                         <Form.Item style={{marginBottom: 8}} label={<Checkbox onChange={() => setIsModifyCreator(old => !old)}>指定负责人</Checkbox>}>
                             {getFieldDecorator('creator', {})(<Input id='creator' name='creator' hidden={true}/>)}
                             {getFieldDecorator('creator_mask', {})(
-                                <Select id='creator_mask' onChange={(ev) => { setFieldsValue({creator: ev.valueOf()}) }} disabled={!isModifyCreator}>
-                                    {selectedProj && selectedProj.members.map(member => {
-                                        return <Select.Option key={member.user.id} value={member.user.id}>【{ProjectRole[member.role]}】{member.user.name}</Select.Option>
-                                    })}
+                                <Select id='creator_mask' onChange={(ev: number) => { setFieldsValue({creator: ev}) }} disabled={!isModifyCreator}>
+                                    <Select.OptGroup label='最近选择'>
+                                        {history.get('creator').map(m => {
+                                            return <Select.Option key={m.user.id} value={m.user.id}>【{ProjectRole[m.role]}】{m.user.name}</Select.Option>
+                                        })}
+                                    </Select.OptGroup>
+                                    <Select.OptGroup label='全部人员'>
+                                        {selectedProj && selectedProj.members.map(member => {
+                                            return <Select.Option key={member.user.id} value={member.user.id}>【{ProjectRole[member.role]}】{member.user.name}</Select.Option>
+                                        })}
+                                    </Select.OptGroup>                                    
                                 </Select>
                             )}                            
                         </Form.Item>
@@ -215,10 +358,17 @@ export const Creator = Form.create<IProps>()((props: IProps) => {
                             })(<Input id='developer' name='developer' hidden={true}/>)}
 
                             {getFieldDecorator('developer_mask', {})(
-                                <Select id='developer_mask' onChange={(ev) => { setFieldsValue({developer: ev.valueOf()}) }}>
-                                    {selectedProj && selectedProj.members.map(member => {
-                                        return <Select.Option key={member.user.id} value={member.user.id}>【{ProjectRole[member.role]}】{member.user.name}</Select.Option>
-                                    })}
+                                <Select id='developer_mask' onChange={(ev: number) => { setFieldsValue({developer: ev}) }}>
+                                    <Select.OptGroup label='最近选择'>
+                                        {history.get('developer').map(m => {
+                                            return <Select.Option key={m.user.id} value={m.user.id}>【{ProjectRole[m.role]}】{m.user.name}</Select.Option>
+                                        })}
+                                    </Select.OptGroup>
+                                    <Select.OptGroup label='全部人员'>
+                                        {selectedProj && selectedProj.members.map(member => {
+                                            return <Select.Option key={member.user.id} value={member.user.id}>【{ProjectRole[member.role]}】{member.user.name}</Select.Option>
+                                        })}
+                                    </Select.OptGroup>
                                 </Select>
                             )}
                         </Form.Item>
@@ -231,10 +381,17 @@ export const Creator = Form.create<IProps>()((props: IProps) => {
                             })(<Input id='tester' name='tester' hidden={true}/>)}
 
                             {getFieldDecorator('tester_mask', {})(
-                                <Select id='tester_mask' onChange={(ev) => { setFieldsValue({tester: ev.valueOf()}) }}>
-                                    {selectedProj && selectedProj.members.map(member => {
-                                        return <Select.Option key={member.user.id} value={member.user.id}>【{ProjectRole[member.role]}】{member.user.name}</Select.Option>
-                                    })}
+                                <Select id='tester_mask' onChange={(ev: number) => { setFieldsValue({tester: ev}) }}>
+                                    <Select.OptGroup label='最近选择'>
+                                        {history.get('tester').map(m => {
+                                            return <Select.Option key={m.user.id} value={m.user.id}>【{ProjectRole[m.role]}】{m.user.name}</Select.Option>
+                                        })}
+                                    </Select.OptGroup>
+                                    <Select.OptGroup label='全部人员'>
+                                        {selectedProj && selectedProj.members.map(member => {
+                                            return <Select.Option key={member.user.id} value={member.user.id}>【{ProjectRole[member.role]}】{member.user.name}</Select.Option>
+                                        })}
+                                    </Select.OptGroup>
                                 </Select>
                             )}
                         </Form.Item>
