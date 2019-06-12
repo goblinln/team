@@ -418,6 +418,19 @@ const EditableViewer = (props: {task: ITask}) => {
     }
 
     /**
+     * 任务返回上一个流程
+     */
+    const goBack = () => {
+        Fetch.post(`/api/task/${task.id}/back`, {}, rsp => {
+            if (rsp.err) {
+                message.error(rsp.err, 1);
+            } else {
+                setDirty(true);
+            }
+        })
+    };
+
+    /**
      * 任务进入下一个流程
      */
     const goNext = () => {
@@ -441,8 +454,8 @@ const EditableViewer = (props: {task: ITask}) => {
 
     return (
         <Drawer
-            title={<CommonHeader task={task} titleWidth={600}/>}
-            width={750}
+            title={<CommonHeader task={task} titleWidth={700}/>}
+            width={800}
             bodyStyle={{ padding: '4px 0px' }}
             visible={true}
             closable={false}
@@ -459,6 +472,13 @@ const EditableViewer = (props: {task: ITask}) => {
                         <Icon type='edit' />编辑
                     </Button>
                 </Col>
+                {task.state != 0 && (
+                    <Col>
+                        <Button type='link' size='small' style={{padding: '0 4px', color: 'rgba(0,0,0,.65)'}} onClick={() => goBack() }>
+                            <Icon type="left-circle" />上一步
+                        </Button>
+                    </Col>
+                )}                
                 <Col>
                     <Button type='link' size='small' style={{padding: '0 4px', color: 'rgba(0,0,0,.65)'}} onClick={() => goNext() }>
                         <Icon type="right-circle" />下一步

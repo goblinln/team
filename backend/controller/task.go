@@ -14,6 +14,7 @@ type Task int
 // Register implements web.Controller interface.
 func (t *Task) Register(group *web.Router) {
 	group.POST("", t.create)
+	group.POST("/:id/back", t.moveBack)
 	group.POST("/:id/next", t.moveNext)
 	group.GET("/:id", t.info)
 	group.DELETE("/:id", t.delete)
@@ -115,6 +116,33 @@ func (t *Task) create(c *web.Context) {
 	}
 
 	model.AfterTaskOperation(task, uid, model.TaskEventCreate, "")
+	c.JSON(200, &web.JObject{})
+}
+
+func (t *Task) moveBack(c *web.Context) {
+	tid := atoi(c.RouteValue("id"))
+	task := &model.Task{ID: tid}
+	err := orm.Read(task)
+	if err != nil {
+		c.JSON(200, &web.JObject{"err": "任务不存在或已被删除"})
+		return
+	}
+
+	if task.State == 0 {
+		c.JSON(200, &web.JObject{"err": "任务不可回退了"})
+		return
+	} else if task.State == 4 {
+		task.ArchiveTime = model.TaskTimeInfinite
+	}
+
+	task.State--
+	err = orm.Update(task)
+	if err != nil {
+		c.JSON(200, &web.JObject{"err": "修改任务失败"})
+		return
+	}
+
+	model.AfterTaskOperation(task, c.Session.Get("uid").(int64), model.TaskEventMoveBack, "")
 	c.JSON(200, &web.JObject{})
 }
 

@@ -20,6 +20,7 @@ const (
 	TaskEventModWeight    = 10
 	TaskEventModContent   = 11
 	TaskEventComment      = 12
+	TaskEventMoveBack     = 13
 )
 
 var (
@@ -254,7 +255,7 @@ func MakeTaskDetail(id int64) map[string]interface{} {
 	}
 
 	events := []map[string]interface{}{}
-	evRows, err := orm.Query("SELECT * FROM `taskevent` WHERE `tid`=?", task.ID)
+	evRows, err := orm.Query("SELECT * FROM `taskevent` WHERE `tid`=? ORDER BY `time` DESC", task.ID)
 	if err == nil {
 		defer evRows.Close()
 
@@ -322,6 +323,8 @@ func MakeTaskEventDesc(ev *TaskEvent) string {
 		return "修改了任务的具体内容"
 	case TaskEventComment:
 		return "评论了任务"
+	case TaskEventMoveBack:
+		return "回退了任务"
 	}
 
 	return "未定义操作"
@@ -358,6 +361,8 @@ func MakeTaskNotice(task *Task, operator string, event *TaskEvent) string {
 		return operator + "修改了任务：" + link + "的具体内容"
 	case TaskEventComment:
 		return operator + "评论了任务：" + link
+	case TaskEventMoveBack:
+		return operator + "回退了任务：" + link
 	}
 
 	return operator + "修改了任务：" + link
