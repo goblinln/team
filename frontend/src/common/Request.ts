@@ -34,11 +34,13 @@ export const Fetch = {
     notifier: new FetchStateNotifier(null),
 
     _p: (method: string, url: string, data?: any, callback?: (rsp: IResponse) => void) => {
-        let param : RequestInit = { method: method, body: data };
+        let param : RequestInit = { method: method, body: data, credentials: "include" };
         Fetch.notifier.invoke(true);
 
         if (callback == null) {
-            fetch(url, param).catch(e => Fetch.notifier.invoke(false)).then(() => Fetch.notifier.invoke(false))
+            fetch(url, param)
+                .then(() => Fetch.notifier.invoke(false))
+                .catch(() => Fetch.notifier.invoke(false));
         } else {
             fetch(url, param)
                 .then(res => res.json())
@@ -53,7 +55,7 @@ export const Fetch = {
     get: (url: string, callback: (rsp: IResponse) => void) => {
         Fetch.notifier.invoke(true);
 
-        fetch(url)
+        fetch(url, {credentials: "include"})
             .then(res => res.json())
             .then(rsp => {
                 callback(rsp);
@@ -77,7 +79,7 @@ export const Fetch = {
     delete: (url: string, callback?: (rsp: IResponse) => void) => {
         Fetch.notifier.invoke(true)
 
-        fetch(url, {method: 'DELETE'})
+        fetch(url, {method: 'DELETE', credentials: "include"})
             .then(res => res.json())
             .then(rsp => {
                 callback(rsp);
