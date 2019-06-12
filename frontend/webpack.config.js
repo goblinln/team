@@ -20,6 +20,10 @@ module.exports = {
                 use: {
                     loader: 'ts-loader',
                     options: {
+                        transpileOnly: true,
+                        compilerOptions: {
+                            target: 'es5'
+                        },
                         getCustomTransformers: () => ({
                             before: [
                                 tsImport({

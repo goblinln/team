@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as moment from 'moment';
-import * as Cookie from 'js-cookie';
 
 import {
     Button,
@@ -55,7 +54,7 @@ class SelectHistory {
     }
 
     static load(proj: IProject) {
-        let record = Cookie.getJSON(`creator_history_${proj.id}`);
+        let record = JSON.parse(window.localStorage.getItem(`creator_history_${proj.id}`));
         let ret = new SelectHistory();
         ret.proj = proj;
 
@@ -69,11 +68,11 @@ class SelectHistory {
     }
 
     save() {
-        Cookie.set(`creator_history_${this.proj.id}`, {
+        window.localStorage.setItem(`creator_history_${this.proj.id}`, JSON.stringify({
             c: this.c,
             d: this.d,
             t: this.t,
-        })
+        }));
     }
 
     get(group: string) {
