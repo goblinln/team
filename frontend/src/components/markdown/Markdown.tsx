@@ -177,6 +177,23 @@ export const Editor = (props: IEditorProps) => {
         if (url && url.length > 0) modifyContent(data => `![${data || '输入图片TIPS'}](${url})}`);
         setShowUploader(false);
     };
+
+    /**
+     * 粘贴图片功能
+     */
+    const pasteImage = (ev: React.ClipboardEvent<HTMLTextAreaElement>) => {
+        if (!props.onUpload) return;
+
+        if (!(ev.clipboardData && ev.clipboardData.items && ev.clipboardData.items.length > 0)) {
+            return;
+        }
+
+        let item = ev.clipboardData.items[0];
+        if (item.kind == 'file' && item.type.indexOf('image') != -1) {
+            let file = item.getAsFile();
+            props.onUpload(file, url => insertImage(url));
+        }
+    };
     
     return (
         <div style={{padding: '0px 4px'}}>
@@ -219,7 +236,8 @@ export const Editor = (props: IEditorProps) => {
                         rows={props.rows || null}
                         style={{height: props.height || null}}
                         value={content}
-                        onChange={onContentChange} />
+                        onChange={onContentChange}
+                        onPaste={pasteImage} />
                 )}
             </Row>
         </div>
