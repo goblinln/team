@@ -92,13 +92,14 @@ func (f *File) getShareList(c *web.Context) {
 		one := &model.Share{}
 		err = orm.Scan(rows, one)
 		if err == nil {
+			name, _ := model.FindUserInfo(one.UID)
 			list = append(list, map[string]interface{}{
-				"id":   one.ID,
-				"name": one.Name,
-				"url":  one.Path,
-				"uid":  one.UID,
-				"time": one.Time.Format("2006-01-02 15:04:05"),
-				"size": one.Size,
+				"id":       one.ID,
+				"name":     one.Name,
+				"url":      one.Path,
+				"uploader": name,
+				"time":     one.Time.Format("2006-01-02 15:04:05"),
+				"size":     one.Size,
 			})
 		}
 	}
