@@ -143,6 +143,18 @@ func (r *Router) Add(method string, pattern string, handler Handler, middlewares
 	}
 }
 
+// StaticFS registered a static file server router
+func (r *Router) StaticFS(pattern, path, stripPrefix string, middlewares ...Middleware) {
+	r.Add("GET", pattern, func(c *Context) {
+		h := http.FileServer(http.Dir(path))
+		if len(stripPrefix) > 0 {
+			http.StripPrefix(stripPrefix, h).ServeHTTP(c.rsp, c.req)
+		} else {
+			h.ServeHTTP(c.rsp, c.req)
+		}
+	}, middlewares...)
+}
+
 // GET route register
 func (r *Router) GET(pattern string, handler Handler, middlewares ...Middleware) {
 	r.Add("GET", pattern, handler, middlewares...)

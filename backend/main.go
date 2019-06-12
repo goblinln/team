@@ -1,15 +1,11 @@
 package main
 
 import (
-	"net/http"
-
 	"team/controller"
 	"team/middleware"
 	"team/model"
 	"team/web"
 	"team/web/orm"
-
-	rice "github.com/GeertJohan/go.rice"
 )
 
 func main() {
@@ -32,10 +28,9 @@ func main() {
 	router.Use(middleware.Logger)
 
 	// Resources.
-	asset := http.FileServer(rice.MustFindBox("../frontend/dist").HTTPBox())
 	router.GET("/", controller.Index)
-	router.GET("/dist/[\\S\\s]+", web.Wrap(http.StripPrefix("/dist/", asset)))
-	router.GET("/uploads/[\\s\\S]+", web.Wrap(http.StripPrefix("/uploads/", http.FileServer(http.Dir("uploads")))))
+	router.StaticFS(`/www/[\s\S]+`, "www", "/www/")
+	router.StaticFS(`/uploads/[\s\S]+`, "uploads", "/uploads/")
 
 	// Deploy
 	router.UseController("/install", new(controller.Install), middleware.MustNotInstalled)

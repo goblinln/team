@@ -6,8 +6,8 @@ module.exports = {
     mode: 'production',
     entry: path.resolve(__dirname, './src/App.tsx'),
     output: {
-        path: path.resolve(__dirname, './dist'),
-        filename: 'app.bundle.js',
+        path: path.resolve(__dirname, '../publish/www'),
+        filename: 'app.js',
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.js']
@@ -38,8 +38,5 @@ module.exports = {
                 loader: 'style-loader!css-loader',
             }
         ]
-    },
-    plugins: [
-        new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
-    ]
+    }
 };

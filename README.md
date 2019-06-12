@@ -53,7 +53,7 @@
     cd frontend
     npm install
 
-    # 编译生成 app.bundle.js
+    # 编译生成 publish/www/app.js
     npm run build
     ```
 
@@ -62,16 +62,12 @@
     ```shell
     # 编译生成可执行文件
     cd backend
-    go build
-
-    # 如果未安装过go.rice请先执行下面这一步，并确保GOPATH/bin加入PATH环境变量中
-    go get github.com/GeertJohan/go.rice/rice
-
-    # 将 frontend/dist/ 中的前端资源打包入可执行文件中，windows版中需要加.exe后缀
-    rice append --exec team.exe
+    go build -o ../publish/team.exe
     ```
 
-3. 服务器运行：team。默认端口8080。【注】该版本已内置部署功能，初次访问会进行配置。
+3. 将 `publish` 目录下的文件拷贝到服务器部署路径
+
+4. 运行：team。默认端口8080。【注】该版本已内置部署功能，初次访问会进行配置。
 
 
 

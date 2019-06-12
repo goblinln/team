@@ -81,10 +81,10 @@ typings/
 
 # project temp dirs/files
 .vscode/
-backend/logs/
-backend/uploads/
+publish/logs/
+publish/uploads/
+publish/www/app.js
 backend/go.sum
 team.exe
 team.json
-frontend/dist/app.bundle.js
 

@@ -15,11 +15,11 @@ const page = `
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<title>%s</title>
-		<link rel="shortcut icon" href="/dist/favicon.ico" />
+		<link rel="shortcut icon" href="/www/favicon.ico" />
 	</head>
 	<body>
-		<div id="%s"/>
-		<script src="/dist/app.bundle.js"></script>
+		<div id="%s"></div>
+		<script src="/www/app.js"></script>
 	</body>
 </html>
 `
