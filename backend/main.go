@@ -29,8 +29,8 @@ func main() {
 
 	// Resources.
 	router.GET("/", controller.Index)
-	router.StaticFS(`/www/[\s\S]+`, "www", "/www/")
-	router.StaticFS(`/uploads/[\s\S]+`, "uploads", "/uploads/")
+	router.StaticFS("/www", "./www")
+	router.StaticFS("/uploads", "./uploads")
 
 	// Deploy
 	router.UseController("/install", new(controller.Install), middleware.MustNotInstalled)
