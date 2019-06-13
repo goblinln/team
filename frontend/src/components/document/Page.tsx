@@ -61,8 +61,8 @@ export const Page = () => {
     /**
      * 状态列表
      */
-    const [docs, setDocs] = React.useState<Map<number, IDocument>>(null);
-    const [nodes, setNodes] = React.useState<Map<number, number[]>>(null);
+    const [docs, setDocs] = React.useState<{[key:number]: IDocument}>(null);
+    const [nodes, setNodes] = React.useState<{[key:number]: number[]}>(null);
     const [view, setView] = React.useState<{doc: IDocument, isEditing: boolean}>(null);
     const [contextMenu, setContextMenu] = React.useState<{rect: DOMRect, docId: number}>(null);
 
@@ -88,16 +88,16 @@ export const Page = () => {
                 return;
             }
 
-            let map = new Map<number, IDocument>();
-            let parsed = new Map<number, number[]>();
+            let map: {[key:number]: IDocument} = {}
+            let parsed: {[key:number]: number[]} = {}
 
             rsp.data.forEach((doc: IDocument) => {
-                map.set(doc.id, doc);
+                map[doc.id] = doc;
 
-                if (parsed.has(doc.parent)) {
-                    parsed.get(doc.parent).push(doc.id);
+                if (parsed[doc.parent] != null) {
+                    parsed[doc.parent].push(doc.id);
                 } else {
-                    parsed.set(doc.parent, [doc.id]);
+                    parsed[doc.parent] = [doc.id];
                 }
             });
 
@@ -123,13 +123,13 @@ export const Page = () => {
             return <Tree.TreeNode title="右键点击，新建文档" key="-1"/>
         }
 
-        let children = nodes.get(id);
+        let children = nodes[id];
         if (!children) return null;
 
         return children.map(child => {
             if (!docs) return null;
 
-            let doc = docs.get(child);
+            let doc = docs[child];
             if (!doc) return null;
 
             return (                   
@@ -165,7 +165,7 @@ export const Page = () => {
         setContextMenu(null);
 
         let name: string = '';
-        let parentNode = parent == -1 ? '无' : docs.get(parent).title;
+        let parentNode = parent == -1 ? '无' : docs[parent].title;
 
         Modal.confirm({
             title: '新建文档',
@@ -186,9 +186,9 @@ export const Page = () => {
                 }
 
                 if (nodes) {
-                    let childs = nodes.get(parent) || [];
+                    let childs = nodes[parent] || [];
                     for (let i = 0; i < childs.length; ++i) {
-                        let doc = docs.get(childs[i]);
+                        let doc = docs[childs[i]];
                         if (doc && doc.title == name) {
                             message.error(`同级目录下，已存在文档名为【${name}】`, 1);
                             return;
@@ -214,7 +214,7 @@ export const Page = () => {
     const renameDoc = (id: number) => {
         setContextMenu(null);
 
-        let name: string = docs.get(id).title;
+        let name: string = docs[id].title;
 
         Modal.confirm({
             title: '重命名文档',
@@ -226,7 +226,7 @@ export const Page = () => {
             ),
             okText: '提交',
             onOk: () => {
-                if (name == docs.get(id).title) {
+                if (name == docs[id].title) {
                     return;
                 }
 
@@ -235,10 +235,10 @@ export const Page = () => {
                     return;
                 }
 
-                let parent = docs.get(id).parent;
-                let childs = nodes.get(parent) || [];
+                let parent = docs[id].parent;
+                let childs = nodes[parent] || [];
                 for (let i = 0; i < childs.length; ++i) {
-                    let doc = docs.get(childs[i]);
+                    let doc = docs[childs[i]];
                     if (doc && doc.title == name) {
                         message.error(`同级目录下，已存在文档名为【${name}】`, 1);
                         return;
@@ -298,7 +298,7 @@ export const Page = () => {
                                     <Menu.Item key="create" onClick={() => addDoc(-1)}>新建文档</Menu.Item>
                                 ) : [
                                     <Menu.SubMenu key='add' title='新建文档'>
-                                        <Menu.Item key='sibling' onClick={() => addDoc(docs.get(contextMenu.docId).parent)}>同级文档</Menu.Item>
+                                        <Menu.Item key='sibling' onClick={() => addDoc(docs[contextMenu.docId].parent)}>同级文档</Menu.Item>
                                         <Menu.Item key='child' onClick={() => addDoc(contextMenu.docId)}>子级文档</Menu.Item>
                                     </Menu.SubMenu>,                              
                                     <Menu.Item key='rename' onClick={() => renameDoc(contextMenu.docId)}>重命名</Menu.Item>,

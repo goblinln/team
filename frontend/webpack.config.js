@@ -15,15 +15,11 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.ts[x]?$/,
+                test: /\.tsx?$/,
                 exclude: /node_modules/,
                 use: {
-                    loader: 'ts-loader',
+                    loader: 'awesome-typescript-loader',
                     options: {
-                        transpileOnly: true,
-                        compilerOptions: {
-                            target: 'es5'
-                        },
                         getCustomTransformers: () => ({
                             before: [
                                 tsImport({

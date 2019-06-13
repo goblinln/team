@@ -49,7 +49,7 @@ export const Gantt = (props: IGanttProps) => {
      */
     React.useEffect(() => {
         let counter: {[key: string]: number} = {created: 0, underway: 0, testing: 0, finished: 0};
-        let groups: Map<number, ITask[]> = new Map<number, ITask[]>();
+        let groups: {[key: number]: ITask[]} = {};
         let start = moment().startOf('d');
         let end = moment().startOf('d');
 
@@ -61,10 +61,10 @@ export const Gantt = (props: IGanttProps) => {
             case 3: counter.finished++; break;
             }
 
-            if (!groups.has(task.developer.id)) {
-                groups.set(task.developer.id, [task]);
+            if (!groups[task.developer.id]) {
+                groups[task.developer.id] = [task];
             } else {
-                groups.get(task.developer.id).push(task);
+                groups[task.developer.id].push(task);
             }
 
             let taskStart = moment(task.startTime);
@@ -176,7 +176,7 @@ export const Gantt = (props: IGanttProps) => {
     /**
      * 生成左侧数据简要
      */
-    const makeBrief = (groups: Map<Number, ITask[]>) => {
+    const makeBrief = (groups: {[key:number]: ITask[]}) => {
         if (props.tasks.length == 0) {
             setBrief(null);
             return;
@@ -186,7 +186,8 @@ export const Gantt = (props: IGanttProps) => {
         let height = props.tasks.length * CellHeight;
         let posY = 0;
 
-        groups.forEach(tasks => {
+        for (const k in groups) {
+            let tasks = groups[k];
             let groupH = tasks.length * CellHeight;
             graphs.push(<text x={40} y={posY + groupH * 0.5}>{tasks[0].developer.name}</text>);
             graphs.push(<line x1={0} y1={posY + groupH+0.5} x2={80} y2={posY + groupH+0.5} stroke='black' fill='none'/>);
@@ -199,7 +200,7 @@ export const Gantt = (props: IGanttProps) => {
             });
 
             posY += groupH;
-        });
+        }
 
         setBrief(
             <div
@@ -232,7 +233,7 @@ export const Gantt = (props: IGanttProps) => {
     /**
      * 生成右侧任务视图
      */
-    const makeGraph = (groups: Map<Number, ITask[]>, start: moment.Moment, end: moment.Moment) => {
+    const makeGraph = (groups: {[key:number]: ITask[]}, start: moment.Moment, end: moment.Moment) => {
         if (props.tasks.length == 0) {
             setGraph(null);
             return;
@@ -256,7 +257,8 @@ export const Gantt = (props: IGanttProps) => {
 
         grid.push(<line x1={0} y1={CellHeight*props.tasks.length-0.5} x2={width} y2={CellHeight*props.tasks.length-0.5} stroke='#b8b9bb'/>);
 
-        groups.forEach(tasks => {
+        for (const k in groups) {
+            let tasks = groups[k];
             tasks.forEach(task => {
                 let used = moment(task.endTime).diff(moment(task.startTime), 'd') + 1;
                 let tid = task.id;
@@ -281,7 +283,7 @@ export const Gantt = (props: IGanttProps) => {
 
                 count++;
             })
-        })
+        }
 
         setGraph(
             <div style={{width: '100%', maxHeight: 'calc(100vh - 200px)', overflow: 'auto', border: '1px solid #b8b9bb'}} onScroll={syncScroll}>

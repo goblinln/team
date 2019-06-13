@@ -82,7 +82,7 @@ export const Index = () => {
                 loadingDely.current = null;
             }
 
-            loadingDely.current = setTimeout(isFetching => {
+            loadingDely.current = setTimeout((isFetching: boolean) => {
                 setLoading(isFetching);
                 loadingDely.current = null;
             }, 20, state);
