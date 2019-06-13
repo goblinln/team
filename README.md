@@ -53,7 +53,7 @@
     cd frontend
     npm install
 
-    # 编译生成 publish/www/app.js
+    # 编译生成 publish/www/app.js。【注意】如果使用默认配置，生成的js使用es6
     npm run build
     ```
 
