@@ -175,9 +175,9 @@ export const View = (props: IProps) => {
         <Drawer title='用户信息' closable={true} width={350} visible={true} onClose={() => props.onClose(avatar, needUpdateNotice)}>
             <div style={{textAlign: 'center'}}>
                 <Row type='flex' justify='center'>
-                    <Upload name='avatar' listType='picture-card' showUploadList={false} accept='image/*' action='/file/upload' beforeUpload={modifyAvatar}>
+                    <Upload name='avatar' listType='picture' showUploadList={false} accept='image/*' action='/file/upload' beforeUpload={modifyAvatar}>
                         <Avatar icon='user' size={80} src={avatar} style={{marginBottom: '.2em'}} />
-                        点击修改
+                        <p><small>点击修改</small></p>
                     </Upload>
                 </Row>
 
