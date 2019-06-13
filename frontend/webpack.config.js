@@ -18,7 +18,7 @@ module.exports = {
                 test: /\.tsx?$/,
                 exclude: /node_modules/,
                 use: {
-                    loader: 'ts-loader',
+                    loader: 'awesome-typescript-loader',
                     options: {
                         getCustomTransformers: () => ({
                             before: [

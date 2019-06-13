@@ -110,25 +110,6 @@ export const Board = (props: IBoardProps) => {
     }, [props.tasks]);
 
     /**
-     * 排序规则发生变化时重新排序
-     */
-    React.useEffect(() => {
-        let targets = groups.slice();
-
-        for (let i = 0; i < 4; ++i) {
-            let group = targets[i];
-            if (!group) continue;
-
-            if (group.sorter != sortMethod[i]) {
-                group.sorter = sortMethod[i];
-                group.tasks = group.tasks.sort(sorters[group.sorter].exec);
-            }
-        }
-
-        setGroups(targets);
-    }, [sortMethod]);
-
-    /**
      * 修改排序规则
      */
     const changeSortMethod = (idx: number, method: number) => {
@@ -136,7 +117,14 @@ export const Board = (props: IBoardProps) => {
             let old = prev.slice();
             old[idx] = method;
             return old;
-        })
+        });
+
+        if (groups[idx].sorter != method) {
+            let targets = groups.slice();
+            targets[idx].sorter = method;
+            targets[idx].tasks = targets[idx].tasks.sort(sorters[method].exec);
+            setGroups(targets);
+        }
     };
 
     /**
