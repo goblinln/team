@@ -36,7 +36,7 @@
 
 ## 使用说明
 
-1. 对于不需要修改原码的用户，可直接从[发行版](https://gitee.com/love_linger/Team/releases)页面中下载编译好的可执行文件
+1. 对于不需要修改原码的用户，可直接从[发行版](https://gitee.com/love_linger/Team/releases)页面中下载编译好的可执行文件，放入`publish`目录中，然后直接第3步
 
 2. 对于有需求修改原码的用户，修改完后可按下面的步骤自行编译。  
 
