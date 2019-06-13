@@ -1,10 +1,13 @@
 import * as React from 'react';
 import { UploadChangeParam } from 'antd/lib/upload/interface';
+import { FilterDropdownProps } from 'antd/lib/table/interface';
 
 import {
     Button,
+    Col,
     Divider,
     Icon,
+    Input,
     Layout,
     Popconfirm,
     Progress,
@@ -21,12 +24,42 @@ import { Fetch } from '../../common/Request';
  * 分享页
  */
 export const Page = () => {
-
     /**
      * 状态列表
      */
     const [files, setFiles] = React.useState<IShare[]>([]);
     const [progress, setProgress] = React.useState<{value: number}>(null);
+
+    /**
+     * 过滤选项组件
+     */
+    const Filter = (props: FilterDropdownProps) => {
+        const {setSelectedKeys, selectedKeys, confirm, clearFilters} = props;
+
+        const exec = () => {
+            if (selectedKeys.length > 0) confirm();
+            else clearFilters([]);
+        };
+
+        return (
+            <div style={{padding: 8}}>
+                <Input
+                    value={selectedKeys[0]}
+                    style={{width: 200, marginBottom: 8, display: 'block'}}
+                    onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={() => exec()}/>
+
+                <Row gutter={8}>
+                    <Col span={12}>
+                        <Button type='primary' onClick={() => exec()} block>过滤</Button>
+                    </Col>
+                    <Col span={12}>
+                        <Button onClick={() => clearFilters([])} block>重置</Button>
+                    </Col>
+                </Row>
+            </div>
+        );
+    };
 
     /**
      * 分享列表数据结构
@@ -36,11 +69,17 @@ export const Page = () => {
             title: '文件',
             dataIndex: 'name',
             key: 'name',
+            filterIcon: <Icon type='search'/>,
+            filterDropdown: (props: FilterDropdownProps) => <Filter {...props}/>,
+            onFilter: (value: string, record: IShare) => record.name.indexOf(value) != -1,
         },
         {
             title: '上传者',
             dataIndex: 'uploader',
             key: 'uploader',
+            filterIcon: <Icon type='search'/>,
+            filterDropdown: (props: FilterDropdownProps) => <Filter {...props}/>,
+            onFilter: (value: string, record: IShare) => record.uploader.indexOf(value) != -1,
         },
         {
             title: '上传时间',
@@ -117,8 +156,8 @@ export const Page = () => {
                     <Upload name='uploader' action='/api/file/share' showUploadList={false} onChange={handleUpload}>
                         <Button><Icon type="upload" />分享文件</Button>
                     </Upload>
-                    {progress && <Progress type='circle' percent={progress.value} />}
                 </Row>
+                {progress && <Row><Progress percent={progress.value} /></Row>}
                 <Row style={{marginTop: 16}}>
                     <Table columns={shareTableColumn} dataSource={files} bordered/>
                 </Row>
