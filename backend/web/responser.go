@@ -34,6 +34,8 @@ func (r *Responser) WriteHeader(code int) {
 		return
 	}
 
+	r.statusCode = code
+	r.statusDone = true
 	r.writer.WriteHeader(code)
 }
 
