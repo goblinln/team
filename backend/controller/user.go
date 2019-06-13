@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"team/model"
+	"team/orm"
 	"team/web"
-	"team/web/orm"
 )
 
 // User controller

@@ -1,7 +1,7 @@
 package model
 
 import (
-	"team/web/orm"
+	"team/orm"
 	"time"
 )
 

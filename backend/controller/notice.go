@@ -2,8 +2,8 @@ package controller
 
 import (
 	"team/model"
+	"team/orm"
 	"team/web"
-	"team/web/orm"
 )
 
 // Notice controller

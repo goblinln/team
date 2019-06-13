@@ -2,7 +2,7 @@ package model
 
 import (
 	"sync"
-	"team/web/orm"
+	"team/orm"
 )
 
 // CacheManager --

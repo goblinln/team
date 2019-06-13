@@ -4,8 +4,8 @@ import (
 	"team/controller"
 	"team/middleware"
 	"team/model"
+	"team/orm"
 	"team/web"
-	"team/web/orm"
 )
 
 func main() {
