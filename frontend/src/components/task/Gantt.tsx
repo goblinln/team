@@ -208,7 +208,7 @@ export const Gantt = (props: IGanttProps) => {
                 style={{
                     width: 540, 
                     minWidth: 540, 
-                    maxHeight: `calc(100vh - ${200+scollWidth}px)`, 
+                    maxHeight: `calc(100vh - ${220+scollWidth}px)`, 
                     height: height, 
                     marginBottom: 16, 
                     overflow: 'hidden', 
@@ -286,7 +286,7 @@ export const Gantt = (props: IGanttProps) => {
         }
 
         setGraph(
-            <div style={{width: '100%', maxHeight: 'calc(100vh - 200px)', overflow: 'auto', border: '1px solid #b8b9bb'}} onScroll={syncScroll}>
+            <div style={{width: '100%', maxHeight: 'calc(100vh - 220px)', overflow: 'auto', border: '1px solid #b8b9bb'}} onScroll={syncScroll}>
                 <svg width={width} height={height}>
                     {...grid}
 
