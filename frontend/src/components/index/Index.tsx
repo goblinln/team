@@ -33,7 +33,8 @@ export const Index = () => {
     const [subpage, setSubpage] = React.useState<JSX.Element>(null);
     const [loading, setLoading] = React.useState<boolean>(false);
     const popupAnchor = React.useRef<any>();
-    const loadingDely = React.useRef<any>();
+    const loadingDely = React.useRef<number>();
+    const noticeTimer = React.useRef<number>();
 
     /**
      * 主菜单
@@ -94,28 +95,29 @@ export const Index = () => {
      * 定时更新通知内容
      */
     React.useEffect(() => {
-        const noticeFetcher = setInterval(fetchNotice, 60000);
-        return () => clearInterval(noticeFetcher);
-    }, []);
+        if (user) {
+            noticeTimer.current = setInterval(fetchNotice, 60000);
+        } else {
+            clearInterval(noticeTimer.current);
+        }
+    }, [user]);
 
     /**
      * 取一次用户信息
      */
     const fetchUser = () => {
         Fetch.get('/api/user', rsp => {
-            if (!rsp.err) {
-                setUser(rsp.data);
-                fetchNotice(true);
-            }
-        })
+            !rsp.err && setUser(rsp.data);
+        });
     };
 
     /**
      * 取一次通知消息
      */
-    const fetchNotice = (force?: boolean) => {
-        if (!user && !force) return;
-        Fetch.get('/api/notice/list', rsp => { !rsp.err && setNoticies(rsp.data) });
+    const fetchNotice = () => {
+        Fetch.get('/api/notice/list', rsp => {
+            !rsp.err && setNoticies(rsp.data)
+        });
     };
 
     /**
