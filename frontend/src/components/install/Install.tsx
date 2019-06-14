@@ -6,6 +6,7 @@ import {
     Card,
     Form,
     Input,
+    InputNumber,
     Layout,
     Steps,
     Row,
@@ -43,15 +44,11 @@ export const Install = () => {
 
         return (
             <Form style={{padding: '0 100px'}} onSubmit={submit}>
-                <Card title='系统名称' style={{marginBottom: 8}} bodyStyle={{padding: '8px 16px'}}>
-                    {getFieldDecorator('appName', {
-                        rules: [
-                            { required: true, message: '需要指定系统名称' },
-                            { max: 32, message: '最大32个字符' },
-                        ],
-                        initialValue: '协作系统',
+                <Card title='监听端口（完成后需要重新启动）' style={{marginBottom: 8}} bodyStyle={{padding: '8px 16px'}}>
+                    {getFieldDecorator('port', {
+                        initialValue: '8080',
                     })(
-                        <Input id='appName' name='appName'/>
+                        <InputNumber id='port' name='port' min={80} max={65535}/>
                     )}
                 </Card>
 
@@ -89,7 +86,7 @@ export const Install = () => {
                             rules: [
                                 { required: true, message: '数据库'},
                             ],
-                            initialValue: 'cooperator',
+                            initialValue: 'team',
                         })(
                             <Input id='mysqlDB' name='mysqlDB'/>
                         )}
@@ -232,7 +229,7 @@ export const Install = () => {
         {
             title: '部署完成',
             description: null,
-            content: <Row type='flex' justify='center' style={{marginTop: 60}}><Button onClick={() => location.reload()}>访问主页</Button></Row>,
+            content: <Row type='flex' justify='center' style={{marginTop: 60}}><Button onClick={() => location.href = '/'}>访问主页</Button></Row>,
         }
     ];
 

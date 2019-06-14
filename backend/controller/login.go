@@ -13,8 +13,26 @@ import (
 	"team/web"
 )
 
-// Login handler.
-func Login(c *web.Context) {
+// Login controller
+type Login int
+
+// Register implements web.Controller interface.
+func (l *Login) Register(group *web.Router) {
+	group.GET("", l.index)
+	group.POST("", l.doLogin)
+}
+
+func (l *Login) index(c *web.Context) {
+	if c.Session.Has("uid") {
+		c.Redirect(302, "/")
+		return
+	}
+
+	c.ResponseHeader().Set("Content-Type", "text/html")
+	c.File(200, "./www/index.html")
+}
+
+func (l *Login) doLogin(c *web.Context) {
 	account := c.PostFormValue("account")
 	password := c.PostFormValue("password")
 	remember := c.PostFormValue("remember")

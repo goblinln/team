@@ -7,5 +7,5 @@ import (
 // Logout handler.
 func Logout(c *web.Context) {
 	c.EndSession()
-	c.JSON(200, web.JObject{})
+	c.Redirect(302, "/login")
 }

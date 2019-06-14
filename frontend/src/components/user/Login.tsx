@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { WrappedFormUtils } from 'antd/lib/form/Form';
+import { WrappedFormInternalProps } from 'antd/lib/form/Form';
 
 import {
     Button,
@@ -18,19 +18,11 @@ import { Fetch } from '../../common/Request';
 /**
  * 登录页
  */
-export const View = (props: {onLogined: () => void}) => {
-    /**
-     * 登录表单的props
-     */
-    interface ILoginFormProps {
-        form: WrappedFormUtils;
-        onLogined: () => void;
-    }
-
+export const Login = () => {
     /**
      * 登录的表单组件
      */
-    const LoginForm = Form.create<ILoginFormProps>()((props: ILoginFormProps) => {
+    const LoginForm = Form.create()((props: WrappedFormInternalProps) => {
         const { getFieldDecorator, validateFields } = props.form;
 
         /**
@@ -45,8 +37,7 @@ export const View = (props: {onLogined: () => void}) => {
                         if (rsp.err) {
                             message.error(rsp.err, 1);
                         } else {
-                            props.onLogined();
-                            message.info('登录成功', 0.5);
+                            location.href = '/';
                         }
                     });
                 }
@@ -81,13 +72,13 @@ export const View = (props: {onLogined: () => void}) => {
             <Layout.Content>
                 <Row type='flex' justify='center' style={{marginTop: '10%', marginBottom: 16}}>
                     <span style={{fontSize: '3.2em', fontWeight: 'bolder', color: 'rgb(82,82,82)'}}>
-                        MAKE SOMETHING REAL TOGETHER
+                        团队协作平台
                     </span>
                 </Row>
 
                 <Row type='flex' justify='center'>
                     <Card style={{width: 360, textAlign: 'left', boxShadow: '0 .5rem 1rem rgba(0, 0, 0, .15)'}}>
-                        <LoginForm onLogined={props.onLogined}/>
+                        <LoginForm />
                     </Card>
                 </Row>
             </Layout.Content>

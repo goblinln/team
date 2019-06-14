@@ -18,23 +18,34 @@ type Install struct {
 
 // Register implements web.Controller interface.
 func (i *Install) Register(group *web.Router) {
+	group.GET("", i.index)
 	group.POST("/configure", i.configure)
 	group.GET("/status", i.status)
 	group.POST("/admin", i.createAdmin)
 }
 
+func (i *Install) index(c *web.Context) {
+	c.ResponseHeader().Set("Content-Type", "text/html")
+	c.File(200, "./www/index.html")
+}
+
 func (i *Install) configure(c *web.Context) {
-	appName := c.FormValue("appName")
+	appPort := atoi(c.FormValue("port"))
 	mysqlHost := c.FormValue("mysqlHost")
 	mysqlUser := c.FormValue("mysqlUser")
 	mysqlPswd := c.FormValue("mysqlPswd")
 	mysqlDB := c.FormValue("mysqlDB")
 
+	if appPort <= 0 || appPort > 65535 {
+		c.JSON(200, &web.JObject{"err": "无效的端口参数"})
+		return
+	}
+
 	i.Done = false
 	i.IsError = false
 	i.Status = []string{"连接数据库..."}
 
-	go i.setup(appName, mysqlHost, mysqlUser, mysqlPswd, mysqlDB)
+	go i.setup(appPort, mysqlHost, mysqlUser, mysqlPswd, mysqlDB)
 
 	c.JSON(200, web.JObject{})
 }
@@ -75,7 +86,7 @@ func (i *Install) createAdmin(c *web.Context) {
 	}
 }
 
-func (i *Install) setup(appName, host, user, pswd, db string) {
+func (i *Install) setup(appPort int64, host, user, pswd, db string) {
 	err := orm.ConnectDB(host, user, pswd, db, 64)
 	if err != nil {
 		i.IsError = true
@@ -117,8 +128,7 @@ func (i *Install) setup(appName, host, user, pswd, db string) {
 
 	model.Environment = &model.Env{
 		Installed: false,
-		AppName:   appName,
-		AppPort:   ":8080",
+		AppPort:   fmt.Sprintf(":%d", appPort),
 		MySQL: model.MySQL{
 			Host:     host,
 			User:     user,

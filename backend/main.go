@@ -36,8 +36,8 @@ func main() {
 	router.UseController("/install", new(controller.Install), middleware.MustNotInstalled)
 
 	// Login/out
-	router.POST("/login", controller.Login, middleware.MustInstalled)
-	router.POST("/logout", controller.Logout, middleware.MustInstalled)
+	router.UseController("/login", new(controller.Login), middleware.MustInstalled)
+	router.GET("/logout", controller.Logout)
 
 	// Normal API
 	api := router.Group("/api")

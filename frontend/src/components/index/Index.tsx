@@ -12,7 +12,6 @@ import {
 
 import { INotice, IUser } from '../../common/Protocol';
 import { Fetch, FetchStateNotifier } from '../../common/Request';
-import * as Login from '../user/Login';
 import * as Profile from '../user/Profile';
 import * as Task from '../task/Page';
 import * as Project from '../project/Page';
@@ -28,13 +27,12 @@ export const Index = () => {
     /**
      * 状态列表
      */
-    const [user, setUser] = React.useState<IUser>(null);
+    const [user, setUser] = React.useState<IUser>({id: 0, account: 'Guest', name: 'Guest'});
     const [notices, setNoticies] = React.useState<INotice[]>([]);
     const [subpage, setSubpage] = React.useState<JSX.Element>(null);
     const [loading, setLoading] = React.useState<boolean>(false);
     const popupAnchor = React.useRef<any>();
     const loadingDely = React.useRef<number>();
-    const noticeTimer = React.useRef<number>();
 
     /**
      * 主菜单
@@ -74,7 +72,7 @@ export const Index = () => {
     ];
 
     /**
-     * 取帐号信息并且取一次通知
+     * 初始化
      */
     React.useEffect(() => {
         Fetch.notifier = new FetchStateNotifier(state => {
@@ -88,20 +86,11 @@ export const Index = () => {
                 loadingDely.current = null;
             }, 20, state);
         });
-        fetchUser();
-    }, []);
 
-    /**
-     * 定时更新通知内容
-     */
-    React.useEffect(() => {
-        if (user) {
-            noticeTimer.current = setInterval(fetchNotice, 60000);
-            fetchNotice();
-        } else {
-            clearInterval(noticeTimer.current);
-        }
-    }, [user]);
+        fetchUser();
+        fetchNotice();
+        setInterval(fetchNotice, 60000);
+    }, []);
 
     /**
      * 取一次用户信息
@@ -135,14 +124,7 @@ export const Index = () => {
         ReactDOM.render(null, popupAnchor.current);
     }
 
-    /**
-     * 退出系统
-     */
-    const logout = () => {
-        Fetch.post('/logout', null, () => { setUser(null) });
-    }
-
-    return !user ? <Login.View onLogined={() => fetchUser()} /> : (
+    return (
         <Layout style={{ width: '100vw', height: '100vh' }}>
             <Layout.Sider width={64}>
                 <div style={{ textAlign: 'center', marginTop: 16, marginBottom: 16 }}>
@@ -178,7 +160,7 @@ export const Index = () => {
                 </Menu>
 
                 <div style={{position: 'absolute', left: 0, bottom: 16, width: '100%', textAlign: 'center'}}>
-                    <Icon type='logout' style={{color: 'white', fontSize: '1.5em'}} onClick={() => logout()}/>
+                    <Icon type='logout' style={{color: 'white', fontSize: '1.5em'}} onClick={() => location.href = '/logout'}/>
                 </div>
             </Layout.Sider>
 

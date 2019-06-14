@@ -159,8 +159,8 @@ func (c *Context) MultipartForm() *multipart.Form {
 }
 
 // Redirect client.
-func (c *Context) Redirect(url string) {
-	http.Redirect(c.rsp, c.req, url, http.StatusPermanentRedirect)
+func (c *Context) Redirect(status int, url string) {
+	http.Redirect(c.rsp, c.req, url, status)
 }
 
 // Stream response
@@ -229,11 +229,10 @@ func (c *Context) FileWithName(status int, path, name string) error {
 		return errors.New(path + " is NOT a file but directory")
 	}
 
-	if len(name) == 0 {
-		name = info.Name()
+	if len(name) > 0 {
+		c.rsp.Header().Set("Content-Disposition", "attachement;filename="+name)
 	}
 
-	c.rsp.Header().Set("Content-Disposition", "attachement;filename="+name)
 	http.ServeContent(c.rsp, c.req, info.Name(), info.ModTime(), file)
 	return nil
 }

@@ -2,7 +2,6 @@ package model
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 )
 
@@ -18,7 +17,6 @@ type MySQL struct {
 // Env holds configuration for this server.
 type Env struct {
 	Installed bool   `json:"-"`
-	AppName   string `json:"appName"`
 	AppPort   string `json:"appPort"`
 	MySQL     MySQL  `json:"mysql"`
 }
@@ -36,7 +34,6 @@ func (e *Env) Save() error {
 // Environment in runtime.
 var Environment = &Env{
 	Installed: false,
-	AppName:   "协作系统",
 	AppPort:   ":8080",
 	MySQL: MySQL{
 		Host:     "127.0.0.1:3306",
@@ -50,13 +47,12 @@ var Environment = &Env{
 func init() {
 	raw, err := ioutil.ReadFile("./team.json")
 	if err != nil {
-		fmt.Println("Can NOT find team.json. Using default instead.")
 		return
 	}
 
 	err = json.Unmarshal(raw, Environment)
 	if err != nil {
-		fmt.Println("Failed to load team.json. Using default instead. Error: " + err.Error())
+		return
 	}
 
 	Environment.Installed = true
