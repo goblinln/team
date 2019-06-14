@@ -83,7 +83,6 @@ typings/
 .vscode/
 publish/logs/
 publish/uploads/
-publish/www/app.js
 backend/go.sum
 team.exe
 team.json
