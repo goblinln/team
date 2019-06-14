@@ -97,9 +97,9 @@ type (
 		BringTop    bool      `json:"bringTop" mysql:"TINYINT(1) DEFAULT '0'"`
 		Weight      int8      `json:"weight" mysql:"INTEGER DEFAULT '0'"`
 		State       int8      `json:"state" mysql:"INTEGER DEFAULT '0'"`
-		StartTime   time.Time `json:"startTime" mysql:"TIMESTAMP DEFAULT CURRENT_TIMESTAMP"`
-		EndTime     time.Time `json:"endTime" mysql:"TIMESTAMP DEFAULT CURRENT_TIMESTAMP"`
-		ArchiveTime time.Time `json:"archiveTime" mysql:"TIMESTAMP DEFAULT CURRENT_TIMESTAMP"`
+		StartTime   time.Time `json:"startTime" mysql:"TIMESTAMP"`
+		EndTime     time.Time `json:"endTime" mysql:"TIMESTAMP"`
+		ArchiveTime time.Time `json:"archiveTime" mysql:"TIMESTAMP"`
 		Tags        []int     `json:"tags" mysql:"TEXT"`
 		Content     string    `json:"content" mysql:"TEXT"`
 	}
