@@ -26,7 +26,7 @@ import {
 } from 'antd';
 
 import { ProjectRole, TaskStatus, TaskWeight, TaskTag } from '../../common/Consts';
-import { ITask, IUser } from '../../common/Protocol';
+import { ITask, IUser, ITaskEvent } from '../../common/Protocol';
 import { Fetch } from '../../common/Request';
 import * as Markdown from '../markdown/Markdown';
 
@@ -47,6 +47,13 @@ export default class Viewer {
     }
 
     /**
+     * 当前是否可用
+     */
+    public static isValid() {
+        return Viewer._anchor && Viewer._anchor.current;
+    }
+
+    /**
      * 显示任务详情
      * 
      * @param taskId 任务ID
@@ -62,7 +69,7 @@ export default class Viewer {
                     isReadonly ? <ReadOnlyViewer task={task}/> : <EditableViewer task={task}/>, 
                     Viewer._anchor.current);
             }
-        })      
+        })
     }
 
     /**
@@ -105,6 +112,37 @@ const CommonHeader = (props: {task: ITask, titleWidth: number}) => {
         </Row>
     );
 }
+
+/**
+ * 生成任务的事件描述
+ */
+const makeTaskEvent = (ev: ITaskEvent) => {
+    let desc = '';
+
+    switch (ev.event) {
+    case 0: desc = '创建了任务'; break;
+    case 1: desc = '接手了任务'; break;
+    case 2: desc = '开启了任务的测试流程'; break;
+    case 3: desc = '将任务设置为已完成'; break;
+    case 4: desc = '归档了任务'; break;
+    case 5: desc = '修改了任务的计划开始时间，原时间：' + ev.extra; break;
+    case 6: desc = '修改了任务的计划结束时间，原时间：' + ev.extra; break;
+    case 7: desc = '移交了任务，原负责人：' + ev.extra; break;
+    case 8: desc = '修改了任务开发者，原开发者：' + ev.extra; break;
+    case 9: desc = '修改了任务的测试/验收人员，原人员：' + ev.extra; break;
+    case 10: desc = '修改了任务的优先级，原优先级：' + ev.extra; break;
+    case 11: desc = '修改了任务的具体内容'; break;
+    case 12: desc = '评论了任务'; break;
+    case 13: desc = '回退了任务状态'; break;
+    default: desc = '对任务的其他内容进行了修改'; break;
+    }
+
+    return (
+        <p>
+            <small>{ev.time}</small>  <strong>{ev.operator}</strong> {desc}
+        </p>
+    );
+};
 
 /**
  * 只读模式查看面板
@@ -166,7 +204,7 @@ const ReadOnlyViewer = (props: {task: ITask}) => {
                                 {task.events.map((ev, idx) => {
                                     return (
                                         <Timeline.Item style={{ padding: '0 0 4px' }} key={idx}>
-                                            <small>{ev.time}</small>  <strong>{ev.operator}</strong> {ev.desc}
+                                            {makeTaskEvent(ev)}
                                         </Timeline.Item>
                                     );
                                 })}
@@ -182,7 +220,7 @@ const ReadOnlyViewer = (props: {task: ITask}) => {
 /**
  * 编辑模式预览
  */
-const EditableViewer = (props: {task: ITask}) => {
+export const EditableViewer = (props: {task: ITask}) => {
     
     /**
      * 状态列表
@@ -529,7 +567,7 @@ const EditableViewer = (props: {task: ITask}) => {
                                 {task.events.map((ev, idx) => {
                                     return (
                                         <Timeline.Item style={{ padding: '0 0 4px' }} key={idx}>
-                                            <small>{ev.time}</small>  <strong>{ev.operator}</strong> {ev.desc}
+                                            {makeTaskEvent(ev)}
                                         </Timeline.Item>
                                     );
                                 })}

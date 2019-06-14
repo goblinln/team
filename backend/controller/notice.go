@@ -32,11 +32,14 @@ func (n *Notice) mine(c *web.Context) {
 		notice := &model.Notice{}
 		err = orm.Scan(rows, notice)
 		if err == nil {
+			operator, _ := model.FindUserInfo(notice.Operator)
 			notices = append(notices, map[string]interface{}{
-				"id":      notice.ID,
-				"uid":     uid,
-				"time":    notice.Time.Format("2006-01-02 15:04:05"),
-				"content": notice.Content,
+				"id":       notice.ID,
+				"tid":      notice.TID,
+				"tname":    notice.TName,
+				"operator": operator,
+				"time":     notice.Time.Format("2006-01-02 15:04:05"),
+				"ev":       notice.Event,
 			})
 		}
 	}

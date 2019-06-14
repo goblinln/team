@@ -97,6 +97,7 @@ export const Index = () => {
     React.useEffect(() => {
         if (user) {
             noticeTimer.current = setInterval(fetchNotice, 60000);
+            fetchNotice();
         } else {
             clearInterval(noticeTimer.current);
         }
@@ -153,7 +154,7 @@ export const Index = () => {
                                 avatar = {user.avatar}
                                 notices = {notices}
                                 onClose = {(newAvatar, refreshNotice) => {
-                                    if (newAvatar != null) setUser(prev => ({id: prev.id, name: prev.name, avatar: newAvatar}));
+                                    if (newAvatar != null) setUser(prev => ({id: prev.id, name: prev.name, avatar: newAvatar, isSu: prev.isSu}));
                                     if (refreshNotice) fetchNotice();
                                     closePopup();
                                 }}/>);

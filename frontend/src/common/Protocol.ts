@@ -103,9 +103,13 @@ export interface ITaskEvent {
      */
     operator: string;
     /**
-     * 事件描述
+     * 事件
      */
-    desc: string;
+    event: number;
+    /**
+     * 事件附加参数
+     */
+    extra: string;
 }
 
 /**
@@ -205,15 +209,27 @@ export interface INotice {
     /**
      * 唯一ID
      */
-    id: number,
+    id: number;
+    /**
+     * 相关任务ID
+     */
+    tid: number;
+    /**
+     * 相关任务名
+     */
+    tname: string;
+    /**
+     * 相关操作人员
+     */
+    operator: string;
     /**
      * 时间
      */
     time: string;
     /**
-     * 内容
+     * 事件
      */
-    content: string;
+    ev: number;
 }
 
 /**
