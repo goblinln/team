@@ -318,17 +318,23 @@ func AfterTaskOperation(task *Task, operator int64, ev int, extra string) {
 
 	orm.Insert(event)
 
+	noticed := map[int64]bool{}
+	noticed[task.Developer] = false
+	noticed[task.Tester] = false
+
 	if task.Creator != operator {
 		notice.UID = task.Creator
+		noticed[task.Creator] = true
 		orm.Insert(notice)
 	}
 
-	if task.Developer != operator {
+	if task.Developer != operator && !noticed[task.Developer] {
 		notice.UID = task.Developer
+		noticed[task.Developer] = true
 		orm.Insert(notice)
 	}
 
-	if task.Tester != operator {
+	if task.Tester != operator && !noticed[task.Tester] {
 		notice.UID = task.Tester
 		orm.Insert(notice)
 	}
