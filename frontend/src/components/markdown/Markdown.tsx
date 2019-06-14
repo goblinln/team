@@ -36,6 +36,7 @@ export const Renderer = ((props: IRendererProps) => {
      */
     const openImgViewer = (src: string) => {
         let layer = document.createElement('div');
+        layer.id = 'markdown-image-viewer';
         layer.style.position = 'absolute';
         layer.style.left = '0';
         layer.style.right = '0';
@@ -49,13 +50,11 @@ export const Renderer = ((props: IRendererProps) => {
         layer.style.alignItems = 'center';
         document.body.appendChild(layer);
 
-        layer.addEventListener('click', () => {
-            document.body.removeChild(layer);
-        });
+        layer.addEventListener('click', () => { layer.remove() });
 
         ReactDOM.render((
             <div style={{position: 'relative', backgroundColor: 'white', padding: 8}}>
-                <Button shape='circle' icon='close' style={{position: 'absolute', right: -16, top: -16, width: 32, height: 32}} onClick={() => document.body.removeChild(layer)}/>
+                <Button shape='circle' icon='close' style={{position: 'absolute', right: -16, top: -16, width: 32, height: 32}} onClick={() => {layer.remove()}}/>
                 <div style={{maxWidth: 'calc(100vw - 80px)', maxHeight: 'calc(100vh - 80px)', overflow: 'auto'}}>
                     <img src={src}/>
                 </div>
