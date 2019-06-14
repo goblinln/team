@@ -24,7 +24,7 @@ func main() {
 	}
 
 	// Create router for httpd service
-	router := web.New()
+	router := web.NewRouter()
 	router.Use(middleware.Logger)
 
 	// Resources.
@@ -60,6 +60,5 @@ func main() {
 		middleware.MustLoginedAsAdmin)
 
 	// Start service.
-	web.Logger.Info("Service started at %s", model.Environment.AppPort)
-	web.Start(model.Environment.AppPort, router)
+	router.Start(model.Environment.AppPort)
 }

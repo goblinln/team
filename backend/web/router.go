@@ -39,6 +39,37 @@ type (
 	}
 )
 
+// NewRouter returns a new root router
+func NewRouter() *Router {
+	return &Router{
+		prefix:      "",
+		middlewares: []Middleware{},
+		children:    make(map[string]*Router),
+		dispatchers: make(map[string][]*Dispatcher),
+		notFound:    WrapFunc(http.NotFound),
+	}
+}
+
+// Wrap http.Handler to web.Handler
+func Wrap(handler http.Handler) Handler {
+	return func(c *Context) {
+		handler.ServeHTTP(c.rsp, c.req)
+	}
+}
+
+// WrapFunc wraps original http handle function to web.Handler
+func WrapFunc(handle func(w http.ResponseWriter, r *http.Request)) Handler {
+	return func(c *Context) {
+		handle(c.rsp, c.req)
+	}
+}
+
+// Start httpd service
+func (r *Router) Start(addr string) error {
+	Logger.Info("Service started at %s", addr)
+	return http.ListenAndServe(addr, r)
+}
+
 // ServeHTTP implements http.Handler
 func (r *Router) ServeHTTP(rsp http.ResponseWriter, req *http.Request) {
 	c := &Context{
