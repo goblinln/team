@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import * as ReactMarkdown from 'react-markdown';
 
 import {
@@ -30,6 +31,37 @@ export interface IRendererProps {
  * 渲染组件
  */
 export const Renderer = ((props: IRendererProps) => {
+    /**
+     * 打开图片预览器
+     */
+    const openImgViewer = (src: string) => {
+        let layer = document.createElement('div');
+        layer.style.position = 'absolute';
+        layer.style.left = '0';
+        layer.style.right = '0';
+        layer.style.top = '0';
+        layer.style.bottom = '0';
+        layer.style.zIndex = '10000';
+        layer.style.backgroundColor = 'rgba(0, 0, 0, .5)';
+        layer.style.display = 'flex';
+        layer.style.flexDirection = 'row';
+        layer.style.justifyContent = 'center';
+        layer.style.alignItems = 'center';
+        document.body.appendChild(layer);
+
+        layer.addEventListener('click', () => {
+            document.body.removeChild(layer);
+        });
+
+        ReactDOM.render((
+            <div style={{position: 'relative', backgroundColor: 'white', padding: 8}}>
+                <Button shape='circle' icon='close' style={{position: 'absolute', right: -16, top: -16, width: 32, height: 32}} onClick={() => document.body.removeChild(layer)}/>
+                <div style={{maxWidth: 'calc(100vw - 80px)', maxHeight: 'calc(100vh - 80px)', overflow: 'auto'}}>
+                    <img src={src}/>
+                </div>
+            </div>            
+        ), layer);
+    }
 
     /**
      * 对React-mardown的渲染逻辑扩展一下
@@ -47,15 +79,20 @@ export const Renderer = ((props: IRendererProps) => {
                         {props.children}
                     </li>
                 );
-            }            
+            }
+        },
+        image: (props: any) => {
+            return <img {...props} onClick={ev => openImgViewer(ev.currentTarget.src)}/>
         }
     };
 
-    return <ReactMarkdown 
-        source={props.source || ''} 
-        escapeHtml={false} 
-        className='markdown-body' 
-        renderers={customRenderers}/>
+    return (
+        <ReactMarkdown 
+            source={props.source || ''} 
+            escapeHtml={false} 
+            className='markdown-body' 
+            renderers={customRenderers}/>
+    )
 });
 
 /**
@@ -174,7 +211,7 @@ export const Editor = (props: IEditorProps) => {
      * 插入图片功能
      */
     const insertImage = (url: string) => {
-        if (url && url.length > 0) modifyContent(data => `![${data || '输入图片TIPS'}](${url})}`);
+        if (url && url.length > 0) modifyContent(data => `![${data || '输入图片TIPS'}](${url})`);
         setShowUploader(false);
     };
 
