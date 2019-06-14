@@ -110,7 +110,7 @@ func (r *Router) Invoke(c *Context, handler Handler) {
 		caller = r.middlewares[i](caller)
 	}
 
-	c.StartSession()
+	c.Session = Sessions.Start(c)
 	caller(c)
 }
 

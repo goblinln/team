@@ -67,16 +67,21 @@ func (c *Context) ResponseHeader() http.Header {
 	return c.rsp.Header()
 }
 
-// StartSession prepares session data.
-func (c *Context) StartSession() {
-	if c.Session == nil {
-		c.Session = Sessions.Start(c)
-	}
-}
-
-// EndSession clears session data.
+// EndSession clears session/cookies data.
 func (c *Context) EndSession() {
-	Sessions.End(c)
+	cookies := c.req.Cookies()
+	for _, cookie := range cookies {
+		c.SetCookie(&http.Cookie{
+			Name:   cookie.Name,
+			Value:  "",
+			Path:   cookie.Path,
+			MaxAge: -1,
+		})
+	}
+
+	Sessions.Lock()
+	defer Sessions.Unlock()
+	delete(Sessions.all, c.Session.id)
 }
 
 // Cookie returns named cookie value

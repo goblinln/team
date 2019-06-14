@@ -14,6 +14,7 @@ type (
 	Session struct {
 		sync.Mutex
 
+		id     string
 		expire time.Time
 		data   map[string]interface{}
 	}
@@ -27,8 +28,9 @@ type (
 	SessionManager struct {
 		sync.Mutex
 
-		serial int64
-		all    map[string]*Session
+		isBackgroundRunning bool
+		serial              int64
+		all                 map[string]*Session
 	}
 )
 
@@ -39,9 +41,10 @@ var (
 	SessionExpire = time.Minute * 30
 	// Sessions is default singleton instance of SessionManager.
 	Sessions = &SessionManager{
-		Mutex:  sync.Mutex{},
-		serial: 0,
-		all:    make(map[string]*Session),
+		Mutex:               sync.Mutex{},
+		isBackgroundRunning: false,
+		serial:              0,
+		all:                 make(map[string]*Session),
 	}
 )
 
@@ -49,6 +52,32 @@ var (
 func (mgr *SessionManager) Start(ctx SessionContext) *Session {
 	mgr.Lock()
 	defer mgr.Unlock()
+
+	if !mgr.isBackgroundRunning {
+		mgr.isBackgroundRunning = true
+
+		go func() {
+			for {
+				mgr.Lock()
+
+				now := time.Now()
+				dirty := []string{}
+
+				for id, session := range mgr.all {
+					if session.expire.Before(now) {
+						dirty = append(dirty, id)
+					}
+				}
+
+				for _, id := range dirty {
+					delete(mgr.all, id)
+				}
+
+				mgr.Unlock()
+				time.Sleep(time.Minute)
+			}
+		}()
+	}
 
 	cookie, err := ctx.Cookie(SessionIDKey)
 	now := time.Now()
@@ -77,6 +106,7 @@ func (mgr *SessionManager) Start(ctx SessionContext) *Session {
 
 	session := &Session{
 		Mutex:  sync.Mutex{},
+		id:     id,
 		expire: now.Add(SessionExpire),
 		data:   make(map[string]interface{}),
 	}
@@ -92,26 +122,6 @@ func (mgr *SessionManager) Start(ctx SessionContext) *Session {
 	return session
 }
 
-// End session.
-func (mgr *SessionManager) End(ctx SessionContext) {
-	mgr.Lock()
-	defer mgr.Unlock()
-
-	cookie, err := ctx.Cookie(SessionIDKey)
-	now := time.Now()
-	if err == nil {
-		delete(mgr.all, cookie.Value)
-	}
-
-	ctx.SetCookie(&http.Cookie{
-		Name:    SessionIDKey,
-		Value:   "",
-		Path:    "/",
-		MaxAge:  -1,
-		Expires: now,
-	})
-}
-
 // Has tests if there is a data named given key in this session
 func (s *Session) Has(key string) bool {
 	s.Lock()
@@ -125,7 +135,6 @@ func (s *Session) Has(key string) bool {
 func (s *Session) Get(key string) interface{} {
 	s.Lock()
 	defer s.Unlock()
-
 	return s.data[key]
 }
 
@@ -133,6 +142,5 @@ func (s *Session) Get(key string) interface{} {
 func (s *Session) Set(key string, val interface{}) {
 	s.Lock()
 	defer s.Unlock()
-
 	s.data[key] = val
 }
