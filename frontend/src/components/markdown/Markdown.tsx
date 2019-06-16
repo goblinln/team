@@ -272,10 +272,10 @@ export const Editor = (props: IEditorProps) => {
                         <Renderer source={content}/>
                     </div>
                 ) : (
-                    <Input.TextArea
+                    <textarea
                         ref={textArea}
-                        rows={props.rows || null}
-                        style={{height: props.height || null}}
+                        rows={props.rows || undefined}
+                        style={{height: props.height || undefined, width: '100%'}}
                         value={content}
                         onChange={onContentChange}
                         onPaste={pasteImage} />

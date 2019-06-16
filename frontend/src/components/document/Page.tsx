@@ -48,7 +48,7 @@ export const Page = () => {
         return (
             <div>
                 <Row>
-                    <Markdown.Editor rows={24} value={content} onChange={data => setContent(data)} onUpload={uploadImage}/>
+                    <Markdown.Editor height='calc(100vh - 110px)' value={content} onChange={data => setContent(data)} onUpload={uploadImage}/>
                 </Row>
                 <Row type='flex' justify='center' style={{marginTop: 8}}>
                     <Button type='primary' style={{marginRight: 8}} onClick={() => modify()}>修改</Button>
