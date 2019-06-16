@@ -516,12 +516,14 @@ export const EditableViewer = (props: {task: ITask}) => {
                             <Icon type="left-circle" />上一步
                         </Button>
                     </Col>
-                )}                
-                <Col>
-                    <Button type='link' size='small' style={{padding: '0 4px', color: 'rgba(0,0,0,.65)'}} onClick={() => goNext() }>
-                        <Icon type="right-circle" />下一步
-                    </Button>
-                </Col>
+                )}
+                {task.state < 4 && (
+                    <Col>
+                        <Button type='link' size='small' style={{padding: '0 4px', color: 'rgba(0,0,0,.65)'}} onClick={() => goNext() }>
+                            <Icon type="right-circle" />下一步
+                        </Button>
+                    </Col>
+                )}
                 <Col>
                     <Button type='link' size='small' style={{padding: '0 4px', color: 'rgba(0,0,0,.65)'}} onClick={() => deleteTask()}>
                         <Icon type='delete' />删除
