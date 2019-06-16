@@ -166,6 +166,9 @@ func (t *Task) moveNext(c *web.Context) {
 	case 3:
 		ev = model.TaskEventArchived
 		task.ArchiveTime = time.Now()
+	default:
+		c.JSON(200, &web.JObject{"err": "任务无下一步流程"})
+		return
 	}
 
 	task.State++
