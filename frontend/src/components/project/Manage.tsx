@@ -153,14 +153,14 @@ export const Manage = (props: {pid: number}) => {
 
             Modal.confirm({
                 title: '邀请成员',
-                width: 400,
+                width: 500,
                 maskClosable: true,
                 icon: null,
                 content: (
                     <Row style={{marginTop: 24}} gutter={8} type='flex' justify='center'>
                         <Col>
                             用户：
-                            <Select size='small' style={{width: 80}} onChange={(ev: any) => selUser = ev.valueOf()}>
+                            <Select size='small' style={{width: 180}} onChange={(ev: any) => selUser = ev.valueOf()}>
                                 {invites.map((user, idx) => {
                                     return <Select.Option key={idx} value={user.id}>{user.name}</Select.Option>
                                 })}
