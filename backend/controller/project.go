@@ -221,7 +221,7 @@ func (p *Project) getReports(c *web.Context) {
 	unarchived := []map[string]interface{}{}
 	archived := []map[string]interface{}{}
 
-	unarchivedRows, err := orm.Query("SELECT `id`,`pid`,`branch`,`creator`,`developer`,`tester`,`name`,`bringtop`,`weight`,`state`,`starttime`,`endtime` FROM `task` WHERE `pid`=? AND UNIX_TIMESTAMP(`endtime`)<=? AND (`archivetime`=? OR UNIX_TIMESTAMP(`archivetime`)>?)", pid, end, model.TaskTimeInfinite.Format(orm.TimeFormat), end)
+	unarchivedRows, err := orm.Query("SELECT `id`,`pid`,`branch`,`creator`,`developer`,`tester`,`name`,`bringtop`,`weight`,`state`,`starttime`,`endtime` FROM `task` WHERE `pid`=? AND `state`<4 AND UNIX_TIMESTAMP(`endtime`)<=? AND (`archivetime`=? OR UNIX_TIMESTAMP(`archivetime`)>?)", pid, end, model.TaskTimeInfinite.Format(orm.TimeFormat), end)
 	if err != nil {
 		c.JSON(200, &web.JObject{"err": "拉取该周内未归档任务列表出错"})
 		return
@@ -237,7 +237,7 @@ func (p *Project) getReports(c *web.Context) {
 		}
 	}
 
-	archivedRows, err := orm.Query("SELECT `id`,`pid`,`branch`,`creator`,`developer`,`tester`,`name`,`bringTop`,`weight`,`state`,`starttime`,`endtime` FROM `task` WHERE `pid`=? AND UNIX_TIMESTAMP(`archivetime`)>=? AND UNIX_TIMESTAMP(`archivetime`)<=?", pid, from, end)
+	archivedRows, err := orm.Query("SELECT `id`,`pid`,`branch`,`creator`,`developer`,`tester`,`name`,`bringTop`,`weight`,`state`,`starttime`,`endtime` FROM `task` WHERE `pid`=? AND `state`=4 AND UNIX_TIMESTAMP(`archivetime`)>=? AND UNIX_TIMESTAMP(`archivetime`)<=?", pid, from, end)
 	if err != nil {
 		c.JSON(200, &web.JObject{"err": "拉取该周内归档任务列表出错"})
 		return
