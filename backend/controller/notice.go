@@ -4,6 +4,7 @@ import (
 	"team/model"
 	"team/orm"
 	"team/web"
+	"time"
 )
 
 // Notice controller
@@ -19,7 +20,7 @@ func (n *Notice) Register(group *web.Router) {
 func (n *Notice) mine(c *web.Context) {
 	uid := c.Session.Get("uid").(int64)
 
-	rows, err := orm.Query("SELECT * FROM `notice` WHERE `uid`=?", uid)
+	rows, err := orm.Query("SELECT `notice`.`id` AS id, `notice`.`tid` AS tid, `task`.`name` AS tname, `notice`.`operator` AS operator, `notice`.`time` AS time, `notice`.`event` AS ev FROM `notice` LEFT JOIN `task` ON `notice`.`tid`=`task`.`id` WHERE `uid`=?", uid)
 	if err != nil {
 		c.JSON(200, &web.JObject{"err": "拉取通知信息失败"})
 		return
@@ -27,9 +28,18 @@ func (n *Notice) mine(c *web.Context) {
 
 	defer rows.Close()
 
+	type msg struct {
+		ID       int64
+		TID      int64
+		TName    string
+		Operator int64
+		Time     time.Time
+		Ev       int16
+	}
+
 	notices := []map[string]interface{}{}
 	for rows.Next() {
-		notice := &model.Notice{}
+		notice := &msg{}
 		err = orm.Scan(rows, notice)
 		if err == nil {
 			operator, _ := model.FindUserInfo(notice.Operator)
@@ -39,7 +49,7 @@ func (n *Notice) mine(c *web.Context) {
 				"tname":    notice.TName,
 				"operator": operator,
 				"time":     notice.Time.Format("2006-01-02 15:04:05"),
-				"ev":       notice.Event,
+				"ev":       notice.Ev,
 			})
 		}
 	}

@@ -81,7 +81,6 @@ type (
 		Time     time.Time `json:"time" mysql:"TIMESTAMP DEFAULT CURRENT_TIMESTAMP"`
 		UID      int64     `json:"uid" mysql:"BIGINT NOT NULL"`
 		TID      int64     `json:"tid" mysql:"BIGINT NOT NULL"`
-		TName    string    `json:"tname" mysql:"VARCHAR(128) NOT NULL"`
 		Operator int64     `json:"operator" mysql:"BIGINT NOT NULL"`
 		Event    int16     `json:"event" mysql:"INTEGER NOT NULL"`
 	}
@@ -311,7 +310,6 @@ func AfterTaskOperation(task *Task, operator int64, ev int, extra string) {
 	notice := &Notice{
 		Time:     time.Now(),
 		TID:      task.ID,
-		TName:    task.Name,
 		Operator: operator,
 		Event:    int16(ev),
 	}
