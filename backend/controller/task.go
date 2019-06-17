@@ -134,9 +134,9 @@ func (t *Task) moveBack(c *web.Context) {
 	case 1:
 		validOperator = uid == task.Developer
 	case 2:
-		validOperator = uid == task.Tester
+		validOperator = uid == task.Tester || uid == task.Developer
 	case 3:
-		validOperator = uid == task.Creator
+		validOperator = uid == task.Creator || uid == task.Tester
 	case 4:
 		validOperator = uid == task.Creator
 		task.ArchiveTime = model.TaskTimeInfinite
