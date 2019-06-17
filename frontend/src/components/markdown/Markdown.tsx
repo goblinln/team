@@ -61,7 +61,7 @@ export const Renderer = ((props: IRendererProps) => {
             <div style={{position: 'relative', backgroundColor: 'white', padding: 8}}>
                 <Button shape='circle' icon='close' style={{position: 'absolute', right: -16, top: -16, width: 32, height: 32}} onClick={() => close()}/>
                 <div style={{maxWidth: 'calc(100vw - 80px)', maxHeight: 'calc(100vh - 80px)', overflow: 'auto'}}>
-                    <img src={encodeURI(src)}/>
+                    <img src={src}/>
                 </div>
             </div>            
         ), layer);
