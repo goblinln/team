@@ -166,10 +166,9 @@ export const Board = (props: IBoardProps) => {
                                 const weight = TaskWeight[task.weight];
                                 const now = moment();
                                 const endTime = moment(task.endTime);
-                                const border = task.bringTop ? 'purple' : (endTime.diff(now) <= 0 ? 'red' : 'gray');
 
                                 return (
-                                    <Card key={task.id} bodyStyle={{padding: 8, borderLeft: '4px solid ' + border}} style={{marginBottom: 4}}>
+                                    <Card key={task.id} bodyStyle={{padding: 8, borderLeft: '4px solid ' + (endTime.diff(now) <= 0 ? 'red' : 'gray')}} style={{marginBottom: 4}}>
                                         <Row type='flex' justify='space-between' style={{fontSize: '.6em'}}>
                                             <Col><Icon type='pie-chart' /> {task.proj.name}</Col>
                                             <Col><Icon type='branches' /> {task.proj.branches[task.branch] || '默认'}</Col>
@@ -181,6 +180,9 @@ export const Board = (props: IBoardProps) => {
                                                 style={{textAlign: 'left', margin: 0, padding: 0, fontSize: '1em', fontWeight: 'bold', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}
                                                 onClick={() => TaskViewer.default.open(task.id, props.isReadonly)}
                                                 block>
+                                                {task.bringTop && (
+                                                    <label style={{backgroundColor: 'black', padding: '0 4px', marginRight: 4, borderRadius: 2, color: 'white', fontWeight: 'bolder', fontSize: '0.7em'}}>置顶</label>
+                                                )}
                                                 <label style={{ color: weight.color }}>{weight.name}</label>{task.name}
                                             </Button>
                                         </Row>
