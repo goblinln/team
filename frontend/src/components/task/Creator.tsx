@@ -75,6 +75,19 @@ class SelectHistory {
         }));
     }
 
+    has(group: string, id: number) {
+        switch (group) {
+        case 'creator':
+            return this.c.indexOf(id) != -1;
+        case 'developer':
+            return this.d.indexOf(id) != -1;
+        case 'tester':
+            return this.t.indexOf(id) != -1;
+        }
+
+        return false;
+    }
+
     get(group: string) {
         switch (group) {
         case 'creator':
@@ -342,6 +355,7 @@ export const Creator = Form.create<IProps>()((props: IProps) => {
                                     </Select.OptGroup>
                                     <Select.OptGroup label='全部人员'>
                                         {selectedProj && selectedProj.members.map(member => {
+                                            if (history.has('creator', member.user.id)) return null;
                                             return <Select.Option key={member.user.id} value={member.user.id}>【{ProjectRole[member.role]}】{member.user.name}</Select.Option>
                                         })}
                                     </Select.OptGroup>                                    
@@ -365,6 +379,7 @@ export const Creator = Form.create<IProps>()((props: IProps) => {
                                     </Select.OptGroup>
                                     <Select.OptGroup label='全部人员'>
                                         {selectedProj && selectedProj.members.map(member => {
+                                            if (history.has('developer', member.user.id)) return null;
                                             return <Select.Option key={member.user.id} value={member.user.id}>【{ProjectRole[member.role]}】{member.user.name}</Select.Option>
                                         })}
                                     </Select.OptGroup>
@@ -388,6 +403,7 @@ export const Creator = Form.create<IProps>()((props: IProps) => {
                                     </Select.OptGroup>
                                     <Select.OptGroup label='全部人员'>
                                         {selectedProj && selectedProj.members.map(member => {
+                                            if (history.has('tester', member.user.id)) return null;
                                             return <Select.Option key={member.user.id} value={member.user.id}>【{ProjectRole[member.role]}】{member.user.name}</Select.Option>
                                         })}
                                     </Select.OptGroup>
