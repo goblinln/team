@@ -197,7 +197,7 @@ func (t *Task) mine(c *web.Context) {
 	uid := c.Session.Get("uid").(int64)
 
 	rows, err := orm.Query(
-		"SELECT `id`,`pid`,`branch`,`creator`,`developer`,`tester`,`name`,`bringTop`,`weight`,`state`,`starttime`,`endtime` FROM `task` WHERE `state`<4 AND (`creator`=? OR `developer`=? OR `tester`=?)",
+		"SELECT `id`,`pid`,`branch`,`creator`,`developer`,`tester`,`name`,`bringtop`,`weight`,`state`,`starttime`,`endtime` FROM `task` WHERE `state`<4 AND (`creator`=? OR `developer`=? OR `tester`=?)",
 		uid, uid, uid)
 	if err != nil {
 		c.JSON(200, &web.JObject{"err": "读取数据库错误"})
@@ -224,7 +224,7 @@ func (t *Task) mine(c *web.Context) {
 func (t *Task) project(c *web.Context) {
 	pid := atoi(c.RouteValue("id"))
 	rows, err := orm.Query(
-		"SELECT `id`,`pid`,`branch`,`creator`,`developer`,`tester`,`name`,`bringTop`,`weight`,`state`,`starttime`,`endtime` FROM `task` WHERE `state`<4 AND `pid`=?",
+		"SELECT `id`,`pid`,`branch`,`creator`,`developer`,`tester`,`name`,`bringtop`,`weight`,`state`,`starttime`,`endtime` FROM `task` WHERE `state`<4 AND `pid`=?",
 		pid)
 	if err != nil {
 		c.JSON(200, &web.JObject{"err": "读取数据库错误"})
