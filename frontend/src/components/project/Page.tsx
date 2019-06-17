@@ -63,7 +63,7 @@ export const Page = (props: {uid: number}) => {
                                 <Collapse.Panel key={idx.toString()} header={proj.name} extra={isAdmin ? <Tag color='green' style={{margin: 0}}>管理员</Tag> : null}>
                                     <Menu mode='vertical'>
                                         <Menu.Item key={`task_${idx}`} style={{margin: 0}} onClick={() => setSubpage(<Tasks proj={proj} isReadonly={!isAdmin}/>)}>任务列表</Menu.Item>
-                                        <Menu.Item key={`reports_${idx}`} style={{margin: 0}} onClick={() => setSubpage(<Reports proj={proj} isReadonly={!isAdmin}/>)}>验收相关</Menu.Item>
+                                        <Menu.Item key={`reports_${idx}`} style={{margin: 0}} onClick={() => setSubpage(<Reports proj={proj} isReadonly={!isAdmin}/>)}>项目周报</Menu.Item>
                                         {isAdmin && <Menu.Item key={`manager_${idx}`} style={{margin: 0}} onClick={() => setSubpage(<Manage pid={proj.id} />)}>项目管理</Menu.Item>}
                                     </Menu>
                                 </Collapse.Panel>

@@ -121,6 +121,7 @@ func (t *Task) create(c *web.Context) {
 
 func (t *Task) moveBack(c *web.Context) {
 	tid := atoi(c.RouteValue("id"))
+	uid := c.Session.Get("uid").(int64)
 	task := &model.Task{ID: tid}
 	err := orm.Read(task)
 	if err != nil {
@@ -128,11 +129,25 @@ func (t *Task) moveBack(c *web.Context) {
 		return
 	}
 
-	if task.State == 0 {
+	validOperator := false
+	switch task.State {
+	case 1:
+		validOperator = uid == task.Developer
+	case 2:
+		validOperator = uid == task.Tester
+	case 3:
+		validOperator = uid == task.Creator
+	case 4:
+		validOperator = uid == task.Creator
+		task.ArchiveTime = model.TaskTimeInfinite
+	default:
 		c.JSON(200, &web.JObject{"err": "任务不可回退了"})
 		return
-	} else if task.State == 4 {
-		task.ArchiveTime = model.TaskTimeInfinite
+	}
+
+	if !validOperator {
+		c.JSON(200, &web.JObject{"err": "您不可回退当前状态"})
+		return
 	}
 
 	task.State--
@@ -142,12 +157,13 @@ func (t *Task) moveBack(c *web.Context) {
 		return
 	}
 
-	model.AfterTaskOperation(task, c.Session.Get("uid").(int64), model.TaskEventMoveBack, "")
+	model.AfterTaskOperation(task, uid, model.TaskEventMoveBack, "")
 	c.JSON(200, &web.JObject{})
 }
 
 func (t *Task) moveNext(c *web.Context) {
 	tid := atoi(c.RouteValue("id"))
+	uid := c.Session.Get("uid").(int64)
 	task := &model.Task{ID: tid}
 	err := orm.Read(task)
 	if err != nil {
@@ -156,18 +172,28 @@ func (t *Task) moveNext(c *web.Context) {
 	}
 
 	ev := model.TaskEventUnderway
+	validOperator := false
 	switch task.State {
 	case 0:
+		validOperator = uid == task.Developer
 		ev = model.TaskEventUnderway
 	case 1:
+		validOperator = uid == task.Developer
 		ev = model.TaskEventTesting
 	case 2:
+		validOperator = uid == task.Tester
 		ev = model.TaskEventFinished
 	case 3:
+		validOperator = uid == task.Creator
 		ev = model.TaskEventArchived
 		task.ArchiveTime = time.Now()
 	default:
 		c.JSON(200, &web.JObject{"err": "任务无下一步流程"})
+		return
+	}
+
+	if !validOperator {
+		c.JSON(200, &web.JObject{"err": "您已无权操作"})
 		return
 	}
 
@@ -189,6 +215,19 @@ func (t *Task) info(c *web.Context) {
 
 func (t *Task) delete(c *web.Context) {
 	tid := atoi(c.RouteValue("id"))
+	uid := c.Session.Get("uid").(int64)
+	task := &model.Task{ID: tid}
+	err := orm.Read(task)
+	if err != nil {
+		c.JSON(200, &web.JObject{"err": "任务不存在或已被删除"})
+		return
+	}
+
+	if task.Creator != uid {
+		c.JSON(200, &web.JObject{"err": "只有创建者可以删除任务"})
+		return
+	}
+
 	orm.Delete("task", tid)
 	c.JSON(200, &web.JObject{})
 }

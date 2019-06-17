@@ -25,7 +25,6 @@ export const Reports = (props: {proj: IProject, isReadonly: boolean}) => {
      */
     const [week, setWeek] = React.useState<moment.Moment>(moment().startOf('week'));
     const [data, setData] = React.useState<{archived: ITask[], unarchived: ITask[]}>({archived: [], unarchived: []});
-    const [showOption, setShowOption] = React.useState<boolean>(false);
     const taskDetailAnchor = React.useRef<any>(null);
 
     /**
@@ -39,7 +38,6 @@ export const Reports = (props: {proj: IProject, isReadonly: boolean}) => {
      * 拉取任务列表
      */
     React.useEffect(() => {
-        setShowOption(!props.isReadonly && week.diff(moment().startOf('week')) == 0);
         fetchReport(week);
     }, [week]);
 
@@ -65,24 +63,6 @@ export const Reports = (props: {proj: IProject, isReadonly: boolean}) => {
         })
     };
 
-    /**
-     * 验收一个任务
-     */
-    const archiveOne = (tid: number) => {
-        Fetch.put(`/api/project/${props.proj.id}/archive/${tid}`, null, rsp => {
-            rsp.err ? message.error(rsp.err, 1) : fetchReport()
-        });
-    }
-
-    /**
-     * 一键验收全部已完成的任务
-     */
-    const archiveAll = () => {
-        Fetch.post(`/api/project/${props.proj.id}/archive/all`, null, rsp => {
-            rsp.err ? message.error(rsp.err, 1) : fetchReport()
-        });
-    };
-
     return (
         <div style={{padding: 16}}>
             <Row type='flex' justify='center' align='middle'>
@@ -96,12 +76,10 @@ export const Reports = (props: {proj: IProject, isReadonly: boolean}) => {
 
             <Row gutter={8} style={{marginTop: 16}}>
                 <Col span={12}>
-                    <Row type='flex' justify='space-between' align='bottom'>
+                    <Row>
                         <div style={{fontSize: '1.5em', fontWeight: 'bold'}}>
                             <Icon type='frown'/> 未验收任务
                         </div>
-
-                        {showOption && <Button type='link' size='small' onClick={() => archiveAll()}>验收全部已完成</Button>}
                     </Row>
 
                     <Divider style={{margin: '8px 0', background: '#cccccc'}}/>
@@ -122,7 +100,6 @@ export const Reports = (props: {proj: IProject, isReadonly: boolean}) => {
 
                                 <div style={{padding: '0 8px'}}>
                                     <span>{task.creator.name}<Icon type='right' />{task.developer.name}<Icon type='right' />{task.tester.name}</span>
-                                    {showOption && task.state == 3 && <Button type='link' size='small' style={{padding: 0, paddingLeft: 8}} onClick={() => archiveOne(task.id)}>验收</Button>}
                                 </div>
                             </Row>
                         );
@@ -130,7 +107,7 @@ export const Reports = (props: {proj: IProject, isReadonly: boolean}) => {
                 </Col>
 
                 <Col span={12}>
-                    <Row type='flex' justify='space-between' align='bottom'>
+                    <Row>
                         <div style={{fontSize: '1.5em', fontWeight: 'bold'}}>
                             <Icon type='smile'/> 已验收任务
                         </div>

@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"time"
-
 	"team/model"
 	"team/orm"
 	"team/web"
@@ -21,8 +19,6 @@ func (p *Project) Register(group *web.Router) {
 	group.PUT(`/:id/member/{uid:[\d]+}`, p.editMember)
 	group.DELETE(`/:id/member/{uid:[\d]+}`, p.deleteMember)
 	group.GET(`/:id/report/{from:[\d]+}`, p.getReports)
-	group.PUT(`/:id/archive/{tid:[\d]+}`, p.archiveOne)
-	group.POST(`/:id/archive/all`, p.archiveAll)
 }
 
 func (p *Project) info(c *web.Context) {
@@ -259,46 +255,4 @@ func (p *Project) getReports(c *web.Context) {
 			"unarchived": unarchived,
 		},
 	})
-}
-
-func (p *Project) archiveOne(c *web.Context) {
-	pid := atoi(c.RouteValue("id"))
-	tid := atoi(c.RouteValue("tid"))
-
-	task := &model.Task{ID: tid}
-	err := orm.Read(task)
-	if err != nil {
-		c.JSON(200, &web.JObject{"err": "读取任务信息失败"})
-		return
-	}
-
-	if task.PID != pid || task.State != 3 {
-		c.JSON(200, &web.JObject{"err": "参数错误"})
-		return
-	}
-
-	task.State = 4
-	task.ArchiveTime = time.Now()
-
-	err = orm.Update(task)
-	if err != nil {
-		c.JSON(200, &web.JObject{"err": "修改任务失败"})
-		return
-	}
-
-	orm.Insert(&model.TaskEvent{
-		TID:   tid,
-		UID:   c.Session.Get("uid").(int64),
-		Event: model.TaskEventArchived,
-		Time:  time.Now(),
-		Extra: "",
-	})
-
-	c.JSON(200, &web.JObject{})
-}
-
-func (p *Project) archiveAll(c *web.Context) {
-	pid := atoi(c.RouteValue("id"))
-	orm.Exec("UPDATE `task` SET `state`=4,`archivetime`=? WHERE `pid`=? AND `state`=3", time.Now().Format(model.TaskTimeFormat), pid)
-	c.JSON(200, &web.JObject{})
 }
