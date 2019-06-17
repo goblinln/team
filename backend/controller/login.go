@@ -29,7 +29,7 @@ func (l *Login) index(c *web.Context) {
 	}
 
 	c.ResponseHeader().Set("Content-Type", "text/html")
-	c.File(200, "./www/index.html")
+	c.File(200, "./assets/app.html")
 }
 
 func (l *Login) doLogin(c *web.Context) {

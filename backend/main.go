@@ -29,7 +29,7 @@ func main() {
 
 	// Resources.
 	router.GET("/", controller.Index)
-	router.StaticFS("/www", "./www")
+	router.StaticFS("/assets", "./assets")
 	router.StaticFS("/uploads", "./uploads")
 
 	// Deploy
