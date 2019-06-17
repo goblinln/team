@@ -437,7 +437,7 @@ export const Creator = Form.create<IProps>()((props: IProps) => {
                     <Form.Item label='任务描述' style={{marginBottom: 8}} required={true}>
                         {getFieldDecorator('content', {
                             rules: [{required: true, message: '描述不可为空'}]
-                        })(<Input id='content' name='content' hidden={true}/>)}
+                        })(<Input.TextArea id='content' name='content' hidden={true}/>)}
 
                         <Markdown.Editor
                             rows={8}

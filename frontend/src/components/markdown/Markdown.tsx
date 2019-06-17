@@ -272,7 +272,7 @@ export const Editor = (props: IEditorProps) => {
                         <Renderer source={content}/>
                     </div>
                 ) : (
-                    <textarea
+                    <Input.TextArea
                         ref={textArea}
                         rows={props.rows || undefined}
                         style={{height: props.height || undefined, width: '100%'}}
