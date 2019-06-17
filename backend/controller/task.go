@@ -190,6 +190,7 @@ func (t *Task) info(c *web.Context) {
 func (t *Task) delete(c *web.Context) {
 	tid := atoi(c.RouteValue("id"))
 	orm.Delete("task", tid)
+	c.JSON(200, &web.JObject{})
 }
 
 func (t *Task) mine(c *web.Context) {
