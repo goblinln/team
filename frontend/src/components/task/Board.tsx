@@ -169,7 +169,7 @@ export const Board = (props: IBoardProps) => {
 
                                 return (
                                     <Card key={task.id} bodyStyle={{padding: 8, borderLeft: '4px solid ' + (endTime.diff(now) <= 0 ? 'red' : 'gray')}} style={{marginBottom: 4}}>
-                                        <Row type='flex' justify='space-between' style={{fontSize: '.6em'}}>
+                                        <Row type='flex' justify='space-between' style={{fontSize: 12}}>
                                             <Col><Icon type='pie-chart' /> {task.proj.name}</Col>
                                             <Col><Icon type='branches' /> {task.proj.branches[task.branch] || '默认'}</Col>
                                         </Row>
@@ -187,7 +187,7 @@ export const Board = (props: IBoardProps) => {
                                             </Button>
                                         </Row>
 
-                                        <Row type='flex' justify='space-between' style={{fontSize: '.4em'}}>
+                                        <Row type='flex' justify='space-between' style={{fontSize: 13}}>
                                             <Col><Icon type="calendar" /> {task.endTime}</Col>
                                             <Col>{task.creator.name}<Icon type='right' />{task.developer.name}<Icon type='right' />{task.tester.name}</Col>
                                         </Row>
