@@ -95,16 +95,16 @@ const CommonHeader = (props: {task: ITask, titleWidth: number}) => {
 
     return (
         <Row type='flex' justify='space-between' align='middle'>
-            <Col style={{fontWeight: 'bold', fontSize: '1.2em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: props.titleWidth}}>
+            <Col style={{fontWeight: 'bold', fontSize: 18, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: props.titleWidth}}>
                 {task.name}
-                <div style={{fontWeight: 'normal', fontSize: '.4em', display: 'inline', marginLeft: 4}}>
+                <div style={{fontWeight: 'normal', display: 'inline', marginLeft: 4}}>
                     {task.tags.map(tag => {
                         return <Tag key={tag} color={TaskTag[tag].color}><span>{TaskTag[tag].name}</span></Tag>
                     })}
                 </div>
             </Col>
 
-            <Col style={{ fontWeight: 'normal', fontSize: '.5em' }}>
+            <Col style={{ fontWeight: 'normal', fontSize: 12}}>
                 <span style={{ marginRight: 16 }}><Icon type='pie-chart' /> {task.proj.name}</span>
                 <span style={{ marginRight: 16 }}><Icon type='branches' /> {task.proj.branches[task.branch] || '默认'}</span>
                 <span><Icon type={TaskStatus[task.state].icon}/> {TaskStatus[task.state].name}</span>
