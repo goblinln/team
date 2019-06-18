@@ -41,6 +41,10 @@
 .ant-modal-confirm .ant-modal-body {
   padding: 16px;
 }
+.ant-comment-inner {
+  padding-top: 4px;
+  padding-bottom: 0;
+}
 .upload-list-inline .ant-upload-list-item {
   float: left;
   width: auto;

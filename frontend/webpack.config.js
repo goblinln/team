@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const tsImport = require('ts-import-plugin');
 
 module.exports = {
@@ -37,5 +38,8 @@ module.exports = {
                 loader: 'style-loader!css-loader',
             }
         ]
-    }
+    },
+    plugins: [
+        new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /zh-cn/)
+    ]
 };
