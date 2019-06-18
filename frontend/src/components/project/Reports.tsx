@@ -31,7 +31,7 @@ export const Reports = (props: {proj: IProject, isReadonly: boolean}) => {
      * 初始化
      */
     React.useEffect(() => {
-        TaskViewer.default.init(taskDetailAnchor, () => null);
+        TaskViewer.default.init(taskDetailAnchor, () => fetchReport(week));
     }, []);
 
     /**
