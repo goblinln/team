@@ -146,8 +146,19 @@ func (t *Task) moveBack(c *web.Context) {
 	}
 
 	if !validOperator {
-		c.JSON(200, &web.JObject{"err": "您不可回退当前状态"})
-		return
+		rows, err := orm.Query("SELECT COUNT(*) FROM `projectmember` WHERE `pid`=? AND `uid`=? AND `isadmin`=1", task.PID, uid)
+		if err != nil {
+			c.JSON(200, &web.JObject{"err": "您不可回退当前状态"})
+			return
+		}
+
+		defer rows.Close()
+
+		count := 0
+		if !rows.Next() || rows.Scan(&count) != nil || count <= 0 {
+			c.JSON(200, &web.JObject{"err": "您不可回退当前状态"})
+			return
+		}
 	}
 
 	task.State--
@@ -193,8 +204,19 @@ func (t *Task) moveNext(c *web.Context) {
 	}
 
 	if !validOperator {
-		c.JSON(200, &web.JObject{"err": "您已无权操作"})
-		return
+		rows, err := orm.Query("SELECT COUNT(*) FROM `projectmember` WHERE `pid`=? AND `uid`=? AND `isadmin`=1", task.PID, uid)
+		if err != nil {
+			c.JSON(200, &web.JObject{"err": "您不可回退当前状态"})
+			return
+		}
+
+		defer rows.Close()
+
+		count := 0
+		if !rows.Next() || rows.Scan(&count) != nil || count <= 0 {
+			c.JSON(200, &web.JObject{"err": "您不可回退当前状态"})
+			return
+		}
 	}
 
 	task.State++
@@ -224,8 +246,19 @@ func (t *Task) delete(c *web.Context) {
 	}
 
 	if task.Creator != uid {
-		c.JSON(200, &web.JObject{"err": "只有创建者可以删除任务"})
-		return
+		rows, err := orm.Query("SELECT COUNT(*) FROM `projectmember` WHERE `pid`=? AND `uid`=? AND `isadmin`=1", task.PID, uid)
+		if err != nil {
+			c.JSON(200, &web.JObject{"err": "只有创建者或管理员可以删除任务"})
+			return
+		}
+
+		defer rows.Close()
+
+		count := 0
+		if !rows.Next() || rows.Scan(&count) != nil || count <= 0 {
+			c.JSON(200, &web.JObject{"err": "只有创建者或管理员可以删除任务"})
+			return
+		}
 	}
 
 	orm.Delete("task", tid)
