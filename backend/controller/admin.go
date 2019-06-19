@@ -34,7 +34,7 @@ func (a *Admin) addUser(c *web.Context) {
 	isSu := atoi(c.PostFormValue("isSu"))
 
 	if cfmPswd != pswd {
-		c.JSON(200, &web.JObject{"err": "两次输入的新密码不一致"})
+		c.JSON(200, web.Map{"err": "两次输入的新密码不一致"})
 		return
 	}
 
@@ -44,7 +44,7 @@ func (a *Admin) addUser(c *web.Context) {
 
 	rows, err := orm.Query("SELECT COUNT(*) FROM `user` WHERE `account`=? OR `name`=?", account, name)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "创建帐号失败，代码#1"})
+		c.JSON(200, web.Map{"err": "创建帐号失败，代码#1"})
 		return
 	}
 
@@ -54,7 +54,7 @@ func (a *Admin) addUser(c *web.Context) {
 	rows.Next()
 	rows.Scan(&count)
 	if count > 0 {
-		c.JSON(200, &web.JObject{"err": "帐号或角色名已存在"})
+		c.JSON(200, web.Map{"err": "帐号或角色名已存在"})
 		return
 	}
 
@@ -69,14 +69,14 @@ func (a *Admin) addUser(c *web.Context) {
 
 	rs, err := orm.Insert(user)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "写入新帐号失败"})
+		c.JSON(200, web.Map{"err": "写入新帐号失败"})
 		return
 	}
 
 	user.ID, _ = rs.LastInsertId()
 	model.Cache.SetUser(user)
 
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (a *Admin) editUser(c *web.Context) {
@@ -87,7 +87,7 @@ func (a *Admin) editUser(c *web.Context) {
 
 	rows, err := orm.Query("SELECT * FROM `user` WHERE `account`=? OR `name`=?", account, name)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "修改帐号失败，代码#1"})
+		c.JSON(200, web.Map{"err": "修改帐号失败，代码#1"})
 		return
 	}
 
@@ -97,14 +97,14 @@ func (a *Admin) editUser(c *web.Context) {
 	if rows.Next() {
 		orm.Scan(rows, user)
 		if user.ID != uid {
-			c.JSON(200, &web.JObject{"err": "帐号或角色名已存在"})
+			c.JSON(200, web.Map{"err": "帐号或角色名已存在"})
 			return
 		}
 	} else {
 		user.ID = uid
 		err = orm.Read(user)
 		if err != nil {
-			c.JSON(200, &web.JObject{"err": "帐号不存在或已被删除"})
+			c.JSON(200, web.Map{"err": "帐号不存在或已被删除"})
 			return
 		}
 	}
@@ -114,43 +114,43 @@ func (a *Admin) editUser(c *web.Context) {
 	user.IsSu = isSu == 1
 	err = orm.Update(user)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "写入帐号失败"})
+		c.JSON(200, web.Map{"err": "写入帐号失败"})
 		return
 	}
 
 	model.Cache.SetUser(user)
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (a *Admin) lockUser(c *web.Context) {
 	uid := atoi(c.RouteValue("id"))
 	user := model.FindUser(uid)
 	if user == nil {
-		c.JSON(200, &web.JObject{"err": "帐号不存在或已被删除"})
+		c.JSON(200, web.Map{"err": "帐号不存在或已被删除"})
 		return
 	}
 
 	user.IsLocked = !user.IsLocked
 	err := orm.Update(user)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "写入帐号失败"})
+		c.JSON(200, web.Map{"err": "写入帐号失败"})
 		return
 	}
 
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (a *Admin) deleteUser(c *web.Context) {
 	uid := atoi(c.RouteValue("id"))
 	orm.Delete("user", uid)
 	model.Cache.DeleteUser(uid)
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (a *Admin) users(c *web.Context) {
 	rows, err := orm.Query("SELECT * FROM `user`")
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "拉取用户列表失败"})
+		c.JSON(200, web.Map{"err": "拉取用户列表失败"})
 		return
 	}
 
@@ -166,7 +166,7 @@ func (a *Admin) users(c *web.Context) {
 		}
 	}
 
-	c.JSON(200, &web.JObject{"data": users})
+	c.JSON(200, web.Map{"data": users})
 }
 
 func (a *Admin) addProject(c *web.Context) {
@@ -176,7 +176,7 @@ func (a *Admin) addProject(c *web.Context) {
 
 	rows, err := orm.Query("SELECT COUNT(*) FROM `project` WHERE `name`=?", name)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "创建项目失败，代码#1"})
+		c.JSON(200, web.Map{"err": "创建项目失败，代码#1"})
 		return
 	}
 
@@ -186,19 +186,19 @@ func (a *Admin) addProject(c *web.Context) {
 	rows.Next()
 	rows.Scan(&count)
 	if count > 0 {
-		c.JSON(200, &web.JObject{"err": "同名项目已存在"})
+		c.JSON(200, web.Map{"err": "同名项目已存在"})
 		return
 	}
 
 	user := &model.User{ID: admin}
 	err = orm.Read(user)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "默认管理员不存在或已被删除"})
+		c.JSON(200, web.Map{"err": "默认管理员不存在或已被删除"})
 		return
 	}
 
 	if user.IsLocked {
-		c.JSON(200, &web.JObject{"err": "默认管理员当前被禁止登录"})
+		c.JSON(200, web.Map{"err": "默认管理员当前被禁止登录"})
 		return
 	}
 
@@ -208,7 +208,7 @@ func (a *Admin) addProject(c *web.Context) {
 	}
 	rs, err := orm.Insert(proj)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "写入新项目失败"})
+		c.JSON(200, web.Map{"err": "写入新项目失败"})
 		return
 	}
 
@@ -222,7 +222,7 @@ func (a *Admin) addProject(c *web.Context) {
 		IsAdmin: true,
 	})
 
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (a *Admin) editProject(c *web.Context) {
@@ -231,7 +231,7 @@ func (a *Admin) editProject(c *web.Context) {
 
 	rows, err := orm.Query("SELECT * FROM `project` WHERE `name`=?", name)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "修改项目失败，代码#1"})
+		c.JSON(200, web.Map{"err": "修改项目失败，代码#1"})
 		return
 	}
 
@@ -241,14 +241,14 @@ func (a *Admin) editProject(c *web.Context) {
 	if rows.Next() {
 		orm.Scan(rows, proj)
 		if proj.ID != pid {
-			c.JSON(200, &web.JObject{"err": "同名项目已存在"})
+			c.JSON(200, web.Map{"err": "同名项目已存在"})
 			return
 		}
 	} else {
 		proj.ID = pid
 		err = orm.Read(proj)
 		if err != nil {
-			c.JSON(200, &web.JObject{"err": "项目不存在或已被删除"})
+			c.JSON(200, web.Map{"err": "项目不存在或已被删除"})
 			return
 		}
 	}
@@ -256,12 +256,12 @@ func (a *Admin) editProject(c *web.Context) {
 	proj.Name = name
 	err = orm.Update(proj)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "写入新项目失败"})
+		c.JSON(200, web.Map{"err": "写入新项目失败"})
 		return
 	}
 
 	model.Cache.SetProject(proj)
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (a *Admin) deleteProject(c *web.Context) {
@@ -270,13 +270,13 @@ func (a *Admin) deleteProject(c *web.Context) {
 	orm.Exec("DELETE FROM `projectmember` WHERE `pid`=?", pid)
 	orm.Exec("DELETE FROM `task` WHERE `pid`=?", pid)
 	model.Cache.DeleteProject(pid)
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (a *Admin) projects(c *web.Context) {
 	rows, err := orm.Query("SELECT * FROM `project`")
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "拉取项目列表失败"})
+		c.JSON(200, web.Map{"err": "拉取项目列表失败"})
 		return
 	}
 
@@ -292,5 +292,5 @@ func (a *Admin) projects(c *web.Context) {
 		}
 	}
 
-	c.JSON(200, &web.JObject{"data": projs})
+	c.JSON(200, web.Map{"data": projs})
 }

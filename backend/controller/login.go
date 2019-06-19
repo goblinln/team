@@ -42,9 +42,9 @@ func (l *Login) doLogin(c *web.Context) {
 
 	user := &model.User{Account: account, Password: fmt.Sprintf("%X", hash.Sum(nil))}
 	if err := orm.Read(user, "account", "password"); err != nil {
-		c.JSON(200, web.JObject{"err": "帐号或密码不正确"})
+		c.JSON(200, web.Map{"err": "帐号或密码不正确"})
 	} else if user.IsLocked {
-		c.JSON(200, web.JObject{"err": "帐号已被禁止登录，请联系管理员解除锁定！"})
+		c.JSON(200, web.Map{"err": "帐号已被禁止登录，请联系管理员解除锁定！"})
 	} else {
 		if len(remember) > 0 {
 			code := fmt.Sprintf("%d|%s|%s", user.ID, c.RemoteIP(), model.AutoLoginSecret)
@@ -70,6 +70,6 @@ func (l *Login) doLogin(c *web.Context) {
 		model.Cache.SetUser(user)
 
 		c.Session.Set("uid", user.ID)
-		c.JSON(200, web.JObject{})
+		c.JSON(200, web.Map{})
 	}
 }

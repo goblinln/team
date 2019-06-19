@@ -7,9 +7,6 @@ import (
 )
 
 type (
-	// JObject alias for map[string]interface
-	JObject map[string]interface{}
-
 	// Handler for HTTP request
 	Handler func(c *Context)
 

@@ -36,7 +36,7 @@ func MustLogined(next web.Handler) web.Handler {
 		if c.Session.Has("uid") {
 			next(c)
 		} else {
-			c.JSON(http.StatusUnauthorized, web.JObject{"err": "请先登录后操作"})
+			c.JSON(http.StatusUnauthorized, web.Map{"err": "请先登录后操作"})
 		}
 	}
 }
@@ -45,20 +45,20 @@ func MustLogined(next web.Handler) web.Handler {
 func MustLoginedAsAdmin(next web.Handler) web.Handler {
 	return func(c *web.Context) {
 		if !c.Session.Has("uid") {
-			c.JSON(http.StatusUnauthorized, web.JObject{"err": "请先登录后操作"})
+			c.JSON(http.StatusUnauthorized, web.Map{"err": "请先登录后操作"})
 			return
 		}
 
 		me := model.FindUser(c.Session.Get("uid").(int64))
 		if me == nil {
-			c.JSON(http.StatusUnauthorized, web.JObject{"err": "请先登录后操作"})
+			c.JSON(http.StatusUnauthorized, web.Map{"err": "请先登录后操作"})
 			return
 		}
 
 		if me.IsSu {
 			next(c)
 		} else {
-			c.JSON(http.StatusUnauthorized, web.JObject{"err": "权限不足"})
+			c.JSON(http.StatusUnauthorized, web.Map{"err": "权限不足"})
 		}
 	}
 }

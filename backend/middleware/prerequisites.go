@@ -11,7 +11,7 @@ func MustInstalled(next web.Handler) web.Handler {
 		if model.Environment.Installed {
 			next(c)
 		} else {
-			c.JSON(200, web.JObject{"err": "系统尚未初始化"})
+			c.JSON(200, web.Map{"err": "系统尚未初始化"})
 		}
 	}
 }
@@ -22,7 +22,7 @@ func MustNotInstalled(next web.Handler) web.Handler {
 		if !model.Environment.Installed {
 			next(c)
 		} else {
-			c.JSON(200, web.JObject{"err": "系统已经初始化完成"})
+			c.JSON(200, web.Map{"err": "系统已经初始化完成"})
 		}
 	}
 }

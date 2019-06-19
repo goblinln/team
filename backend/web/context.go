@@ -12,16 +12,21 @@ import (
 	"strings"
 )
 
-// Context hold request information and response object to send
-// message back to client.
-type Context struct {
-	Session *Session
+type (
+	// Map alias helps to reply named value as JSON object to client.
+	Map map[string]interface{}
 
-	req         *http.Request
-	rsp         *Responser
-	routeParams map[string]string
-	queryParams url.Values
-}
+	// Context hold request information and response object to send
+	// message back to client.
+	Context struct {
+		Session *Session
+
+		req         *http.Request
+		rsp         *Responser
+		routeParams map[string]string
+		queryParams url.Values
+	}
+)
 
 // Method returns the request method
 func (c *Context) Method() string {

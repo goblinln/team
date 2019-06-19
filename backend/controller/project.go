@@ -23,7 +23,7 @@ func (p *Project) Register(group *web.Router) {
 
 func (p *Project) info(c *web.Context) {
 	pid := atoi(c.RouteValue("id"))
-	c.JSON(200, &web.JObject{"data": model.MakeProjectInfo(pid)})
+	c.JSON(200, web.Map{"data": model.MakeProjectInfo(pid)})
 }
 
 func (p *Project) mine(c *web.Context) {
@@ -31,7 +31,7 @@ func (p *Project) mine(c *web.Context) {
 
 	rows, err := orm.Query("SELECT `pid` FROM `projectmember` WHERE `uid`=?", uid)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "获取项目列表失败"})
+		c.JSON(200, web.Map{"err": "获取项目列表失败"})
 		return
 	}
 
@@ -48,7 +48,7 @@ func (p *Project) mine(c *web.Context) {
 		projs = append(projs, model.MakeProjectInfo(pid))
 	}
 
-	c.JSON(200, &web.JObject{"data": projs})
+	c.JSON(200, web.Map{"data": projs})
 }
 
 func (p *Project) addBranch(c *web.Context) {
@@ -56,13 +56,13 @@ func (p *Project) addBranch(c *web.Context) {
 	branch := c.PostFormValue("branch")
 	proj := model.FindProject(pid)
 	if proj == nil {
-		c.JSON(200, &web.JObject{"err": "项目不存在或已被删除"})
+		c.JSON(200, web.Map{"err": "项目不存在或已被删除"})
 		return
 	}
 
 	for _, b := range proj.Branches {
 		if b == branch {
-			c.JSON(200, &web.JObject{"err": "同名分支已存在"})
+			c.JSON(200, web.Map{"err": "同名分支已存在"})
 			return
 		}
 	}
@@ -70,24 +70,24 @@ func (p *Project) addBranch(c *web.Context) {
 	proj.Branches = append(proj.Branches, branch)
 	err := orm.Update(proj)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "写入修改失败"})
+		c.JSON(200, web.Map{"err": "写入修改失败"})
 		return
 	}
 
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (p *Project) getInviteList(c *web.Context) {
 	pid := atoi(c.RouteValue("id"))
 	proj := model.FindProject(pid)
 	if proj == nil {
-		c.JSON(200, &web.JObject{"err": "项目不存在或已被删除"})
+		c.JSON(200, web.Map{"err": "项目不存在或已被删除"})
 		return
 	}
 
 	rows, err := orm.Query("SELECT `uid` FROM `projectmember` WHERE `pid`=?", pid)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "获取成员列表失败"})
+		c.JSON(200, web.Map{"err": "获取成员列表失败"})
 		return
 	}
 
@@ -102,7 +102,7 @@ func (p *Project) getInviteList(c *web.Context) {
 
 	userRows, err := orm.Query("SELECT * FROM `user`")
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "获取用户列表失败"})
+		c.JSON(200, web.Map{"err": "获取用户列表失败"})
 		return
 	}
 
@@ -118,7 +118,7 @@ func (p *Project) getInviteList(c *web.Context) {
 		}
 	}
 
-	c.JSON(200, &web.JObject{"data": valids})
+	c.JSON(200, web.Map{"data": valids})
 }
 
 func (p *Project) addMember(c *web.Context) {
@@ -129,13 +129,13 @@ func (p *Project) addMember(c *web.Context) {
 
 	proj := model.FindProject(pid)
 	if proj == nil {
-		c.JSON(200, &web.JObject{"err": "项目不存在或已被删除"})
+		c.JSON(200, web.Map{"err": "项目不存在或已被删除"})
 		return
 	}
 
 	rows, err := orm.Query("SELECT COUNT(*) FROM `projectmember` WHERE `pid`=? AND `uid`=?", pid, uid)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "获取成员列表失败"})
+		c.JSON(200, web.Map{"err": "获取成员列表失败"})
 		return
 	}
 
@@ -145,13 +145,13 @@ func (p *Project) addMember(c *web.Context) {
 	rows.Next()
 	rows.Scan(&count)
 	if count > 0 {
-		c.JSON(200, &web.JObject{})
+		c.JSON(200, web.Map{})
 		return
 	}
 
 	user := model.FindUser(uid)
 	if user == nil || user.IsLocked {
-		c.JSON(200, &web.JObject{"err": "无效的成员ID"})
+		c.JSON(200, web.Map{"err": "无效的成员ID"})
 		return
 	}
 
@@ -162,11 +162,11 @@ func (p *Project) addMember(c *web.Context) {
 		IsAdmin: isAdmin,
 	})
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "写入数据库失败"})
+		c.JSON(200, web.Map{"err": "写入数据库失败"})
 		return
 	}
 
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (p *Project) editMember(c *web.Context) {
@@ -182,11 +182,11 @@ func (p *Project) editMember(c *web.Context) {
 	err := orm.Read(member, "pid", "uid")
 	if err != nil {
 		if err == orm.ErrNotFound {
-			c.JSON(200, &web.JObject{"err": "参数错误"})
+			c.JSON(200, web.Map{"err": "参数错误"})
 			return
 		}
 
-		c.JSON(200, &web.JObject{"err": "写入数据库失败"})
+		c.JSON(200, web.Map{"err": "写入数据库失败"})
 		return
 	}
 
@@ -194,11 +194,11 @@ func (p *Project) editMember(c *web.Context) {
 	member.IsAdmin = isAdmin
 	err = orm.Update(member)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "写入数据库失败"})
+		c.JSON(200, web.Map{"err": "写入数据库失败"})
 		return
 	}
 
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (p *Project) deleteMember(c *web.Context) {
@@ -206,7 +206,7 @@ func (p *Project) deleteMember(c *web.Context) {
 	uid := atoi(c.RouteValue("uid"))
 
 	orm.Exec("DELETE from `projectmember` WHERE `pid`=? AND `uid`=?", pid, uid)
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (p *Project) getReports(c *web.Context) {
@@ -219,7 +219,7 @@ func (p *Project) getReports(c *web.Context) {
 
 	unarchivedRows, err := orm.Query("SELECT `id`,`pid`,`branch`,`creator`,`developer`,`tester`,`name`,`bringtop`,`weight`,`state`,`starttime`,`endtime` FROM `task` WHERE `pid`=? AND `state`<4 AND UNIX_TIMESTAMP(`endtime`)<=? AND (`archivetime`=? OR UNIX_TIMESTAMP(`archivetime`)>?)", pid, end, model.TaskTimeInfinite.Format(orm.TimeFormat), end)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "拉取该周内未归档任务列表出错"})
+		c.JSON(200, web.Map{"err": "拉取该周内未归档任务列表出错"})
 		return
 	}
 
@@ -235,7 +235,7 @@ func (p *Project) getReports(c *web.Context) {
 
 	archivedRows, err := orm.Query("SELECT `id`,`pid`,`branch`,`creator`,`developer`,`tester`,`name`,`bringTop`,`weight`,`state`,`starttime`,`endtime` FROM `task` WHERE `pid`=? AND `state`=4 AND UNIX_TIMESTAMP(`archivetime`)>=? AND UNIX_TIMESTAMP(`archivetime`)<=?", pid, from, end)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "拉取该周内归档任务列表出错"})
+		c.JSON(200, web.Map{"err": "拉取该周内归档任务列表出错"})
 		return
 	}
 
@@ -249,7 +249,7 @@ func (p *Project) getReports(c *web.Context) {
 		}
 	}
 
-	c.JSON(200, &web.JObject{
+	c.JSON(200, web.Map{
 		"data": map[string]interface{}{
 			"archived":   archived,
 			"unarchived": unarchived,

@@ -46,7 +46,7 @@ func (t *Task) create(c *web.Context) {
 	content := c.PostFormValue("content")
 
 	if len(name) == 0 || len(content) == 0 {
-		c.JSON(200, &web.JObject{"err": "任务名及详情不可为空"})
+		c.JSON(200, web.Map{"err": "任务名及详情不可为空"})
 		return
 	}
 
@@ -58,7 +58,7 @@ func (t *Task) create(c *web.Context) {
 	}
 
 	if developer == 0 || tester == 0 {
-		c.JSON(200, &web.JObject{"err": "人员配置出错"})
+		c.JSON(200, web.Map{"err": "人员配置出错"})
 		return
 	}
 
@@ -69,7 +69,7 @@ func (t *Task) create(c *web.Context) {
 		for _, fh := range fhs {
 			url, _, err := helper.save(fh, uid)
 			if err != nil {
-				c.JSON(200, &web.JObject{"err": err.Error()})
+				c.JSON(200, web.Map{"err": err.Error()})
 				return
 			}
 
@@ -99,13 +99,13 @@ func (t *Task) create(c *web.Context) {
 
 	rs, err := orm.Insert(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "写入任务信息失败"})
+		c.JSON(200, web.Map{"err": "写入任务信息失败"})
 		return
 	}
 
 	tid, err := rs.LastInsertId()
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "读取新任务ID失败"})
+		c.JSON(200, web.Map{"err": "读取新任务ID失败"})
 		return
 	}
 
@@ -117,7 +117,7 @@ func (t *Task) create(c *web.Context) {
 	}
 
 	model.AfterTaskOperation(task, uid, model.TaskEventCreate, "")
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (t *Task) moveBack(c *web.Context) {
@@ -126,7 +126,7 @@ func (t *Task) moveBack(c *web.Context) {
 	task := &model.Task{ID: tid}
 	err := orm.Read(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "任务不存在或已被删除"})
+		c.JSON(200, web.Map{"err": "任务不存在或已被删除"})
 		return
 	}
 
@@ -142,14 +142,14 @@ func (t *Task) moveBack(c *web.Context) {
 		validOperator = uid == task.Creator
 		task.ArchiveTime = model.TaskTimeInfinite
 	default:
-		c.JSON(200, &web.JObject{"err": "任务不可回退了"})
+		c.JSON(200, web.Map{"err": "任务不可回退了"})
 		return
 	}
 
 	if !validOperator {
 		rows, err := orm.Query("SELECT COUNT(*) FROM `projectmember` WHERE `pid`=? AND `uid`=? AND `isadmin`=1", task.PID, uid)
 		if err != nil {
-			c.JSON(200, &web.JObject{"err": "您不可回退当前状态"})
+			c.JSON(200, web.Map{"err": "您不可回退当前状态"})
 			return
 		}
 
@@ -157,7 +157,7 @@ func (t *Task) moveBack(c *web.Context) {
 
 		count := 0
 		if !rows.Next() || rows.Scan(&count) != nil || count <= 0 {
-			c.JSON(200, &web.JObject{"err": "您不可回退当前状态"})
+			c.JSON(200, web.Map{"err": "您不可回退当前状态"})
 			return
 		}
 	}
@@ -165,12 +165,12 @@ func (t *Task) moveBack(c *web.Context) {
 	task.State--
 	err = orm.Update(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "修改任务失败"})
+		c.JSON(200, web.Map{"err": "修改任务失败"})
 		return
 	}
 
 	model.AfterTaskOperation(task, uid, model.TaskEventMoveBack, "")
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (t *Task) moveNext(c *web.Context) {
@@ -179,7 +179,7 @@ func (t *Task) moveNext(c *web.Context) {
 	task := &model.Task{ID: tid}
 	err := orm.Read(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "任务不存在或已被删除"})
+		c.JSON(200, web.Map{"err": "任务不存在或已被删除"})
 		return
 	}
 
@@ -200,14 +200,14 @@ func (t *Task) moveNext(c *web.Context) {
 		ev = model.TaskEventArchived
 		task.ArchiveTime = time.Now()
 	default:
-		c.JSON(200, &web.JObject{"err": "任务无下一步流程"})
+		c.JSON(200, web.Map{"err": "任务无下一步流程"})
 		return
 	}
 
 	if !validOperator {
 		rows, err := orm.Query("SELECT COUNT(*) FROM `projectmember` WHERE `pid`=? AND `uid`=? AND `isadmin`=1", task.PID, uid)
 		if err != nil {
-			c.JSON(200, &web.JObject{"err": "您不可回退当前状态"})
+			c.JSON(200, web.Map{"err": "您不可回退当前状态"})
 			return
 		}
 
@@ -215,7 +215,7 @@ func (t *Task) moveNext(c *web.Context) {
 
 		count := 0
 		if !rows.Next() || rows.Scan(&count) != nil || count <= 0 {
-			c.JSON(200, &web.JObject{"err": "您不可回退当前状态"})
+			c.JSON(200, web.Map{"err": "您不可回退当前状态"})
 			return
 		}
 	}
@@ -223,12 +223,12 @@ func (t *Task) moveNext(c *web.Context) {
 	task.State++
 	err = orm.Update(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "修改任务失败"})
+		c.JSON(200, web.Map{"err": "修改任务失败"})
 		return
 	}
 
 	model.AfterTaskOperation(task, c.Session.Get("uid").(int64), ev, "")
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (t *Task) info(c *web.Context) {
@@ -242,14 +242,14 @@ func (t *Task) delete(c *web.Context) {
 	task := &model.Task{ID: tid}
 	err := orm.Read(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "任务不存在或已被删除"})
+		c.JSON(200, web.Map{"err": "任务不存在或已被删除"})
 		return
 	}
 
 	if task.Creator != uid {
 		rows, err := orm.Query("SELECT COUNT(*) FROM `projectmember` WHERE `pid`=? AND `uid`=? AND `isadmin`=1", task.PID, uid)
 		if err != nil {
-			c.JSON(200, &web.JObject{"err": "只有创建者或管理员可以删除任务"})
+			c.JSON(200, web.Map{"err": "只有创建者或管理员可以删除任务"})
 			return
 		}
 
@@ -257,13 +257,13 @@ func (t *Task) delete(c *web.Context) {
 
 		count := 0
 		if !rows.Next() || rows.Scan(&count) != nil || count <= 0 {
-			c.JSON(200, &web.JObject{"err": "只有创建者或管理员可以删除任务"})
+			c.JSON(200, web.Map{"err": "只有创建者或管理员可以删除任务"})
 			return
 		}
 	}
 
 	orm.Delete("task", tid)
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (t *Task) mine(c *web.Context) {
@@ -273,7 +273,7 @@ func (t *Task) mine(c *web.Context) {
 		"SELECT `id`,`pid`,`branch`,`creator`,`developer`,`tester`,`name`,`bringtop`,`weight`,`state`,`starttime`,`endtime` FROM `task` WHERE `state`<4 AND (`creator`=? OR `developer`=? OR `tester`=?)",
 		uid, uid, uid)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "读取数据库错误"})
+		c.JSON(200, web.Map{"err": "读取数据库错误"})
 		return
 	}
 
@@ -284,14 +284,14 @@ func (t *Task) mine(c *web.Context) {
 		task := &model.Task{}
 		err = orm.Scan(rows, task)
 		if err != nil {
-			c.JSON(200, &web.JObject{"err": "读取数据库错误"})
+			c.JSON(200, web.Map{"err": "读取数据库错误"})
 			return
 		}
 
 		ret = append(ret, model.MakeTaskBrief(task))
 	}
 
-	c.JSON(200, &web.JObject{"data": ret})
+	c.JSON(200, web.Map{"data": ret})
 }
 
 func (t *Task) project(c *web.Context) {
@@ -300,7 +300,7 @@ func (t *Task) project(c *web.Context) {
 		"SELECT `id`,`pid`,`branch`,`creator`,`developer`,`tester`,`name`,`bringtop`,`weight`,`state`,`starttime`,`endtime` FROM `task` WHERE `state`<4 AND `pid`=?",
 		pid)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "读取数据库错误"})
+		c.JSON(200, web.Map{"err": "读取数据库错误"})
 		return
 	}
 
@@ -311,14 +311,14 @@ func (t *Task) project(c *web.Context) {
 		task := &model.Task{}
 		err = orm.Scan(rows, task)
 		if err != nil {
-			c.JSON(200, &web.JObject{"err": "读取数据库错误"})
+			c.JSON(200, web.Map{"err": "读取数据库错误"})
 			return
 		}
 
 		ret = append(ret, model.MakeTaskBrief(task))
 	}
 
-	c.JSON(200, &web.JObject{"data": ret})
+	c.JSON(200, web.Map{"data": ret})
 }
 
 func (t *Task) setName(c *web.Context) {
@@ -327,7 +327,7 @@ func (t *Task) setName(c *web.Context) {
 	task := &model.Task{ID: tid}
 	err := orm.Read(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "任务不存在或已被删除"})
+		c.JSON(200, web.Map{"err": "任务不存在或已被删除"})
 		return
 	}
 
@@ -335,12 +335,12 @@ func (t *Task) setName(c *web.Context) {
 	task.Name = name
 	err = orm.Update(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "更新数据库失败"})
+		c.JSON(200, web.Map{"err": "更新数据库失败"})
 		return
 	}
 
 	model.AfterTaskOperation(task, c.Session.Get("uid").(int64), model.TaskEventRename, old)
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (t *Task) setCreator(c *web.Context) {
@@ -349,7 +349,7 @@ func (t *Task) setCreator(c *web.Context) {
 	task := &model.Task{ID: tid}
 	err := orm.Read(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "任务不存在或已被删除"})
+		c.JSON(200, web.Map{"err": "任务不存在或已被删除"})
 		return
 	}
 
@@ -357,13 +357,13 @@ func (t *Task) setCreator(c *web.Context) {
 	task.Creator = uid
 	err = orm.Update(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "更新数据库失败"})
+		c.JSON(200, web.Map{"err": "更新数据库失败"})
 		return
 	}
 
 	oldCreator, _ := model.FindUserInfo(old)
 	model.AfterTaskOperation(task, c.Session.Get("uid").(int64), model.TaskEventModCreator, oldCreator)
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (t *Task) setDeveloper(c *web.Context) {
@@ -372,7 +372,7 @@ func (t *Task) setDeveloper(c *web.Context) {
 	task := &model.Task{ID: tid}
 	err := orm.Read(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "任务不存在或已被删除"})
+		c.JSON(200, web.Map{"err": "任务不存在或已被删除"})
 		return
 	}
 
@@ -380,13 +380,13 @@ func (t *Task) setDeveloper(c *web.Context) {
 	task.Developer = uid
 	err = orm.Update(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "更新数据库失败"})
+		c.JSON(200, web.Map{"err": "更新数据库失败"})
 		return
 	}
 
 	oldDeveloper, _ := model.FindUserInfo(old)
 	model.AfterTaskOperation(task, c.Session.Get("uid").(int64), model.TaskEventModDeveloper, oldDeveloper)
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (t *Task) setTester(c *web.Context) {
@@ -395,7 +395,7 @@ func (t *Task) setTester(c *web.Context) {
 	task := &model.Task{ID: tid}
 	err := orm.Read(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "任务不存在或已被删除"})
+		c.JSON(200, web.Map{"err": "任务不存在或已被删除"})
 		return
 	}
 
@@ -403,13 +403,13 @@ func (t *Task) setTester(c *web.Context) {
 	task.Tester = uid
 	err = orm.Update(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "更新数据库失败"})
+		c.JSON(200, web.Map{"err": "更新数据库失败"})
 		return
 	}
 
 	oldTester, _ := model.FindUserInfo(old)
 	model.AfterTaskOperation(task, c.Session.Get("uid").(int64), model.TaskEventModTester, oldTester)
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (t *Task) setWeight(c *web.Context) {
@@ -419,19 +419,19 @@ func (t *Task) setWeight(c *web.Context) {
 	task := &model.Task{ID: tid}
 	err := orm.Read(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "任务不存在或已被删除"})
+		c.JSON(200, web.Map{"err": "任务不存在或已被删除"})
 		return
 	}
 
 	task.Weight = int8(weight)
 	err = orm.Update(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "更新数据库失败"})
+		c.JSON(200, web.Map{"err": "更新数据库失败"})
 		return
 	}
 
 	model.AfterTaskOperation(task, c.Session.Get("uid").(int64), model.TaskEventModWeight, old)
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (t *Task) setTime(c *web.Context) {
@@ -442,7 +442,7 @@ func (t *Task) setTime(c *web.Context) {
 	task := &model.Task{ID: tid}
 	err := orm.Read(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "任务不存在或已被删除"})
+		c.JSON(200, web.Map{"err": "任务不存在或已被删除"})
 		return
 	}
 
@@ -458,11 +458,11 @@ func (t *Task) setTime(c *web.Context) {
 
 	err = orm.Update(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "修改任务时间失败"})
+		c.JSON(200, web.Map{"err": "修改任务时间失败"})
 		return
 	}
 
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (t *Task) setContent(c *web.Context) {
@@ -473,19 +473,19 @@ func (t *Task) setContent(c *web.Context) {
 	task := &model.Task{ID: tid}
 	err := orm.Read(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "任务不存在或已被删除"})
+		c.JSON(200, web.Map{"err": "任务不存在或已被删除"})
 		return
 	}
 
 	task.Content = content
 	err = orm.Update(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "修改任务时间失败"})
+		c.JSON(200, web.Map{"err": "修改任务时间失败"})
 		return
 	}
 
 	model.AfterTaskOperation(task, uid, model.TaskEventModContent, "")
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (t *Task) addComment(c *web.Context) {
@@ -493,7 +493,7 @@ func (t *Task) addComment(c *web.Context) {
 	task := &model.Task{ID: tid}
 	err := orm.Read(task)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "任务不存在或已被删除"})
+		c.JSON(200, web.Map{"err": "任务不存在或已被删除"})
 		return
 	}
 
@@ -504,10 +504,10 @@ func (t *Task) addComment(c *web.Context) {
 		Comment: c.PostFormValue("content"),
 	})
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "发送评论失败"})
+		c.JSON(200, web.Map{"err": "发送评论失败"})
 		return
 	}
 
 	model.AfterTaskOperation(task, c.Session.Get("uid").(int64), model.TaskEventComment, "")
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }

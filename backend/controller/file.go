@@ -33,12 +33,12 @@ func (f *File) upload(c *web.Context) {
 		for _, fh := range files {
 			url, size, err := f.save(fh, uid)
 			if err != nil {
-				c.JSON(200, &web.JObject{"err": err.Error()})
+				c.JSON(200, web.Map{"err": err.Error()})
 				return
 			}
 
-			c.JSON(200, &web.JObject{
-				"data": &web.JObject{
+			c.JSON(200, web.Map{
+				"data": web.Map{
 					"url":  url,
 					"size": size,
 				},
@@ -47,7 +47,7 @@ func (f *File) upload(c *web.Context) {
 		}
 	}
 
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (f *File) share(c *web.Context) {
@@ -58,7 +58,7 @@ func (f *File) share(c *web.Context) {
 		for _, fh := range files {
 			url, size, err := f.save(fh, uid)
 			if err != nil {
-				c.JSON(200, &web.JObject{"err": err.Error()})
+				c.JSON(200, web.Map{"err": err.Error()})
 				return
 			}
 
@@ -70,18 +70,18 @@ func (f *File) share(c *web.Context) {
 				Size: size,
 			})
 
-			c.JSON(200, &web.JObject{})
+			c.JSON(200, web.Map{})
 			return
 		}
 	}
 
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (f *File) getShareList(c *web.Context) {
 	rows, err := orm.Query("SELECT * FROM `share`")
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "拉取文件列表失败"})
+		c.JSON(200, web.Map{"err": "拉取文件列表失败"})
 		return
 	}
 
@@ -104,7 +104,7 @@ func (f *File) getShareList(c *web.Context) {
 		}
 	}
 
-	c.JSON(200, &web.JObject{"data": list})
+	c.JSON(200, web.Map{"data": list})
 }
 
 func (f *File) download(c *web.Context) {
@@ -122,7 +122,7 @@ func (f *File) download(c *web.Context) {
 func (f *File) deleteShare(c *web.Context) {
 	id := atoi(c.RouteValue("id"))
 	orm.Delete("share", id)
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (f *File) save(fh *multipart.FileHeader, uploader int64) (string, int64, error) {

@@ -37,7 +37,7 @@ func (i *Install) configure(c *web.Context) {
 	mysqlDB := c.FormValue("mysqlDB")
 
 	if appPort <= 0 || appPort > 65535 {
-		c.JSON(200, &web.JObject{"err": "无效的端口参数"})
+		c.JSON(200, web.Map{"err": "无效的端口参数"})
 		return
 	}
 
@@ -47,12 +47,12 @@ func (i *Install) configure(c *web.Context) {
 
 	go i.setup(appPort, mysqlHost, mysqlUser, mysqlPswd, mysqlDB)
 
-	c.JSON(200, web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (i *Install) status(c *web.Context) {
-	c.JSON(200, web.JObject{
-		"data": web.JObject{
+	c.JSON(200, web.Map{
+		"data": web.Map{
 			"done":    i.Done,
 			"isError": i.IsError,
 			"status":  i.Status,
@@ -78,11 +78,11 @@ func (i *Install) createAdmin(c *web.Context) {
 	_, err := orm.Insert(user)
 	if err != nil {
 		web.Logger.Error("Create default admin failed: %v", err)
-		c.JSON(200, web.JObject{"err": "创建默认管理员失败"})
+		c.JSON(200, web.Map{"err": "创建默认管理员失败"})
 	} else {
 		model.Environment.Installed = true
 		model.Environment.Save()
-		c.JSON(200, web.JObject{})
+		c.JSON(200, web.Map{})
 	}
 }
 

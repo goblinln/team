@@ -28,7 +28,7 @@ func (d *Document) create(c *web.Context) {
 
 	rows, err := orm.Query("SELECT COUNT(*) FROM `document` WHERE `parent`=? AND `title`=?", parent, title)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "数据库连接失败"})
+		c.JSON(200, web.Map{"err": "数据库连接失败"})
 		return
 	}
 
@@ -38,7 +38,7 @@ func (d *Document) create(c *web.Context) {
 	rows.Next()
 	rows.Scan(&count)
 	if count > 0 {
-		c.JSON(200, &web.JObject{"err": "同级目录下已存在同名文档"})
+		c.JSON(200, web.Map{"err": "同级目录下已存在同名文档"})
 		return
 	}
 
@@ -51,17 +51,17 @@ func (d *Document) create(c *web.Context) {
 		Content:  "",
 	})
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "写入数据失败"})
+		c.JSON(200, web.Map{"err": "写入数据失败"})
 		return
 	}
 
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (d *Document) getAll(c *web.Context) {
 	rows, err := orm.Query("SELECT * FROM `document`")
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "数据库连接失败"})
+		c.JSON(200, web.Map{"err": "数据库连接失败"})
 		return
 	}
 
@@ -86,7 +86,7 @@ func (d *Document) getAll(c *web.Context) {
 		}
 	}
 
-	c.JSON(200, &web.JObject{"data": list})
+	c.JSON(200, web.Map{"data": list})
 }
 
 func (d *Document) detail(c *web.Context) {
@@ -94,14 +94,14 @@ func (d *Document) detail(c *web.Context) {
 	doc := &model.Document{ID: id}
 	err := orm.Read(doc)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "读取文档信息失败"})
+		c.JSON(200, web.Map{"err": "读取文档信息失败"})
 		return
 	}
 
 	creator, _ := model.FindUserInfo(doc.Author)
 	modifier, _ := model.FindUserInfo(doc.Modifier)
 
-	c.JSON(200, &web.JObject{
+	c.JSON(200, web.Map{
 		"data": map[string]interface{}{
 			"id":       doc.ID,
 			"parent":   doc.Parent,
@@ -122,7 +122,7 @@ func (d *Document) rename(c *web.Context) {
 	doc := &model.Document{ID: did}
 	err := orm.Read(doc)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "读取文档信息失败"})
+		c.JSON(200, web.Map{"err": "读取文档信息失败"})
 		return
 	}
 
@@ -131,11 +131,11 @@ func (d *Document) rename(c *web.Context) {
 	doc.Time = time.Now()
 	err = orm.Update(doc)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "写入数据失败"})
+		c.JSON(200, web.Map{"err": "写入数据失败"})
 		return
 	}
 
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (d *Document) edit(c *web.Context) {
@@ -146,7 +146,7 @@ func (d *Document) edit(c *web.Context) {
 	doc := &model.Document{ID: did}
 	err := orm.Read(doc)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "读取文档信息失败"})
+		c.JSON(200, web.Map{"err": "读取文档信息失败"})
 		return
 	}
 
@@ -155,15 +155,15 @@ func (d *Document) edit(c *web.Context) {
 	doc.Time = time.Now()
 	err = orm.Update(doc)
 	if err != nil {
-		c.JSON(200, &web.JObject{"err": "写入数据失败"})
+		c.JSON(200, web.Map{"err": "写入数据失败"})
 		return
 	}
 
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
 
 func (d *Document) delete(c *web.Context) {
 	id := atoi(c.RouteValue("id"))
 	orm.Delete("document", id)
-	c.JSON(200, &web.JObject{})
+	c.JSON(200, web.Map{})
 }
