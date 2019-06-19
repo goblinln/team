@@ -165,6 +165,7 @@ export const View = (props: IProps) => {
         case 11: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>修改了{link}的具体内容</p>;
         case 12: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>评论了{link}</p>;
         case 13: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>回退了{link}的状态</p>;
+        case 14: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>重命名{link}</p>;
         default: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>对{link}进行了其他修改</p>;
         }
     }

@@ -13,6 +13,7 @@ import {
     Drawer,
     Dropdown,
     Icon,
+    Input,
     Mentions,
     Menu,
     Popover,
@@ -88,32 +89,6 @@ export default class Viewer {
 }
 
 /**
- * 公用标题展示
- */
-const CommonHeader = (props: {task: ITask, titleWidth: number}) => {
-    const {task} = props;
-
-    return (
-        <Row type='flex' justify='space-between' align='middle'>
-            <Col style={{fontWeight: 'bold', fontSize: 18, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: props.titleWidth}}>
-                {task.name}
-                <div style={{fontWeight: 'normal', display: 'inline', marginLeft: 4}}>
-                    {task.tags.map(tag => {
-                        return <Tag key={tag} color={TaskTag[tag].color}><span>{TaskTag[tag].name}</span></Tag>
-                    })}
-                </div>
-            </Col>
-
-            <Col style={{ fontWeight: 'normal', fontSize: 12}}>
-                <span style={{ marginRight: 16 }}><Icon type='pie-chart' /> {task.proj.name}</span>
-                <span style={{ marginRight: 16 }}><Icon type='branches' /> {task.proj.branches[task.branch] || '默认'}</span>
-                <span><Icon type={TaskStatus[task.state].icon}/> {TaskStatus[task.state].name}</span>
-            </Col>
-        </Row>
-    );
-}
-
-/**
  * 生成任务的事件描述
  */
 const makeTaskEvent = (ev: ITaskEvent) => {
@@ -134,6 +109,7 @@ const makeTaskEvent = (ev: ITaskEvent) => {
     case 11: desc = '修改了任务的具体内容'; break;
     case 12: desc = '评论了任务'; break;
     case 13: desc = '回退了任务状态'; break;
+    case 14: desc = '修改了任务名，原名：' + ev.extra; break;
     default: desc = '对任务的其他内容进行了修改'; break;
     }
 
@@ -143,6 +119,74 @@ const makeTaskEvent = (ev: ITaskEvent) => {
         </p>
     );
 };
+
+/**
+ * 通用标题栏
+ */
+const CommonHeader = (props: {task: ITask, titleWidth: number, onRename?: () => void}) => {
+    const {task, onRename} = props;
+
+    /**
+     * 任务名修改器
+     */
+    const NameEditor = (props: {name: string}) => {
+        const [name, setName] = React.useState<string>(props.name);
+        const [visible, setVisible] = React.useState<boolean>(false);
+
+        const modify = () => {
+            Fetch.patch(`/api/task/${task.id}/name`, new URLSearchParams({name: name}), rsp => {
+                rsp.err ? message.error(rsp.err, 1) : onRename();
+            })
+        };
+
+        return (
+            <Popover
+                title='修改标题'
+                trigger='click'
+                visible={visible}
+                onVisibleChange={v => setVisible(v)}
+                content={(
+                    <div style={{padding: 8}}>
+                        <Input
+                            value={name}
+                            onChange={el => setName(el.target.value)}
+                            style={{width: 300, marginBottom: 8, display: 'block'}}/>
+
+                        <Row gutter={8}>
+                            <Col span={12}>
+                                <Button type='primary' onClick={() => modify()} block>修改</Button>
+                            </Col>
+                            <Col span={12}>
+                                <Button onClick={() => setVisible(false)} block>取消</Button>
+                            </Col>
+                        </Row>
+                    </div>
+                )}>                            
+                <Button type='link' icon='edit'/>
+            </Popover>
+        )
+    }
+
+    return (
+        <Row type='flex' justify='space-between' align='middle'>
+            <Col style={{fontWeight: 'bold', fontSize: 18, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: props.titleWidth}}>
+                {task.name}
+                <div style={{fontWeight: 'normal', display: 'inline', marginLeft: 4}}>
+                    {task.tags.map(tag => {
+                        return <Tag key={tag} color={TaskTag[tag].color}><span>{TaskTag[tag].name}</span></Tag>
+                    })}
+                </div>
+                {onRename && <NameEditor name={task.name}/>}
+            </Col>
+
+            <Col style={{ fontWeight: 'normal', fontSize: 12}}>
+                <span style={{ marginRight: 16 }}><Icon type='pie-chart' /> {task.proj.name}</span>
+                <span style={{ marginRight: 16 }}><Icon type='branches' /> {task.proj.branches[task.branch] || '默认'}</span>
+                <span><Icon type={TaskStatus[task.state].icon}/> {TaskStatus[task.state].name}</span>
+            </Col>
+        </Row>
+    );
+}
 
 /**
  * 只读模式查看面板
@@ -460,11 +504,7 @@ export const EditableViewer = (props: {task: ITask}) => {
      */
     const goBack = () => {
         Fetch.post(`/api/task/${task.id}/back`, {}, rsp => {
-            if (rsp.err) {
-                message.error(rsp.err, 1);
-            } else {
-                setDirty(true);
-            }
+            rsp.err ? message.error(rsp.err, 1) : setDirty(true);
         })
     };
 
@@ -492,7 +532,7 @@ export const EditableViewer = (props: {task: ITask}) => {
 
     return (
         <Drawer
-            title={<CommonHeader task={task} titleWidth={700}/>}
+            title={<CommonHeader task={task} titleWidth={700} onRename={() => setDirty(true)}/>}
             width={800}
             bodyStyle={{ padding: '4px 0px' }}
             visible={true}

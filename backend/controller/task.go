@@ -22,6 +22,7 @@ func (t *Task) Register(group *web.Router) {
 	group.GET("/mine", t.mine)
 	group.GET("/project/:id", t.project)
 
+	group.PATCH("/:id/name", t.setName)
 	group.PATCH("/:id/creator", t.setCreator)
 	group.PATCH("/:id/developer", t.setDeveloper)
 	group.PATCH("/:id/tester", t.setTester)
@@ -318,6 +319,28 @@ func (t *Task) project(c *web.Context) {
 	}
 
 	c.JSON(200, &web.JObject{"data": ret})
+}
+
+func (t *Task) setName(c *web.Context) {
+	tid := atoi(c.RouteValue("id"))
+	name := c.PostFormValue("name")
+	task := &model.Task{ID: tid}
+	err := orm.Read(task)
+	if err != nil {
+		c.JSON(200, &web.JObject{"err": "任务不存在或已被删除"})
+		return
+	}
+
+	old := task.Name
+	task.Name = name
+	err = orm.Update(task)
+	if err != nil {
+		c.JSON(200, &web.JObject{"err": "更新数据库失败"})
+		return
+	}
+
+	model.AfterTaskOperation(task, c.Session.Get("uid").(int64), model.TaskEventRename, old)
+	c.JSON(200, &web.JObject{})
 }
 
 func (t *Task) setCreator(c *web.Context) {
