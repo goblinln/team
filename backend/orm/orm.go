@@ -60,17 +60,17 @@ func CreateTable(v interface{}) error {
 		}
 
 		ft := dt.Field(i)
-		tag := ft.Tag.Get("mysql")
-		if tag == "-" || tag == "" {
-			continue
-		}
-
 		name := strings.ToLower(ft.Name)
 		if name == "id" {
 			fields = append(fields, "`id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY")
 			hasID = true
 		} else {
-			fields = append(fields, fmt.Sprintf("`%s` %s", name, tag))
+			tag := ft.Tag.Get("orm")
+			if tag == "-" {
+				continue
+			}
+
+			fields = append(fields, fmt.Sprintf("`%s` %s", name, makeFiledDesc(fv, tag)))
 		}
 	}
 
@@ -196,8 +196,8 @@ func Insert(v interface{}) (sql.Result, error) {
 	for i := 0; i < dt.NumField(); i++ {
 		ft := dt.Field(i)
 		name := strings.ToLower(ft.Name)
-		tag := ft.Tag.Get("mysql")
-		if tag == "-" || tag == "" || name == "id" {
+		tag := ft.Tag.Get("orm")
+		if tag == "-" || name == "id" {
 			continue
 		}
 
@@ -317,8 +317,8 @@ func Update(v interface{}) error {
 	for i := 0; i < dt.NumField(); i++ {
 		ft := dt.Field(i)
 		name := strings.ToLower(ft.Name)
-		tag := ft.Tag.Get("mysql")
-		if tag == "-" || tag == "" {
+		tag := ft.Tag.Get("orm")
+		if tag == "-" {
 			continue
 		}
 
@@ -359,6 +359,85 @@ func Update(v interface{}) error {
 func Delete(table string, id int64) error {
 	_, err := Exec("DELETE FROM `"+table+"` WHERE `id`=?", id)
 	return err
+}
+
+func makeFiledDesc(fv reflect.Value, tag string) string {
+	opts := strings.Split(tag, ",")
+	isUnique := false
+	isNotNull := false
+	defaultValue := ""
+	specialType := ""
+
+	for _, opt := range opts {
+		opt = strings.TrimSpace(opt)
+		if opt == "unique" {
+			isUnique = true
+			continue
+		}
+
+		if opt == "notnull" {
+			isNotNull = true
+		}
+
+		if strings.Index(opt, "default=") == 0 {
+			defaultValue = opt[8:]
+			continue
+		}
+
+		if strings.Index(opt, "type=") == 0 {
+			specialType = opt[5:]
+		}
+	}
+
+	extra := ""
+	if isUnique {
+		extra = extra + " UNIQUE"
+	}
+
+	if isNotNull {
+		extra = extra + " NOT NULL"
+	}
+
+	if defaultValue != "" {
+		extra = extra + " DEFAULT " + defaultValue
+	}
+
+	if specialType == "" {
+		switch fv.Kind() {
+		case reflect.Bool, reflect.Int8:
+			specialType = "TINYINT"
+		case reflect.Int16:
+			specialType = "SMALLINT"
+		case reflect.Int32:
+			specialType = "INTEGER"
+		case reflect.Int, reflect.Int64:
+			specialType = "BIGINT"
+		case reflect.Uint8:
+			specialType = "TINYINT UNSIGNED"
+		case reflect.Uint16:
+			specialType = "SMALLINT UNSIGNED"
+		case reflect.Uint32:
+			specialType = "INTEGER UNSIGNED"
+		case reflect.Uint64, reflect.Uint:
+			specialType = "BIGINT UNSIGNED"
+		case reflect.Float32:
+			specialType = "FLOAT"
+		case reflect.Float64:
+			specialType = "DOUBLE"
+		case reflect.String:
+			specialType = "TEXT"
+		case reflect.Struct:
+			if fv.Type() == reflect.TypeOf(time.Time{}) {
+				specialType = "TIMESTAMP"
+			} else {
+				specialType = "TEXT"
+			}
+		default:
+			specialType = "TEXT"
+		}
+	}
+
+	return specialType + extra
 }
 
 func serialize(v reflect.Value) (interface{}, error) {

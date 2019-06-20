@@ -34,98 +34,98 @@ var (
 type (
 	// User schema.
 	User struct {
-		ID              int64  `json:"id" mysql:"BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY"`
-		Account         string `json:"account" mysql:"VARCHAR(64) UNIQUE NOT NULL"`
-		Name            string `json:"name" mysql:"VARCHAR(32) UNIQUE NOT NULL"`
-		Avatar          string `json:"avatar" mysql:"VARCHAR(128)"`
-		Password        string `json:"-" mysql:"CHAR(32) NOT NULL"`
-		IsSu            bool   `json:"isSu" mysql:"TINYINT(1) DEFAULT '0'"`
-		IsLocked        bool   `json:"isLocked" mysql:"TINYINT(1) DEFAULT '0'"`
-		AutoLoginExpire int64  `json:"-" mysql:"BIGINT UNSIGNED DEFAULT '0'"`
+		ID              int64  `json:"id"`
+		Account         string `json:"account" orm:"type=VARCHAR(64),unique,notnull"`
+		Name            string `json:"name" orm:"type=VARCHAR(32),unique,notnull"`
+		Avatar          string `json:"avatar" orm:"type=VARCHAR(128)"`
+		Password        string `json:"-" orm:"type=CHAR(32),notnull"`
+		IsSu            bool   `json:"isSu"`
+		IsLocked        bool   `json:"isLocked"`
+		AutoLoginExpire int64  `json:"-"`
 	}
 	// Project schema
 	Project struct {
-		ID       int64    `json:"id" mysql:"BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY"`
-		Name     string   `json:"name" mysql:"VARCHAR(64) UNIQUE NOT NULL"`
-		Branches []string `json:"branches" mysql:"TEXT"`
+		ID       int64    `json:"id"`
+		Name     string   `json:"name" orm:"type=VARCHAR(64),unique,notnull"`
+		Branches []string `json:"branches"`
 	}
 	// ProjectMember schema
 	ProjectMember struct {
-		ID      int64 `json:"id" mysql:"BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY"`
-		UID     int64 `json:"uid" mysql:"BIGINT NOT NULL"`
-		PID     int64 `json:"pid" mysql:"BIGINT NOT NULL"`
-		Role    int8  `json:"role" mysql:"INTEGER NOT NULL"`
-		IsAdmin bool  `json:"isAdmin" mysql:"TINYINT(1) DEFAULT '0'"`
+		ID      int64 `json:"id"`
+		UID     int64 `json:"uid"`
+		PID     int64 `json:"pid"`
+		Role    int8  `json:"role"`
+		IsAdmin bool  `json:"isAdmin"`
 	}
 	// Share schema
 	Share struct {
-		ID   int64     `json:"id" mysql:"BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY"`
-		Name string    `json:"name" mysql:"VARCHAR(128) NOT NULL"`
-		Path string    `json:"url" mysql:"VARCHAR(128) NOT NULL"`
-		UID  int64     `json:"uid" mysql:"BIGINT NOT NULL"`
-		Time time.Time `json:"time" mysql:"TIMESTAMP DEFAULT CURRENT_TIMESTAMP"`
-		Size int64     `json:"size" mysql:"BIGINT DEFAULT '0'"`
+		ID   int64     `json:"id"`
+		Name string    `json:"name" orm:"type=VARCHAR(128),notnull"`
+		Path string    `json:"url" orm:"type=VARCHAR(128),notnull"`
+		UID  int64     `json:"uid"`
+		Time time.Time `json:"time" orm:"default=CURRENT_TIMESTAMP"`
+		Size int64     `json:"size"`
 	}
 	// Document schema
 	Document struct {
-		ID       int64     `json:"id" mysql:"BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY"`
-		Parent   int64     `json:"parent" mysql:"BIGINT DEFAULT '-1'"`
-		Title    string    `json:"title" mysql:"VARCHAR(64) NOT NULL"`
-		Author   int64     `json:"author" mysql:"BIGINT NOT NULL"`
-		Modifier int64     `json:"modifier" mysql:"BIGINT NOT NULL"`
-		Time     time.Time `json:"time" mysql:"TIMESTAMP DEFAULT CURRENT_TIMESTAMP"`
-		Content  string    `json:"content" mysql:"TEXT"`
+		ID       int64     `json:"id"`
+		Parent   int64     `json:"parent" orm:"default='-1'"`
+		Title    string    `json:"title" orm:"type=VARCHAR(64),notnull"`
+		Author   int64     `json:"author"`
+		Modifier int64     `json:"modifier"`
+		Time     time.Time `json:"time" orm:"default=CURRENT_TIMESTAMP"`
+		Content  string    `json:"content"`
 	}
 	// Notice schema
 	Notice struct {
-		ID       int64     `json:"id" mysql:"BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY"`
-		Time     time.Time `json:"time" mysql:"TIMESTAMP DEFAULT CURRENT_TIMESTAMP"`
-		UID      int64     `json:"uid" mysql:"BIGINT NOT NULL"`
-		TID      int64     `json:"tid" mysql:"BIGINT NOT NULL"`
-		Operator int64     `json:"operator" mysql:"BIGINT NOT NULL"`
-		Event    int16     `json:"event" mysql:"INTEGER NOT NULL"`
+		ID       int64     `json:"id"`
+		Time     time.Time `json:"time" orm:"default=CURRENT_TIMESTAMP"`
+		UID      int64     `json:"uid"`
+		TID      int64     `json:"tid"`
+		Operator int64     `json:"operator"`
+		Event    int16     `json:"event"`
 	}
 	// Task schema
 	Task struct {
-		ID          int64     `json:"id" mysql:"BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY"`
-		PID         int64     `json:"pid" mysql:"BIGINT NOT NULL"`
-		Branch      int8      `json:"branch" mysql:"INTEGER DEFAULT '0'"`
-		Creator     int64     `json:"creator" mysql:"BIGINT NOT NULL"`
-		Developer   int64     `json:"developer" mysql:"BIGINT NOT NULL"`
-		Tester      int64     `json:"tester" mysql:"BIGINT NOT NULL"`
-		Name        string    `json:"name" mysql:"VARCHAR(128) NOT NULL"`
-		BringTop    bool      `json:"bringTop" mysql:"TINYINT(1) DEFAULT '0'"`
-		Weight      int8      `json:"weight" mysql:"INTEGER DEFAULT '0'"`
-		State       int8      `json:"state" mysql:"INTEGER DEFAULT '0'"`
-		StartTime   time.Time `json:"startTime" mysql:"TIMESTAMP"`
-		EndTime     time.Time `json:"endTime" mysql:"TIMESTAMP"`
-		ArchiveTime time.Time `json:"archiveTime" mysql:"TIMESTAMP"`
-		Tags        []int     `json:"tags" mysql:"TEXT"`
-		Content     string    `json:"content" mysql:"TEXT"`
+		ID          int64     `json:"id"`
+		PID         int64     `json:"pid"`
+		Branch      int8      `json:"branch"`
+		Creator     int64     `json:"creator"`
+		Developer   int64     `json:"developer"`
+		Tester      int64     `json:"tester"`
+		Name        string    `json:"name" orm:"type=VARCHAR(128),notnull"`
+		BringTop    bool      `json:"bringTop"`
+		Weight      int8      `json:"weight"`
+		State       int8      `json:"state"`
+		StartTime   time.Time `json:"startTime"`
+		EndTime     time.Time `json:"endTime"`
+		ArchiveTime time.Time `json:"archiveTime"`
+		Tags        []int     `json:"tags"`
+		Content     string    `json:"content"`
 	}
 	// TaskAttachment schema
 	TaskAttachment struct {
-		ID   int64  `json:"id" mysql:"BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY"`
-		TID  int64  `json:"tid" mysql:"BIGINT NOT NULL"`
-		Name string `json:"name" mysql:"VARCHAR(128) NOT NULL"`
-		Path string `json:"url" mysql:"VARCHAR(128) NOT NULL"`
+		ID   int64  `json:"id"`
+		TID  int64  `json:"tid"`
+		Name string `json:"name" orm:"type=VARCHAR(128),notnull"`
+		Path string `json:"url" orm:"type=VARCHAR(128),notnull"`
 	}
 	// TaskComment schema
 	TaskComment struct {
-		ID      int64     `json:"id" mysql:"BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY"`
-		TID     int64     `json:"tid" mysql:"BIGINT NOT NULL"`
-		UID     int64     `json:"uid" mysql:"BIGINT NOT NULL"`
-		Time    time.Time `json:"time" mysql:"TIMESTAMP DEFAULT CURRENT_TIMESTAMP"`
-		Comment string    `json:"comment" mysql:"TEXT"`
+		ID      int64     `json:"id"`
+		TID     int64     `json:"tid"`
+		UID     int64     `json:"uid"`
+		Time    time.Time `json:"time" orm:"default=CURRENT_TIMESTAMP"`
+		Comment string    `json:"comment"`
 	}
 	// TaskEvent schema
 	TaskEvent struct {
-		ID    int64     `json:"id" mysql:"BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY"`
-		TID   int64     `json:"tid" mysql:"BIGINT NOT NULL"`
-		UID   int64     `json:"uid" mysql:"BIGINT NOT NULL"`
-		Event int       `json:"ev" mysql:"INTEGER DEFAULT '0'"`
-		Time  time.Time `json:"time" mysql:"TIMESTAMP DEFAULT CURRENT_TIMESTAMP"`
-		Extra string    `json:"extra" mysql:"TEXT"`
+		ID    int64     `json:"id"`
+		TID   int64     `json:"tid"`
+		UID   int64     `json:"uid"`
+		Event int       `json:"ev"`
+		Time  time.Time `json:"time" orm:"default=CURRENT_TIMESTAMP"`
+		Extra string    `json:"extra"`
 	}
 )
 
