@@ -139,7 +139,10 @@ func (c *Context) FormValue(name string) string {
 
 // FormArray returns named parameter array in both URL and form
 func (c *Context) FormArray(name string) []string {
-	c.req.FormValue(name) // Just make sure ParseForm has been called.
+	if c.req.Form == nil {
+		c.req.ParseMultipartForm(64 << 20)
+	}
+
 	return c.req.Form[name]
 }
 
@@ -150,7 +153,10 @@ func (c *Context) PostFormValue(name string) string {
 
 // PostFormArray returns named parameter array only from Form
 func (c *Context) PostFormArray(name string) []string {
-	c.req.PostFormValue(name) // Make sure ParseForm has been called
+	if c.req.PostForm == nil {
+		c.req.ParseMultipartForm(64 << 20)
+	}
+
 	return c.req.PostForm[name]
 }
 
