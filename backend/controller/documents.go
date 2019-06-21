@@ -134,6 +134,12 @@ func (d *Document) edit(c *web.Context) {
 
 func (d *Document) delete(c *web.Context) {
 	id := c.RouteValue("id").MustInt("")
+
+	doc := &model.Document{ID: id}
+	err := orm.Read(doc)
+	web.Assert(err == nil, "文档不存在或已被删除")
+
+	orm.Exec("UPDATE `document` SET `parent`=? WHERE `parent`=?", doc.Parent, id)
 	orm.Delete("document", id)
 	c.JSON(200, web.Map{})
 }
