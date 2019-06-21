@@ -22,7 +22,7 @@ func (p *Project) Register(group *web.Router) {
 }
 
 func (p *Project) info(c *web.Context) {
-	pid := atoi(c.RouteValue("id"))
+	pid := c.RouteValue("id").MustInt("")
 	c.JSON(200, web.Map{"data": model.MakeProjectInfo(pid)})
 }
 
@@ -30,7 +30,7 @@ func (p *Project) mine(c *web.Context) {
 	uid := c.Session.Get("uid").(int64)
 
 	rows, err := orm.Query("SELECT `pid` FROM `projectmember` WHERE `uid`=?", uid)
-	assert(err == nil, "获取项目列表失败")
+	web.Assert(err == nil, "获取项目列表失败")
 	defer rows.Close()
 
 	projs := []map[string]interface{}{}
@@ -48,29 +48,29 @@ func (p *Project) mine(c *web.Context) {
 }
 
 func (p *Project) addBranch(c *web.Context) {
-	pid := atoi(c.RouteValue("id"))
-	branch := c.PostFormValue("branch")
+	pid := c.RouteValue("id").MustInt("")
+	branch := c.PostFormValue("branch").MustString("分支名不可为空")
 	proj := model.FindProject(pid)
-	assert(proj != nil, "项目不存在或已被删除")
+	web.Assert(proj != nil, "项目不存在或已被删除")
 
 	for _, b := range proj.Branches {
-		assert(b != branch, "同名分支已存在")
+		web.Assert(b != branch, "同名分支已存在")
 	}
 
 	proj.Branches = append(proj.Branches, branch)
 	err := orm.Update(proj)
-	assert(err == nil, "写入修改失败")
+	web.Assert(err == nil, "写入修改失败")
 
 	c.JSON(200, web.Map{})
 }
 
 func (p *Project) getInviteList(c *web.Context) {
-	pid := atoi(c.RouteValue("id"))
+	pid := c.RouteValue("id").MustInt("")
 	proj := model.FindProject(pid)
-	assert(proj != nil, "项目不存在或已被删除")
+	web.Assert(proj != nil, "项目不存在或已被删除")
 
 	rows, err := orm.Query("SELECT `uid` FROM `projectmember` WHERE `pid`=?", pid)
-	assert(err == nil, "获取成员列表失败")
+	web.Assert(err == nil, "获取成员列表失败")
 	defer rows.Close()
 
 	members := make(map[int64]bool)
@@ -81,7 +81,7 @@ func (p *Project) getInviteList(c *web.Context) {
 	}
 
 	userRows, err := orm.Query("SELECT * FROM `user`")
-	assert(err == nil, "获取用户列表失败")
+	web.Assert(err == nil, "获取用户列表失败")
 	defer userRows.Close()
 
 	valids := []*model.User{}
@@ -98,16 +98,16 @@ func (p *Project) getInviteList(c *web.Context) {
 }
 
 func (p *Project) addMember(c *web.Context) {
-	pid := atoi(c.RouteValue("id"))
-	uid := atoi(c.PostFormValue("uid"))
-	isAdmin := atoi(c.PostFormValue("isAdmin")) == 1
-	role := atoi(c.PostFormValue("role"))
+	pid := c.RouteValue("id").MustInt("")
+	uid := c.PostFormValue("uid").MustInt("无效的用户ID")
+	isAdmin, _ := c.PostFormValue("isAdmin").Bool()
+	role := c.PostFormValue("role").MustInt("无效的职能")
 
 	proj := model.FindProject(pid)
-	assert(proj != nil, "项目不存在或已被删除")
+	web.Assert(proj != nil, "项目不存在或已被删除")
 
 	rows, err := orm.Query("SELECT COUNT(*) FROM `projectmember` WHERE `pid`=? AND `uid`=?", pid, uid)
-	assert(err == nil, "获取成员列表失败")
+	web.Assert(err == nil, "获取成员列表失败")
 	defer rows.Close()
 
 	count := 0
@@ -119,7 +119,7 @@ func (p *Project) addMember(c *web.Context) {
 	}
 
 	user := model.FindUser(uid)
-	assert(user != nil && !user.IsLocked, "无效的成员ID")
+	web.Assert(user != nil && !user.IsLocked, "无效的成员ID")
 
 	_, err = orm.Insert(&model.ProjectMember{
 		PID:     pid,
@@ -127,15 +127,15 @@ func (p *Project) addMember(c *web.Context) {
 		Role:    int8(role),
 		IsAdmin: isAdmin,
 	})
-	assert(err == nil, "写入数据库失败")
+	web.Assert(err == nil, "写入数据库失败")
 	c.JSON(200, web.Map{})
 }
 
 func (p *Project) editMember(c *web.Context) {
-	pid := atoi(c.RouteValue("id"))
-	uid := atoi(c.RouteValue("uid"))
-	role := atoi(c.PostFormValue("role"))
-	isAdmin := atoi(c.PostFormValue("isAdmin")) == 1
+	pid := c.RouteValue("id").MustInt("")
+	uid := c.RouteValue("uid").MustInt("")
+	role := c.PostFormValue("role").MustInt("无效的职能")
+	isAdmin, _ := c.PostFormValue("isAdmin").Bool()
 
 	member := &model.ProjectMember{
 		PID: pid,
@@ -155,29 +155,29 @@ func (p *Project) editMember(c *web.Context) {
 	member.Role = int8(role)
 	member.IsAdmin = isAdmin
 	err = orm.Update(member)
-	assert(err == nil, "写入数据库失败")
+	web.Assert(err == nil, "写入数据库失败")
 
 	c.JSON(200, web.Map{})
 }
 
 func (p *Project) deleteMember(c *web.Context) {
-	pid := atoi(c.RouteValue("id"))
-	uid := atoi(c.RouteValue("uid"))
+	pid := c.RouteValue("id").MustInt("")
+	uid := c.RouteValue("uid").MustInt("")
 
 	orm.Exec("DELETE from `projectmember` WHERE `pid`=? AND `uid`=?", pid, uid)
 	c.JSON(200, web.Map{})
 }
 
 func (p *Project) getReports(c *web.Context) {
-	pid := atoi(c.RouteValue("id"))
-	from := atoi(c.RouteValue("from"))
+	pid := c.RouteValue("id").MustInt("")
+	from := c.RouteValue("from").MustInt("")
 	end := from + 3600*24*7
 
 	unarchived := []map[string]interface{}{}
 	archived := []map[string]interface{}{}
 
 	unarchivedRows, err := orm.Query("SELECT `id`,`pid`,`branch`,`creator`,`developer`,`tester`,`name`,`bringtop`,`weight`,`state`,`starttime`,`endtime` FROM `task` WHERE `pid`=? AND `state`<4 AND UNIX_TIMESTAMP(`endtime`)<=? AND (`archivetime`=? OR UNIX_TIMESTAMP(`archivetime`)>?)", pid, end, model.TaskTimeInfinite.Format(orm.TimeFormat), end)
-	assert(err == nil, "拉取该周内未归档任务列表出错")
+	web.Assert(err == nil, "拉取该周内未归档任务列表出错")
 	defer unarchivedRows.Close()
 
 	for unarchivedRows.Next() {
@@ -189,7 +189,7 @@ func (p *Project) getReports(c *web.Context) {
 	}
 
 	archivedRows, err := orm.Query("SELECT `id`,`pid`,`branch`,`creator`,`developer`,`tester`,`name`,`bringTop`,`weight`,`state`,`starttime`,`endtime` FROM `task` WHERE `pid`=? AND `state`=4 AND UNIX_TIMESTAMP(`archivetime`)>=? AND UNIX_TIMESTAMP(`archivetime`)<=?", pid, from, end)
-	assert(err == nil, "拉取该周内归档任务列表出错")
+	web.Assert(err == nil, "拉取该周内归档任务列表出错")
 	defer archivedRows.Close()
 
 	for archivedRows.Next() {

@@ -21,7 +21,7 @@ func (n *Notice) mine(c *web.Context) {
 	uid := c.Session.Get("uid").(int64)
 
 	rows, err := orm.Query("SELECT `notice`.`id` AS id, `notice`.`tid` AS tid, `task`.`name` AS tname, `notice`.`operator` AS operator, `notice`.`time` AS time, `notice`.`event` AS ev FROM `notice` LEFT JOIN `task` ON `notice`.`tid`=`task`.`id` WHERE `uid`=?", uid)
-	assert(err == nil, "拉取通知信息失败")
+	web.Assert(err == nil, "拉取通知信息失败")
 	defer rows.Close()
 
 	type msg struct {
@@ -54,7 +54,7 @@ func (n *Notice) mine(c *web.Context) {
 }
 
 func (n *Notice) deleteOne(c *web.Context) {
-	orm.Delete("notice", atoi(c.RouteValue("id")))
+	orm.Delete("notice", c.RouteValue("id").MustInt(""))
 	c.JSON(200, web.Map{})
 }
 

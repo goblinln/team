@@ -26,6 +26,7 @@ func main() {
 	// Create router for httpd service
 	router := web.NewRouter()
 	router.Use(middleware.Logger)
+	router.Use(middleware.PanicAsError)
 
 	// Resources.
 	router.GET("/", controller.Index)
@@ -44,7 +45,6 @@ func main() {
 	api.Use(middleware.MustInstalled)
 	api.Use(middleware.AutoLogin)
 	api.Use(middleware.MustLogined)
-	api.Use(middleware.PanicAsError)
 	api.UseController("/user", new(controller.User))
 	api.UseController("/task", new(controller.Task))
 	api.UseController("/project", new(controller.Project))
@@ -58,8 +58,7 @@ func main() {
 		new(controller.Admin),
 		middleware.MustInstalled,
 		middleware.AutoLogin,
-		middleware.MustLoginedAsAdmin,
-		middleware.PanicAsError)
+		middleware.MustLoginedAsAdmin)
 
 	// Start service.
 	router.Start(model.Environment.AppPort)

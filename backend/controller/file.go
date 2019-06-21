@@ -71,7 +71,7 @@ func (f *File) share(c *web.Context) {
 
 func (f *File) getShareList(c *web.Context) {
 	rows, err := orm.Query("SELECT * FROM `share`")
-	assert(err == nil, "拉取文件列表失败")
+	web.Assert(err == nil, "拉取文件列表失败")
 	defer rows.Close()
 
 	list := []map[string]interface{}{}
@@ -95,37 +95,37 @@ func (f *File) getShareList(c *web.Context) {
 }
 
 func (f *File) download(c *web.Context) {
-	id := atoi(c.RouteValue("id"))
+	id := c.RouteValue("id").MustInt("")
 	share := &model.Share{ID: id}
 	err := orm.Read(share)
-	assert(err == nil, "文件不存在或已被删除")
+	web.Assert(err == nil, "文件不存在或已被删除")
 
 	c.FileWithName(200, "."+share.Path, share.Name)
 }
 
 func (f *File) deleteShare(c *web.Context) {
-	id := atoi(c.RouteValue("id"))
+	id := c.RouteValue("id").MustInt("")
 	orm.Delete("share", id)
 	c.JSON(200, web.Map{})
 }
 
 func (f *File) save(fh *multipart.FileHeader, uploader int64) (string, int64) {
 	reader, err := fh.Open()
-	assert(err == nil, "打开上传文件失败")
+	web.Assert(err == nil, "打开上传文件失败")
 	defer reader.Close()
 
 	dir := fmt.Sprintf("uploads/%d", uploader)
 	err = os.MkdirAll(dir, 0777)
-	assert(err == nil, "创建上传目录失败")
+	web.Assert(err == nil, "创建上传目录失败")
 
 	now := time.Now()
 	path := fmt.Sprintf("%s/%d_%s", dir, now.Unix(), fh.Filename)
 	writer, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0777)
-	assert(err == nil, "保存上传文件失败")
+	web.Assert(err == nil, "保存上传文件失败")
 	defer writer.Close()
 
 	size, err := io.Copy(writer, reader)
-	assert(err == nil, "写入上传文件失败")
+	web.Assert(err == nil, "写入上传文件失败")
 
 	return ("/" + path), size
 }

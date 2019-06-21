@@ -33,43 +33,45 @@ func (l *Login) index(c *web.Context) {
 }
 
 func (l *Login) doLogin(c *web.Context) {
-	account := c.PostFormValue("account")
-	password := c.PostFormValue("password")
-	remember := c.PostFormValue("remember")
+	account := c.PostFormValue("account").MustString("登录帐号未填写")
+	password := c.PostFormValue("password").MustString("登录密码未填写")
+	remember, _ := c.PostFormValue("remember").Bool()
 
 	hash := md5.New()
 	hash.Write([]byte(password))
 
 	user := &model.User{Account: account, Password: fmt.Sprintf("%X", hash.Sum(nil))}
-	if err := orm.Read(user, "account", "password"); err != nil {
-		c.JSON(200, web.Map{"err": "帐号或密码不正确"})
-	} else if user.IsLocked {
-		c.JSON(200, web.Map{"err": "帐号已被禁止登录，请联系管理员解除锁定！"})
-	} else {
-		if len(remember) > 0 {
-			code := fmt.Sprintf("%d|%s|%s", user.ID, c.RemoteIP(), model.AutoLoginSecret)
-			sign := md5.New()
-			sign.Write([]byte(code))
+	err := orm.Read(user, "account", "password")
+	web.Assert(err == nil, "帐号或密码不正确")
+	web.Assert(!user.IsLocked, "帐号已被禁止登录，请联系管理员解除锁定！")
 
-			token := &model.AutoLoginToken{
-				ID:   user.ID,
-				IP:   c.RemoteIP(),
-				Sign: fmt.Sprintf("%X", sign.Sum(nil)),
-			}
+	if remember {
+		expire := time.Now().Add(30 * 24 * time.Hour)
+		code := fmt.Sprintf("%d|%s|%s", user.ID, c.RemoteIP(), model.AutoLoginSecret)
+		sign := md5.New()
+		sign.Write([]byte(code))
 
-			j, err := json.Marshal(token)
-			if err == nil {
-				c.SetCookie(&http.Cookie{
-					Name:    model.AutoLoginCookieKey,
-					Value:   base64.StdEncoding.EncodeToString(j),
-					Expires: time.Now().Add(30 * 24 * time.Hour),
-				})
-			}
+		token := &model.AutoLoginToken{
+			ID:   user.ID,
+			IP:   c.RemoteIP(),
+			Sign: fmt.Sprintf("%X", sign.Sum(nil)),
 		}
 
-		model.Cache.SetUser(user)
+		j, err := json.Marshal(token)
+		if err == nil {
+			c.SetCookie(&http.Cookie{
+				Name:    model.AutoLoginCookieKey,
+				Value:   base64.StdEncoding.EncodeToString(j),
+				Expires: expire,
+			})
 
-		c.Session.Set("uid", user.ID)
-		c.JSON(200, web.Map{})
+			user.AutoLoginExpire = expire.Unix()
+			orm.Update(user)
+		}
 	}
+
+	model.Cache.SetUser(user)
+
+	c.Session.Set("uid", user.ID)
+	c.JSON(200, web.Map{})
 }

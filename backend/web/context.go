@@ -110,54 +110,55 @@ func (c *Context) SetStatus(code int) {
 }
 
 // RouteValue returns named parameter value in route pattern
-func (c *Context) RouteValue(name string) string {
-	return c.routeParams[name]
+func (c *Context) RouteValue(name string) *Value {
+	v, ok := c.routeParams[name]
+	if ok {
+		return &Value{data: []string{v}}
+	}
+
+	return &Value{}
 }
 
 // QueryValue returns named parameter value in URL query string
-func (c *Context) QueryValue(name string) string {
+func (c *Context) QueryValue(name string) *Value {
 	if c.queryParams == nil {
 		c.queryParams = c.req.URL.Query()
 	}
 
-	return c.queryParams.Get(name)
-}
-
-// QueryArray returns named parameter array in URL query string
-func (c *Context) QueryArray(name string) []string {
-	if c.queryParams == nil {
-		c.queryParams = c.req.URL.Query()
+	v, ok := c.queryParams[name]
+	if ok {
+		return &Value{data: v}
 	}
 
-	return c.queryParams[name]
+	return &Value{}
 }
 
 // FormValue returns named parameter value in both URL and form
-func (c *Context) FormValue(name string) string {
-	return c.req.FormValue(name)
-}
-
-// FormArray returns named parameter array in both URL and form
-func (c *Context) FormArray(name string) []string {
+func (c *Context) FormValue(name string) *Value {
 	if c.req.Form == nil {
 		c.req.ParseMultipartForm(64 << 20)
 	}
 
-	return c.req.Form[name]
+	v, ok := c.req.Form[name]
+	if ok {
+		return &Value{data: v}
+	}
+
+	return &Value{}
 }
 
 // PostFormValue returns named parameter value only from Form
-func (c *Context) PostFormValue(name string) string {
-	return c.req.PostFormValue(name)
-}
-
-// PostFormArray returns named parameter array only from Form
-func (c *Context) PostFormArray(name string) []string {
+func (c *Context) PostFormValue(name string) *Value {
 	if c.req.PostForm == nil {
 		c.req.ParseMultipartForm(64 << 20)
 	}
 
-	return c.req.PostForm[name]
+	v, ok := c.req.PostForm[name]
+	if ok {
+		return &Value{data: v}
+	}
+
+	return &Value{}
 }
 
 // MultipartForm returns multipart form. Useful to deal with uploads.

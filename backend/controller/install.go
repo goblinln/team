@@ -30,23 +30,19 @@ func (i *Install) index(c *web.Context) {
 }
 
 func (i *Install) configure(c *web.Context) {
-	appPort := atoi(c.FormValue("port"))
-	mysqlHost := c.FormValue("mysqlHost")
-	mysqlUser := c.FormValue("mysqlUser")
-	mysqlPswd := c.FormValue("mysqlPswd")
-	mysqlDB := c.FormValue("mysqlDB")
+	appPort := c.FormValue("port").MustInt("无效的监听端口")
+	mysqlHost := c.FormValue("mysqlHost").MustString("无效MySQL地址")
+	mysqlUser := c.FormValue("mysqlUser").MustString("无效MySQL用户")
+	mysqlPswd := c.FormValue("mysqlPswd").String()
+	mysqlDB := c.FormValue("mysqlDB").MustString("数据名不可为空")
 
-	if appPort <= 0 || appPort > 65535 {
-		c.JSON(200, web.Map{"err": "无效的端口参数"})
-		return
-	}
+	web.Assert(appPort > 0 && appPort < 65535, "无效的端口参数")
 
 	i.Done = false
 	i.IsError = false
 	i.Status = []string{"连接数据库..."}
 
 	go i.setup(appPort, mysqlHost, mysqlUser, mysqlPswd, mysqlDB)
-
 	c.JSON(200, web.Map{})
 }
 
@@ -61,9 +57,9 @@ func (i *Install) status(c *web.Context) {
 }
 
 func (i *Install) createAdmin(c *web.Context) {
-	account := c.FormValue("account")
-	name := c.FormValue("name")
-	pswd := c.FormValue("pswd")
+	account := c.FormValue("account").MustString("帐号不可为空")
+	name := c.FormValue("name").MustString("显示名称不可为空")
+	pswd := c.FormValue("pswd").MustString("超级管理员必须设置密码")
 
 	hash := md5.New()
 	hash.Write([]byte(pswd))
@@ -76,14 +72,11 @@ func (i *Install) createAdmin(c *web.Context) {
 	}
 
 	_, err := orm.Insert(user)
-	if err != nil {
-		web.Logger.Error("Create default admin failed: %v", err)
-		c.JSON(200, web.Map{"err": "创建默认管理员失败"})
-	} else {
-		model.Environment.Installed = true
-		model.Environment.Save()
-		c.JSON(200, web.Map{})
-	}
+	web.Assert(err == nil, "创建默认管理员失败")
+
+	model.Environment.Installed = true
+	model.Environment.Save()
+	c.JSON(200, web.Map{})
 }
 
 func (i *Install) setup(appPort int64, host, user, pswd, db string) {
