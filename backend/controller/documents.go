@@ -27,20 +27,14 @@ func (d *Document) create(c *web.Context) {
 	parent := atoi(c.PostFormValue("parent"))
 
 	rows, err := orm.Query("SELECT COUNT(*) FROM `document` WHERE `parent`=? AND `title`=?", parent, title)
-	if err != nil {
-		c.JSON(200, web.Map{"err": "数据库连接失败"})
-		return
-	}
+	assert(err == nil, "数据库连接失败")
 
 	defer rows.Close()
 
 	count := 0
 	rows.Next()
 	rows.Scan(&count)
-	if count > 0 {
-		c.JSON(200, web.Map{"err": "同级目录下已存在同名文档"})
-		return
-	}
+	assert(count == 0, "同级目录下已存在同名文档")
 
 	_, err = orm.Insert(&model.Document{
 		Parent:   parent,
@@ -50,21 +44,13 @@ func (d *Document) create(c *web.Context) {
 		Time:     time.Now(),
 		Content:  "",
 	})
-	if err != nil {
-		c.JSON(200, web.Map{"err": "写入数据失败"})
-		return
-	}
-
+	assert(err == nil, "写入数据失败")
 	c.JSON(200, web.Map{})
 }
 
 func (d *Document) getAll(c *web.Context) {
 	rows, err := orm.Query("SELECT * FROM `document`")
-	if err != nil {
-		c.JSON(200, web.Map{"err": "数据库连接失败"})
-		return
-	}
-
+	assert(err == nil, "数据库连接失败")
 	defer rows.Close()
 
 	list := []map[string]interface{}{}
@@ -93,10 +79,7 @@ func (d *Document) detail(c *web.Context) {
 	id := atoi(c.RouteValue("id"))
 	doc := &model.Document{ID: id}
 	err := orm.Read(doc)
-	if err != nil {
-		c.JSON(200, web.Map{"err": "读取文档信息失败"})
-		return
-	}
+	assert(err == nil, "读取文档信息失败")
 
 	creator, _ := model.FindUserInfo(doc.Author)
 	modifier, _ := model.FindUserInfo(doc.Modifier)
@@ -121,19 +104,13 @@ func (d *Document) rename(c *web.Context) {
 
 	doc := &model.Document{ID: did}
 	err := orm.Read(doc)
-	if err != nil {
-		c.JSON(200, web.Map{"err": "读取文档信息失败"})
-		return
-	}
+	assert(err == nil, "读取文档信息失败")
 
 	doc.Title = title
 	doc.Modifier = uid
 	doc.Time = time.Now()
 	err = orm.Update(doc)
-	if err != nil {
-		c.JSON(200, web.Map{"err": "写入数据失败"})
-		return
-	}
+	assert(err == nil, "写入数据失败")
 
 	c.JSON(200, web.Map{})
 }
@@ -145,19 +122,13 @@ func (d *Document) edit(c *web.Context) {
 
 	doc := &model.Document{ID: did}
 	err := orm.Read(doc)
-	if err != nil {
-		c.JSON(200, web.Map{"err": "读取文档信息失败"})
-		return
-	}
+	assert(err == nil, "读取文档信息失败")
 
 	doc.Content = content
 	doc.Modifier = uid
 	doc.Time = time.Now()
 	err = orm.Update(doc)
-	if err != nil {
-		c.JSON(200, web.Map{"err": "写入数据失败"})
-		return
-	}
+	assert(err == nil, "写入数据失败")
 
 	c.JSON(200, web.Map{})
 }

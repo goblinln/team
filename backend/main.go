@@ -44,6 +44,7 @@ func main() {
 	api.Use(middleware.MustInstalled)
 	api.Use(middleware.AutoLogin)
 	api.Use(middleware.MustLogined)
+	api.Use(middleware.PanicAsError)
 	api.UseController("/user", new(controller.User))
 	api.UseController("/task", new(controller.Task))
 	api.UseController("/project", new(controller.Project))
@@ -57,7 +58,8 @@ func main() {
 		new(controller.Admin),
 		middleware.MustInstalled,
 		middleware.AutoLogin,
-		middleware.MustLoginedAsAdmin)
+		middleware.MustLoginedAsAdmin,
+		middleware.PanicAsError)
 
 	// Start service.
 	router.Start(model.Environment.AppPort)

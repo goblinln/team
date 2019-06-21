@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"strconv"
 )
 
@@ -28,4 +29,10 @@ func intArray(param []string) []int {
 	}
 
 	return ret
+}
+
+func assert(test bool, msg string) {
+	if !test {
+		panic(errors.New(msg))
+	}
 }

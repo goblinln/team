@@ -30,11 +30,7 @@ func (p *Project) mine(c *web.Context) {
 	uid := c.Session.Get("uid").(int64)
 
 	rows, err := orm.Query("SELECT `pid` FROM `projectmember` WHERE `uid`=?", uid)
-	if err != nil {
-		c.JSON(200, web.Map{"err": "获取项目列表失败"})
-		return
-	}
-
+	assert(err == nil, "获取项目列表失败")
 	defer rows.Close()
 
 	projs := []map[string]interface{}{}
@@ -55,24 +51,15 @@ func (p *Project) addBranch(c *web.Context) {
 	pid := atoi(c.RouteValue("id"))
 	branch := c.PostFormValue("branch")
 	proj := model.FindProject(pid)
-	if proj == nil {
-		c.JSON(200, web.Map{"err": "项目不存在或已被删除"})
-		return
-	}
+	assert(proj != nil, "项目不存在或已被删除")
 
 	for _, b := range proj.Branches {
-		if b == branch {
-			c.JSON(200, web.Map{"err": "同名分支已存在"})
-			return
-		}
+		assert(b != branch, "同名分支已存在")
 	}
 
 	proj.Branches = append(proj.Branches, branch)
 	err := orm.Update(proj)
-	if err != nil {
-		c.JSON(200, web.Map{"err": "写入修改失败"})
-		return
-	}
+	assert(err == nil, "写入修改失败")
 
 	c.JSON(200, web.Map{})
 }
@@ -80,17 +67,10 @@ func (p *Project) addBranch(c *web.Context) {
 func (p *Project) getInviteList(c *web.Context) {
 	pid := atoi(c.RouteValue("id"))
 	proj := model.FindProject(pid)
-	if proj == nil {
-		c.JSON(200, web.Map{"err": "项目不存在或已被删除"})
-		return
-	}
+	assert(proj != nil, "项目不存在或已被删除")
 
 	rows, err := orm.Query("SELECT `uid` FROM `projectmember` WHERE `pid`=?", pid)
-	if err != nil {
-		c.JSON(200, web.Map{"err": "获取成员列表失败"})
-		return
-	}
-
+	assert(err == nil, "获取成员列表失败")
 	defer rows.Close()
 
 	members := make(map[int64]bool)
@@ -101,11 +81,7 @@ func (p *Project) getInviteList(c *web.Context) {
 	}
 
 	userRows, err := orm.Query("SELECT * FROM `user`")
-	if err != nil {
-		c.JSON(200, web.Map{"err": "获取用户列表失败"})
-		return
-	}
-
+	assert(err == nil, "获取用户列表失败")
 	defer userRows.Close()
 
 	valids := []*model.User{}
@@ -128,17 +104,10 @@ func (p *Project) addMember(c *web.Context) {
 	role := atoi(c.PostFormValue("role"))
 
 	proj := model.FindProject(pid)
-	if proj == nil {
-		c.JSON(200, web.Map{"err": "项目不存在或已被删除"})
-		return
-	}
+	assert(proj != nil, "项目不存在或已被删除")
 
 	rows, err := orm.Query("SELECT COUNT(*) FROM `projectmember` WHERE `pid`=? AND `uid`=?", pid, uid)
-	if err != nil {
-		c.JSON(200, web.Map{"err": "获取成员列表失败"})
-		return
-	}
-
+	assert(err == nil, "获取成员列表失败")
 	defer rows.Close()
 
 	count := 0
@@ -150,10 +119,7 @@ func (p *Project) addMember(c *web.Context) {
 	}
 
 	user := model.FindUser(uid)
-	if user == nil || user.IsLocked {
-		c.JSON(200, web.Map{"err": "无效的成员ID"})
-		return
-	}
+	assert(user != nil && !user.IsLocked, "无效的成员ID")
 
 	_, err = orm.Insert(&model.ProjectMember{
 		PID:     pid,
@@ -161,11 +127,7 @@ func (p *Project) addMember(c *web.Context) {
 		Role:    int8(role),
 		IsAdmin: isAdmin,
 	})
-	if err != nil {
-		c.JSON(200, web.Map{"err": "写入数据库失败"})
-		return
-	}
-
+	assert(err == nil, "写入数据库失败")
 	c.JSON(200, web.Map{})
 }
 
@@ -193,10 +155,7 @@ func (p *Project) editMember(c *web.Context) {
 	member.Role = int8(role)
 	member.IsAdmin = isAdmin
 	err = orm.Update(member)
-	if err != nil {
-		c.JSON(200, web.Map{"err": "写入数据库失败"})
-		return
-	}
+	assert(err == nil, "写入数据库失败")
 
 	c.JSON(200, web.Map{})
 }
@@ -218,11 +177,7 @@ func (p *Project) getReports(c *web.Context) {
 	archived := []map[string]interface{}{}
 
 	unarchivedRows, err := orm.Query("SELECT `id`,`pid`,`branch`,`creator`,`developer`,`tester`,`name`,`bringtop`,`weight`,`state`,`starttime`,`endtime` FROM `task` WHERE `pid`=? AND `state`<4 AND UNIX_TIMESTAMP(`endtime`)<=? AND (`archivetime`=? OR UNIX_TIMESTAMP(`archivetime`)>?)", pid, end, model.TaskTimeInfinite.Format(orm.TimeFormat), end)
-	if err != nil {
-		c.JSON(200, web.Map{"err": "拉取该周内未归档任务列表出错"})
-		return
-	}
-
+	assert(err == nil, "拉取该周内未归档任务列表出错")
 	defer unarchivedRows.Close()
 
 	for unarchivedRows.Next() {
@@ -234,11 +189,7 @@ func (p *Project) getReports(c *web.Context) {
 	}
 
 	archivedRows, err := orm.Query("SELECT `id`,`pid`,`branch`,`creator`,`developer`,`tester`,`name`,`bringTop`,`weight`,`state`,`starttime`,`endtime` FROM `task` WHERE `pid`=? AND `state`=4 AND UNIX_TIMESTAMP(`archivetime`)>=? AND UNIX_TIMESTAMP(`archivetime`)<=?", pid, from, end)
-	if err != nil {
-		c.JSON(200, web.Map{"err": "拉取该周内归档任务列表出错"})
-		return
-	}
-
+	assert(err == nil, "拉取该周内归档任务列表出错")
 	defer archivedRows.Close()
 
 	for archivedRows.Next() {

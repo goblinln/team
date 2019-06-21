@@ -32,27 +32,19 @@ func (u *User) setPswd(c *web.Context) {
 	hashOld := md5.New()
 	hashOld.Write([]byte(c.FormValue("oldPswd")))
 	checkOld := fmt.Sprintf("%X", hashOld.Sum(nil))
-	if checkOld != me.Password {
-		c.JSON(200, web.Map{"err": "原始密码错误"})
-		return
-	}
+	assert(checkOld == me.Password, "原始密码错误")
 
 	newPswd := c.FormValue("newPswd")
 	cfmPswd := c.FormValue("cfmPswd")
-	if newPswd != cfmPswd {
-		c.JSON(200, web.Map{"err": "两次输入的新密码不一致"})
-		return
-	}
+	assert(newPswd == cfmPswd, "两次输入的新密码不一致")
 
 	hashNew := md5.New()
 	hashNew.Write([]byte(newPswd))
 	me.Password = fmt.Sprintf("%X", hashNew.Sum(nil))
 	err := orm.Update(me)
-	if err != nil {
-		c.JSON(200, web.Map{"err": "更新密码失败"})
-	} else {
-		c.JSON(200, web.Map{})
-	}
+	assert(err == nil, "更新密码失败")
+
+	c.JSON(200, web.Map{})
 }
 
 func (u *User) setAvatar(c *web.Context) {
@@ -60,23 +52,11 @@ func (u *User) setAvatar(c *web.Context) {
 	me := model.FindUser(uid)
 
 	fhs := c.MultipartForm().File["img"]
-	if len(fhs) == 0 {
-		c.JSON(200, web.Map{"err": "更新头像参数错误"})
-		return
-	}
+	assert(len(fhs) > 0, "更新头像参数错误")
 
-	url, _, err := new(File).save(fhs[0], uid)
-	if err != nil {
-		c.JSON(200, web.Map{"err": err.Error()})
-		return
-	}
-
-	me.Avatar = url
-	err = orm.Update(me)
-	if err != nil {
-		c.JSON(200, web.Map{"err": "更新数据库失败"})
-		return
-	}
+	me.Avatar, _ = new(File).save(fhs[0], uid)
+	err := orm.Update(me)
+	assert(err == nil, "更新数据库失败")
 
 	c.JSON(200, web.Map{"data": me.Avatar})
 }

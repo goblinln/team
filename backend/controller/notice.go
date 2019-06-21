@@ -21,11 +21,7 @@ func (n *Notice) mine(c *web.Context) {
 	uid := c.Session.Get("uid").(int64)
 
 	rows, err := orm.Query("SELECT `notice`.`id` AS id, `notice`.`tid` AS tid, `task`.`name` AS tname, `notice`.`operator` AS operator, `notice`.`time` AS time, `notice`.`event` AS ev FROM `notice` LEFT JOIN `task` ON `notice`.`tid`=`task`.`id` WHERE `uid`=?", uid)
-	if err != nil {
-		c.JSON(200, web.Map{"err": "拉取通知信息失败"})
-		return
-	}
-
+	assert(err == nil, "拉取通知信息失败")
 	defer rows.Close()
 
 	type msg struct {
