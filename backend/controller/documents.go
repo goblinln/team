@@ -28,7 +28,6 @@ func (d *Document) create(c *web.Context) {
 
 	rows, err := orm.Query("SELECT COUNT(*) FROM `document` WHERE `parent`=? AND `title`=?", parent, title)
 	assert(err == nil, "数据库连接失败")
-
 	defer rows.Close()
 
 	count := 0

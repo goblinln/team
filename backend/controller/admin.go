@@ -41,7 +41,6 @@ func (a *Admin) addUser(c *web.Context) {
 
 	rows, err := orm.Query("SELECT COUNT(*) FROM `user` WHERE `account`=? OR `name`=?", account, name)
 	assert(err == nil, "创建帐号失败，代码#1")
-
 	defer rows.Close()
 
 	count := 0
@@ -75,7 +74,6 @@ func (a *Admin) editUser(c *web.Context) {
 
 	rows, err := orm.Query("SELECT * FROM `user` WHERE `account`=? OR `name`=?", account, name)
 	assert(err == nil, "修改帐号失败，代码#1")
-
 	defer rows.Close()
 
 	user := &model.User{}
@@ -120,7 +118,6 @@ func (a *Admin) deleteUser(c *web.Context) {
 func (a *Admin) users(c *web.Context) {
 	rows, err := orm.Query("SELECT * FROM `user`")
 	assert(err == nil, "拉取用户列表失败")
-
 	defer rows.Close()
 
 	users := []*model.User{}
@@ -143,7 +140,6 @@ func (a *Admin) addProject(c *web.Context) {
 
 	rows, err := orm.Query("SELECT COUNT(*) FROM `project` WHERE `name`=?", name)
 	assert(err == nil, "创建项目失败，代码#1")
-
 	defer rows.Close()
 
 	count := 0
@@ -182,7 +178,6 @@ func (a *Admin) editProject(c *web.Context) {
 
 	rows, err := orm.Query("SELECT * FROM `project` WHERE `name`=?", name)
 	assert(err == nil, "修改项目失败，代码#1")
-
 	defer rows.Close()
 
 	proj := &model.Project{}
@@ -215,7 +210,6 @@ func (a *Admin) deleteProject(c *web.Context) {
 func (a *Admin) projects(c *web.Context) {
 	rows, err := orm.Query("SELECT * FROM `project`")
 	assert(err == nil, "拉取项目列表失败")
-
 	defer rows.Close()
 
 	projs := []*model.Project{}
