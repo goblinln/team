@@ -28,7 +28,45 @@ var (
 
 var db *sql.DB
 
-// CreateTable by value type.
+// CreateTable by value type. `v` is a pointer of struct to generated table.
+//
+// All public fields in struct except those have tag `orm:"-"` will be treated
+// as table column using **lowercase** name in sql table.
+//
+// For example:
+// ```
+// type UserTable struct {
+//     // A field named 'id'(NOT case sensitive) will be treated as primary key.
+//     // Note: 'id' field must be int64
+//     ID      int64
+//
+//     // Numbers
+//     Level     uint32
+//     Money     int64
+//     SomeFloat float32
+//
+//     // Type of strings in sql will be treated as TEXT by default.
+//     // You can use 'type' keyword to specify another type that compatible with strings
+//     Account string `orm:"type=VARCHAR(64),unique,notnull"`
+//     Name    string `orm:"type=VARCHAR(64),unique,notnull"`
+//     Avatar  string `orm:"type=VARCHAR(128),default=NULL"`
+//
+//     // Field with type : time.Time will be treated as TIMESTAMP by default
+//     LoginTime    time.Time
+//     RegisterTime time.Time `orm:"type=DATETIME,default=NOW()"`
+//
+//     // Struct/pointer/array/slice field will be serialized to JSON string
+//     // and stored as 'TEXT' by default
+//     Tags 	[]string
+//     UserData *OtherType
+//
+//     // Field do NOT want to generated columns in table must has tag : `orm:"-"`
+//     SomeRuntimeData int32 `orm:"-"`
+// }
+//
+// // This will created a table named 'usertable'
+// orm.CreateTable(&UserTable{})
+// ```
 func CreateTable(v interface{}) error {
 	if db == nil {
 		return ErrNotValid
