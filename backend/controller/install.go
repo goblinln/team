@@ -42,7 +42,7 @@ func (i *Install) configure(c *web.Context) {
 	i.IsError = false
 	i.Status = []string{"连接数据库..."}
 
-	go i.setup(appPort, mysqlHost, mysqlUser, mysqlPswd, mysqlDB)
+	go i.setup(appPort, &model.MySQL{Host: mysqlHost, User: mysqlUser, Password: mysqlPswd, Database: mysqlDB})
 	c.JSON(200, web.Map{})
 }
 
@@ -79,8 +79,8 @@ func (i *Install) createAdmin(c *web.Context) {
 	c.JSON(200, web.Map{})
 }
 
-func (i *Install) setup(appPort int64, host, user, pswd, db string) {
-	err := orm.ConnectDB(host, user, pswd, db, 64)
+func (i *Install) setup(appPort int64, mysql *model.MySQL) {
+	err := orm.OpenDB("mysql", mysql.Addr())
 	if err != nil {
 		i.IsError = true
 		i.Status = append(i.Status, "无法连接数据："+err.Error())
@@ -122,12 +122,6 @@ func (i *Install) setup(appPort int64, host, user, pswd, db string) {
 	model.Environment = &model.Env{
 		Installed: false,
 		AppPort:   fmt.Sprintf(":%d", appPort),
-		MySQL: model.MySQL{
-			Host:     host,
-			User:     user,
-			Password: pswd,
-			Database: db,
-			MaxConns: 64,
-		},
+		MySQL:     mysql,
 	}
 }

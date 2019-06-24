@@ -9,8 +9,11 @@ import (
 	"strconv"
 	"strings"
 	"time"
+)
 
-	"github.com/go-sql-driver/mysql"
+var (
+	// AutoIncrementKeyword for database driver.
+	AutoIncrementKeyword = "AUTO_INCREMENT"
 )
 
 var (
@@ -27,6 +30,19 @@ var (
 )
 
 var db *sql.DB
+
+// OpenDB starts connection with database
+func OpenDB(driver, addr string) error {
+	conn, err := sql.Open(driver, addr)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(addr)
+	conn.SetMaxOpenConns(64)
+	db = conn
+	return nil
+}
 
 // CreateTable by value type. `v` is a pointer of struct to generated table.
 //
@@ -100,7 +116,7 @@ func CreateTable(v interface{}) error {
 		ft := dt.Field(i)
 		name := strings.ToLower(ft.Name)
 		if name == "id" {
-			fields = append(fields, "`id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY")
+			fields = append(fields, "`id` BIGINT NOT NULL PRIMARY KEY "+AutoIncrementKeyword)
 			hasID = true
 		} else {
 			tag := ft.Tag.Get("orm")
@@ -117,7 +133,7 @@ func CreateTable(v interface{}) error {
 	}
 
 	if !hasID {
-		builder.WriteString("`id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,\n")
+		fields = append(fields, "`id` BIGINT NOT NULL PRIMARY KEY "+AutoIncrementKeyword)
 	}
 
 	builder.WriteString(strings.Join(fields, ",\n"))
@@ -125,31 +141,6 @@ func CreateTable(v interface{}) error {
 
 	_, err := db.Exec(builder.String())
 	return err
-}
-
-// ConnectDB starts connection with MySQL server
-func ConnectDB(addr, user, pswd, dbName string, maxConns int) error {
-	param := mysql.NewConfig()
-	param.Net = "tcp"
-	param.Addr = addr
-	param.User = user
-	param.Passwd = pswd
-	param.DBName = dbName
-	param.MultiStatements = true
-	param.Params = map[string]string{
-		"charset":   "utf8",
-		"collation": "utf8_general_ci",
-	}
-
-	conn, err := sql.Open("mysql", param.FormatDSN())
-	if err != nil {
-		return err
-	}
-
-	conn.SetMaxOpenConns(maxConns)
-
-	db = conn
-	return nil
 }
 
 // Exec SQL without results like DELETE/UPDATE/INSERT

@@ -6,19 +6,14 @@ import (
 	"team/model"
 	"team/orm"
 	"team/web"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
 	// Open database connections.
 	if model.Environment.Installed {
-		mysql := model.Environment.MySQL
-		err := orm.ConnectDB(
-			mysql.Host,
-			mysql.User,
-			mysql.Password,
-			mysql.Database,
-			mysql.MaxConns)
-		if err != nil {
+		if err := orm.OpenDB("mysql", model.Environment.MySQL.Addr()); err != nil {
 			web.Logger.Fatal("Failed to prepare database : %s", err.Error())
 		}
 	}

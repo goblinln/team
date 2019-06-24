@@ -2,23 +2,33 @@ package model
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 )
 
-// MySQL configuration.
-type MySQL struct {
-	Host     string `json:"host"`
-	User     string `json:"user"`
-	Password string `json:"password"`
-	Database string `json:"database"`
-	MaxConns int    `json:"maxConns"`
-}
+type (
+	// MySQL configuration.
+	MySQL struct {
+		Host     string `json:"host"`
+		User     string `json:"user"`
+		Password string `json:"password"`
+		Database string `json:"database"`
+	}
 
-// Env holds configuration for this server.
-type Env struct {
-	Installed bool   `json:"-"`
-	AppPort   string `json:"appPort"`
-	MySQL     MySQL  `json:"mysql"`
+	// Env holds configuration for this server.
+	Env struct {
+		Installed bool   `json:"-"`
+		AppPort   string `json:"appPort"`
+		MySQL     *MySQL `json:"mysql"`
+	}
+)
+
+// Addr returns DSN address of MYSQL server
+func (m *MySQL) Addr() string {
+	return fmt.Sprintf(
+		"%s:%s@tcp(%s)/%s?multiStatements=true&charset=utf8&collation=utf8_general_ci",
+		m.User, m.Password, m.Host, m.Database,
+	)
 }
 
 // Save configuration into ./team.json
@@ -35,12 +45,11 @@ func (e *Env) Save() error {
 var Environment = &Env{
 	Installed: false,
 	AppPort:   ":8080",
-	MySQL: MySQL{
+	MySQL: &MySQL{
 		Host:     "127.0.0.1:3306",
 		User:     "root",
 		Password: "root",
 		Database: "team",
-		MaxConns: 64,
 	},
 }
 
