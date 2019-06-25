@@ -123,7 +123,7 @@ const makeTaskEvent = (ev: ITaskEvent) => {
 /**
  * 通用标题栏
  */
-const CommonHeader = (props: {task: ITask, titleWidth: number, onRename?: () => void}) => {
+const CommonHeader = (props: {task: ITask, onRename?: () => void}) => {
     const {task, onRename} = props;
 
     /**
@@ -169,9 +169,9 @@ const CommonHeader = (props: {task: ITask, titleWidth: number, onRename?: () => 
 
     return (
         <Row type='flex' justify='space-between' align='middle'>
-            <Col style={{fontWeight: 'bold', fontSize: 18, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: props.titleWidth}}>
+            <Col style={{fontWeight: 'bold', fontSize: 18}}>
                 {task.name}
-                <div style={{fontWeight: 'normal', display: 'inline', marginLeft: 4}}>
+                <div style={{display: 'inline', marginLeft: 4}}>
                     {task.tags.map(tag => {
                         return <Tag key={tag} color={TaskTag[tag].color}><span>{TaskTag[tag].name}</span></Tag>
                     })}
@@ -196,7 +196,7 @@ const ReadOnlyViewer = (props: {task: ITask}) => {
 
     return (
         <Drawer
-            title={<CommonHeader task={task} titleWidth={500}/>}
+            title={<CommonHeader task={task}/>}
             width={600}
             bodyStyle={{ padding: '4px 0px' }}
             visible={true}
@@ -532,7 +532,7 @@ export const EditableViewer = (props: {task: ITask}) => {
 
     return (
         <Drawer
-            title={<CommonHeader task={task} titleWidth={700} onRename={() => setDirty(true)}/>}
+            title={<CommonHeader task={task} onRename={() => setDirty(true)}/>}
             width={800}
             bodyStyle={{ padding: '4px 0px' }}
             visible={true}
