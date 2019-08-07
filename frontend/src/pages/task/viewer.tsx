@@ -61,7 +61,7 @@ const TaskDetailReadOnly = (props: {task: Task}) => {
 
             <div className='divider-h my-1'/>
             
-            <div className='mt-3 mx-3'>
+            <div className='mt-3 mx-3' style={{minHeight: 300}}>
                 <Markdown.Renderer source={task.content}/>
             </div>
 
@@ -172,7 +172,7 @@ const TaskDetail = (props: {task: Task; closer: () => void; onModified: () => vo
 
             <div className='divider-h my-1'/>
 
-            <div className='mt-3 mx-3'>
+            <div className='mt-3 mx-3' style={{minHeight: 300}}>
                 {isContentEditorShow
                     ?<TaskDetail.ContentEditor task={task} onCancel={() => setContentEditorShow(false)} onModified={() => setDirty(true)}/>
                     :<Markdown.Renderer source={task.content}/>}

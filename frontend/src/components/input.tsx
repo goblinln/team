@@ -129,7 +129,7 @@ Input.Checkbox = (props: CheckBoxProps) => {
 
     return (
         <div {...makeClass('checkbox', disabled&&'disabled', checked&&'checked', className)} style={style} onClick={handleClick}>
-            <input type='checkbox' name={name} value={value} checked={props.checked} onChange={() => null} hidden/>
+            <input type='checkbox' name={name} value={value} checked={checked} onChange={() => null} hidden/>
             <Icon style={{fontSize: '1.2em'}} type={checked?'check-square-fill':'border'} className={`mr-1 ${checked?'fg-success':'fg-darker'}`}/><span>{label}</span>
         </div>
     );
