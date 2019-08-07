@@ -37,7 +37,7 @@ const TaskDetailReadOnly = (props: {task: Task}) => {
     return (
         <div className='pt-3'>
             <Row flex={{align: 'middle', justify: 'space-between'}} className='mx-3 mb-3'>
-                <span style={{fontWeight: 'bold', fontSize: 18, maxWidth: 300}} className='text-ellipsis'>
+                <span style={{fontWeight: 'bold', fontSize: 18, maxWidth: 340}} className='text-ellipsis'>
                     {task.name}
                     {task.tags.map((t, i) => <Badge key={i} theme={TaskTag[t].theme as any} className='mx-1'>{TaskTag[t].name}</Badge>)}
                 </span>
@@ -143,7 +143,7 @@ const TaskDetail = (props: {task: Task; closer: () => void; onModified: () => vo
     return (
         <div className='pt-3'>            
             <Row flex={{align: 'middle', justify: 'space-between'}} className='mx-3 mb-3'>
-                <span style={{fontWeight: 'bold', fontSize: 18, maxWidth: 600}} className='text-ellipsis'>
+                <span style={{fontWeight: 'bold', fontSize: 18, maxWidth: 540}} className='text-ellipsis'>
                     {task.name}
                     {task.tags.map((t, i) => <Badge key={i} theme={TaskTag[t].theme as any} className='mx-1'>{TaskTag[t].name}</Badge>)}
                     <Icon type='edit' className='fg-primary ml-1' style={{fontWeight: 'normal'}} onClick={renameTask}/>
