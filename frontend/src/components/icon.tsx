@@ -55,7 +55,6 @@ export const IconFonts = [
     'gif', 'partition', 'index', 'stored-procedure', 'type-binary', 'sql', 'test', 'aim', 'compress', 'expand', 
     'folder-view', 'file-gif', 'group', 'send', 'report', 'view', 'shortcut', 'ungroup'];
 
-
 interface IconProps extends React.HTMLAttributes<HTMLSpanElement> {
     type: string;
 };

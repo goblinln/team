@@ -40,7 +40,7 @@ export const Reports = (props: {proj: Project, isReadOnly: boolean}) => {
             <Row flex={{align: 'middle', justify: 'center'}}>
                 <Icon type='left-circle-fill' style={{fontSize: '2.5em'}} onClick={() => setWeek(moment(week).subtract(1, 'week'))}/>
                 <div className='mx-3 text-center'>
-                    <p style={{fontSize: '2em', fontWeight: 'bolder', marginBottom: 8}}>第{week.weeks()}周项目周报</p>
+                    <p style={{fontSize: '2em', fontWeight: 'bolder'}}>第{week.weeks()}周项目周报</p>
                     <small><Badge theme='highlight' className='bg-darkgray'>{moment(week).format('YYYY/MM/DD')} - {moment(week).endOf('week').format('YYYY/MM/DD')}</Badge></small>
                 </div>
                 <Icon type='right-circle-fill' style={{fontSize: '2.5em'}} onClick={() => setWeek(moment(week).add(1, 'week'))}/>

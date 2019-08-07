@@ -208,7 +208,7 @@ const TaskDetail = (props: {task: Task; closer: () => void; onModified: () => vo
             </div>
 
             {isCommentEditorShow&&<TaskDetail.CommentEditor task={task} onCancel={() => setCommentEditorShow(false)} onModified={() => setDirty(true)}/>}
-            <div style={{position: 'absolute', right: 32, bottom: 32, fontSize: 32}}>
+            <div style={{position: 'absolute', right: 16, bottom: 16, fontSize: 32, userSelect: 'none'}}>
                 <Icon type='message' className='link' onClick={() => setCommentEditorShow(prev => !prev)}/>
             </div>                       
         </div>
@@ -362,7 +362,7 @@ TaskDetail.ContentEditor = (props: {task: Task, onCancel: () => void, onModified
 };
 
 TaskDetail.CommentEditor = (props: {task: Task, onCancel: () => void, onModified: () => void}) => {
-    const [content, setContent] = React.useState<string>(props.task.content);
+    const [content, setContent] = React.useState<string>('');
 
     const uploader = (file: File, done: (url: string) => void) => {
         let param = new FormData();
@@ -390,13 +390,13 @@ TaskDetail.CommentEditor = (props: {task: Task, onCancel: () => void, onModified
     };
 
     return (
-        <div style={{position: 'absolute', left: 32, right: 32, bottom: 80, background: '#fff', boxShadow: '1px 1px 10px rgba(0,0,0,.12)'}}>
+        <div style={{position: 'absolute', left: 32, right: 32, bottom: 64, background: '#fff', boxShadow: '1px 1px 10px rgba(0,0,0,.12)'}}>
             <p className='px-3 pt-2' style={{fontWeight: 'bold', fontSize: 18}}>发表评论</p>
 
             <div className='divider-h mt-1'/>
 
             <div className='p-2'>
-                <Markdown.Editor onChange={setContent} rows={4} onUpload={uploader}/>
+                <Markdown.Editor value={content} onChange={setContent} rows={4} onUpload={uploader}/>
                 <div className='mt-1 center-child'>
                     <Button theme='primary' size='sm' onClick={modify}>发表</Button>
                     <Button size='sm' onClick={props.onCancel}>取消</Button>

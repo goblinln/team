@@ -36,7 +36,7 @@ export const ProjectPage = (props: {uid: number}) => {
                             }
 
                             return (
-                                <Menu.SubMenu key={p.id} collapse='disabled' label={<Row flex={{align: 'middle', justify: 'space-between'}}>{p.name}{isAdmin&&<Badge className='ml-2' theme='info'>管理员</Badge>}</Row>}>
+                                <Menu.SubMenu key={p.id} collapse='disabled' label={<Row flex={{align: 'middle', justify: 'space-between'}}>{p.name}<Badge className='ml-2' theme='info'>{isAdmin?'管理员':'成员'}</Badge></Row>}>
                                     <Menu.Item onClick={() => setPage(<Tasks proj={p} isAdmin={isAdmin}/>)}>任务列表</Menu.Item>
                                     <Menu.Item onClick={() => setPage(<Reports proj={p} isReadOnly={!isAdmin}/>)}>项目周报</Menu.Item>
                                     {isAdmin&&<Menu.Item onClick={() => setPage(<Manager pid={p.id}/>)}>项目管理</Menu.Item>}

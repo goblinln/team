@@ -51,7 +51,7 @@ export const Manager = (props: {pid: number}) => {
 
                 let param = new FormData();
                 param.append('branch', branch);
-                request({url: `/api/project/${props.pid}/branch`, data: param, success: fetchProject});
+                request({url: `/api/project/${props.pid}/branch`, method: 'POST', data: param, success: fetchProject});
             }
         });
     };
