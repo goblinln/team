@@ -61,9 +61,8 @@ Drawer.update = () => {
 };
 
 Drawer.open = (cfg: DrawerProps) => {
-    const {width, header, body, hideClose, onClose} = cfg;
-
     const id = cfg.id||makeId();
+    const onClose = cfg.onClose;
     const mount = document.createElement('div');
     document.body.appendChild(mount);
 
@@ -84,7 +83,7 @@ Drawer.open = (cfg: DrawerProps) => {
     }
 
     cfg.id = id;
-    cfg.width = Math.max(width, 150);
+    cfg.width = Math.max(cfg.width, 150);
     cfg.onClose = closer;
 
     ReactDOM.render(<Drawer {...cfg}/>, mount);

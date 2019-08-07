@@ -33,10 +33,11 @@ export const Table = (props: TableProps) => {
     const [records, setRecords] = React.useState<any[]>([]);
     const [sortTimes, setSortTimes] = React.useState<number[]>(new Array<number>(columns.length).fill(0));
     const [page, setPage] = React.useState<number>(0);
+    const [totalPage, setTotalPage] = React.useState<number>(1);
     const [displayNumber, setDisplayNumber] = React.useState<number>(pagination||10);
 
     React.useEffect(() => {
-        if (dataSource.length == 0) {
+        if (!dataSource||dataSource.length == 0) {
             setRecords([]);
             return;
         } 
@@ -44,10 +45,18 @@ export const Table = (props: TableProps) => {
         let start = page*displayNumber;
         let end = Math.min((page+1)*displayNumber, dataSource.length);
         setRecords(dataSource.slice(start, end));
-    }, [props.dataSource, page]);
+    }, [dataSource, page, totalPage]);
 
     React.useEffect(() => {
-        setPage(0);
+        if (!dataSource||dataSource.length == 0) {
+            setPage(0);
+            setTotalPage(1);
+            return;
+        }
+
+        let total = Math.max(1, Math.ceil(dataSource.length/displayNumber));
+        setTotalPage(total);
+        if (page >= totalPage) setPage(totalPage-1);
     }, [displayNumber]);
     
     const makeHeader = (col: TableColumn, idx: number) => {
@@ -129,7 +138,7 @@ export const Table = (props: TableProps) => {
                                     <option value={50}>50 条/页</option>
                                 </Input.Select>
                             </div>
-                            <Pagination current={page} total={dataSource ? Math.max(Math.ceil(dataSource.length/displayNumber), 1) : 1} onChange={idx => setPage(idx)}/>
+                            <Pagination current={page} total={totalPage} onChange={idx => setPage(idx)}/>
                         </Row>
                     </td>
                 </tr>
