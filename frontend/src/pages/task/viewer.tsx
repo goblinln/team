@@ -124,7 +124,7 @@ const TaskDetail = (props: {task: Task; closer: () => void; onModified: () => vo
 
                 let param = new FormData();
                 param.append('name', newName);
-                request({url: `/api/task/${task.id}/name`, data: param, success: () => setDirty(true)});
+                request({url: `/api/task/${task.id}/name`, method: 'PUT', data: param, success: () => setDirty(true)});
             }
         });
     };
@@ -401,7 +401,7 @@ TaskDetail.CommentEditor = (props: {task: Task, onCancel: () => void, onModified
                     <Button theme='primary' size='sm' onClick={modify}>发表</Button>
                     <Button size='sm' onClick={props.onCancel}>取消</Button>
                 </div>
-            </div>            
+            </div>
         </div>
     );
 };
