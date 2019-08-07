@@ -15,8 +15,8 @@ type User int
 // Register implements web.Controller interface.
 func (u *User) Register(group *web.Router) {
 	group.GET("", u.info)
-	group.PATCH("/pswd", u.setPswd)
-	group.PATCH("/avatar", u.setAvatar)
+	group.PUT("/pswd", u.setPswd)
+	group.PUT("/avatar", u.setAvatar)
 }
 
 func (u *User) info(c *web.Context) {

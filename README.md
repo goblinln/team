@@ -4,10 +4,18 @@
 
 ![预览](./Preview.png)
 
-## 重要声明
+## 重构说明
 
-1. **2.0后的版本为完全重构版，与之前lua服务器版不再兼容。不要尝试直接升级！！！**
-2. 原`lua`版不再维护。
+1. 新版移除`Ant-Design`的依赖，改为使用自己实现的组件库。主要原因有：
+    * Antd太大了，项目按需加载后，生成的app.js都2.5MB。
+    * Antd的依赖过重
+    * Form使用起来繁琐
+    * Dropdown及Popover感觉有点反人类，为什么具体内容不是child而是attribute，而本可以做成label属性的反而是child
+    * 想使用React HOOK实现一个通用的组件库，方便其他项目使用
+2. 新版组件库的样式参考了`Ant-Design`与`layui`
+3. 新版API不再使用PATCH方法，因为发现Edge等浏览器会有问题
+4. 新版js使用es6，字体使用woff格式，IE等老旧浏览器不可用
+5. 2.x与3.x数据兼容。
 
 ## 实现功能
 
@@ -53,7 +61,7 @@
     cd frontend
     npm install
 
-    # 编译生成 publish/www/app.js。【注意】如果使用默认配置，生成的js使用es6
+    # 编译生成 publish/assets/app.js
     npm run build
     ```
 

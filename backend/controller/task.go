@@ -22,13 +22,13 @@ func (t *Task) Register(group *web.Router) {
 	group.GET("/mine", t.mine)
 	group.GET("/project/:id", t.project)
 
-	group.PATCH("/:id/name", t.setName)
-	group.PATCH("/:id/creator", t.setCreator)
-	group.PATCH("/:id/developer", t.setDeveloper)
-	group.PATCH("/:id/tester", t.setTester)
-	group.PATCH("/:id/weight", t.setWeight)
-	group.PATCH("/:id/time", t.setTime)
-	group.PATCH("/:id/content", t.setContent)
+	group.PUT("/:id/name", t.setName)
+	group.PUT("/:id/creator", t.setCreator)
+	group.PUT("/:id/developer", t.setDeveloper)
+	group.PUT("/:id/tester", t.setTester)
+	group.PUT("/:id/weight", t.setWeight)
+	group.PUT("/:id/time", t.setTime)
+	group.PUT("/:id/content", t.setContent)
 	group.POST("/:id/comment", t.addComment)
 }
 

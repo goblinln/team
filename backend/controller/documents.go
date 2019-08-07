@@ -16,8 +16,8 @@ func (d *Document) Register(group *web.Router) {
 	group.POST("", d.create)
 	group.GET("/list", d.getAll)
 	group.GET("/:id", d.detail)
-	group.PATCH("/:id/title", d.rename)
-	group.PATCH("/:id/content", d.edit)
+	group.PUT("/:id/title", d.rename)
+	group.PUT("/:id/content", d.edit)
 	group.DELETE("/:id", d.delete)
 }
 

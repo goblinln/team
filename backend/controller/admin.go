@@ -16,7 +16,7 @@ type Admin int
 func (a *Admin) Register(group *web.Router) {
 	group.POST("/user", a.addUser)
 	group.PUT("/user/:id", a.editUser)
-	group.PATCH("/user/:id/lock", a.lockUser)
+	group.PUT("/user/:id/lock", a.lockUser)
 	group.DELETE("/user/:id", a.deleteUser)
 	group.GET("/user/list", a.users)
 

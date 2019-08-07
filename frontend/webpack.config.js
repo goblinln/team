@@ -1,10 +1,9 @@
 const path = require('path');
 const webpack = require('webpack');
-const tsImport = require('ts-import-plugin');
 
 module.exports = {
     mode: 'production',
-    entry: path.resolve(__dirname, './src/App.tsx'),
+    entry: path.resolve(__dirname, './src/app.tsx'),
     output: {
         path: path.resolve(__dirname, '../publish/assets'),
         filename: 'app.js',
@@ -18,20 +17,7 @@ module.exports = {
             {
                 test: /\.tsx?$/,
                 exclude: /node_modules/,
-                use: {
-                    loader: 'awesome-typescript-loader',
-                    options: {
-                        getCustomTransformers: () => ({
-                            before: [
-                                tsImport({
-                                    libraryName: 'antd',
-                                    libraryDirectory: 'lib',
-                                    style: 'css',
-                                }),
-                            ]
-                        })
-                    }
-                }
+                loader: 'ts-loader',
             },
             {
                 test: /\.css$/,
@@ -40,6 +26,6 @@ module.exports = {
         ]
     },
     plugins: [
-        new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /zh-cn/)
+        new webpack.ContextReplacementPlugin(/moment[\/\\]locale/, /en\.js/)
     ]
 };

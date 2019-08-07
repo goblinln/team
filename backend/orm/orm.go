@@ -38,7 +38,6 @@ func OpenDB(driver, addr string) error {
 		return err
 	}
 
-	fmt.Println(addr)
 	conn.SetMaxOpenConns(64)
 	db = conn
 	return nil
