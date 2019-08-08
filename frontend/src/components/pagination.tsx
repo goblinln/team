@@ -11,42 +11,39 @@ interface PaginationProps {
 };
 
 export const Pagination = (props: PaginationProps) => {
-    const [current, setCurrent] = React.useState<number>(props.current);
-    const [leftCtrls, setLeftCtrls] = React.useState<React.ReactNode[]>([]);
-    const [midCtrls, setMidCtrls] = React.useState<React.ReactNode[]>([]);
-    const [rightCtrls, setRightCtrls] = React.useState<React.ReactNode[]>([]);
+    const [controls, setControls] = React.useState<React.ReactNode[]>([]);
 
     React.useEffect(() => {
-        if (current < 4 || props.total == 5) {
-            let left: React.ReactNode[] = [];
-            for (let i = 0; i < 5 && i < props.total; i++) left.push(makeItem(i));
-            setLeftCtrls(left);
+        let ctrls: React.ReactNode[] = [];
+
+        if (props.total <= 5) {
+            for (let i = 0; i < props.total; i++) ctrls.push(makeItem(i));
         } else {
-            setLeftCtrls([makeItem(0)]);
+            if (props.current < 3) {
+                for (let i = 0; i < 4; i++) ctrls.push(makeItem(i));
+                ctrls.push(<button key='divider'>••</button>);
+                ctrls.push(makeItem(props.total-1));
+            } else if (props.current > props.total-4) {
+                ctrls.push(makeItem(0));
+                ctrls.push(<button key='divider'>••</button>);
+                for (let i = props.total-4; i < props.total; i++) ctrls.push(makeItem(i));
+            } else {
+                ctrls.push(makeItem(0));
+                ctrls.push(<button key='left-divider'>••</button>);
+                for (let i = props.current-1; i <= props.current+1 && i < props.total-1; i++) ctrls.push(makeItem(i));
+                ctrls.push(<button key='right-divider'>••</button>);
+                ctrls.push(makeItem(props.total-1));
+            }
         }
 
-        if (current+4 < props.total && current >= 4) {
-            let mid: React.ReactNode[] = [];
-            for (let i = 5; i > 0; i--) mid.push(makeItem(current-i+3));
-            setMidCtrls(mid);
-        } else {
-            setMidCtrls([]);
-        }
-
-        if (current+5 > props.total && props.total > 7) {
-            let right: React.ReactNode[] = [];
-            for (let i = 5; i > 0; i--) right.push(makeItem(props.total-i));
-            setRightCtrls(right);
-        } else if (props.total > 5) {
-            setRightCtrls([makeItem(props.total-1)]);
-        }
+        setControls(ctrls);
     }, [props]);
 
     const makeItem = (idx: number) => {
         return (
             <button
                 key={idx}
-                className={idx==current ? 'pagination-active' : undefined} 
+                className={idx==props.current ? 'pagination-active' : undefined} 
                 onClick={() => moveTo(idx)}>
                 {idx+1}
             </button>
@@ -54,17 +51,14 @@ export const Pagination = (props: PaginationProps) => {
     };
 
     const moveTo = (page: number) => {
-        setCurrent(page);
         if (props.onChange) props.onChange(page);
     };
 
     return (
         <div className='pagination'>
-            <button key='prev' disabled={current<1} onClick={() => moveTo(current-1)}><Icon type='left'/></button>
-            {leftCtrls}
-            {midCtrls.length > 0 && [<button key='left-divider'>••</button>, ...midCtrls]}
-            {rightCtrls.length > 0 && [<button key='right-divider'>••</button>, ...rightCtrls]}
-            <button key='next' disabled={current+1>=props.total} onClick={() => moveTo(current+1)}><Icon type='right'/></button>
+            <button key='prev' disabled={props.current<1} onClick={() => moveTo(props.current-1)}><Icon type='left'/></button>
+            {controls}
+            <button key='next' disabled={props.current+1>=props.total} onClick={() => moveTo(props.current+1)}><Icon type='right'/></button>
         </div>
     );
 };

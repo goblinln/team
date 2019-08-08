@@ -38,26 +38,20 @@ export const Table = (props: TableProps) => {
 
     React.useEffect(() => {
         if (!dataSource||dataSource.length == 0) {
-            setRecords([]);
-            return;
-        } 
-
-        let start = page*displayNumber;
-        let end = Math.min((page+1)*displayNumber, dataSource.length);
-        setRecords(dataSource.slice(start, end));
-    }, [dataSource, page, totalPage]);
-
-    React.useEffect(() => {
-        if (!dataSource||dataSource.length == 0) {
             setPage(0);
             setTotalPage(1);
             return;
         }
 
         let total = Math.max(1, Math.ceil(dataSource.length/displayNumber));
+        let curPage = Math.min(page, total-1);
+        setPage(curPage);
         setTotalPage(total);
-        if (page >= totalPage) setPage(totalPage-1);
-    }, [displayNumber]);
+
+        let start = curPage*displayNumber;
+        let end = Math.min((curPage+1)*displayNumber, dataSource.length);
+        setRecords(dataSource.slice(start, end));
+    }, [dataSource, displayNumber, page, totalPage]);
     
     const makeHeader = (col: TableColumn, idx: number) => {
         let sorted = sortTimes[idx];
@@ -128,15 +122,16 @@ export const Table = (props: TableProps) => {
                 <tr>
                     <td colSpan={columns.length}>
                         <Row flex={{align: 'middle', justify: 'space-between'}}>
-                            <div>
-                                <small className='ml-2'>总计 {dataSource ? dataSource.length : 0} 条数据。</small>
+                            <div className='pl-2'>
                                 <Input.Select value={displayNumber} onChange={ev => setDisplayNumber(parseInt(ev.target.value))}>
+                                    <option value={5}>5 条/页</option>
                                     <option value={10}>10 条/页</option>
                                     <option value={15}>15 条/页</option>
                                     <option value={20}>20 条/页</option>
                                     <option value={25}>25 条/页</option>
                                     <option value={50}>50 条/页</option>
                                 </Input.Select>
+                                <small className='ml-2'>总计 {dataSource ? dataSource.length : 0} 条数据。</small>
                             </div>
                             <Pagination current={page} total={totalPage} onChange={idx => setPage(idx)}/>
                         </Row>
