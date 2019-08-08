@@ -26,7 +26,7 @@ export const Drawer = (props: DrawerProps) => {
 
     React.useEffect(() => {
         Drawer.instances.push({id: id, el: ref, width: width});
-        Drawer.update();
+        setTimeout(() => Drawer.update(), 0.001);
     }, []);
 
     return (
