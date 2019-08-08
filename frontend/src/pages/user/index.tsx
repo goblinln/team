@@ -18,7 +18,7 @@ export const UserPage = (props: UserPageProps) => {
     const [notices, setNotices] = React.useState<Notice[]>(props.notices);
 
     const makeNotice = (notice: Notice) => {
-        let link = <a className='link' onClick={() => Viewer.open(notice.tid)}>{notice.tname}</a>;
+        let link = <a className='link' onClick={() => Viewer.open(notice.tid, () => {})}>{notice.tname}</a>;
 
         switch (notice.ev) {
         case 0: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>创建了{link}</p>;
