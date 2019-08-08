@@ -14,7 +14,7 @@ interface Parameter {
 }
 
 export const request = (param: Parameter) => {
-    let init : RequestInit = { method: param.method, body: param.data, credentials: "include" };
+    let init : RequestInit = { method: param.method||'GET', body: param.data, credentials: "include" };
     let finish = () => { !param.dontShowLoading&&Loading.hide(); }
 
     if (!param.dontShowLoading) Loading.show();
