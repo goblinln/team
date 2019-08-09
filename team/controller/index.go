@@ -28,6 +28,5 @@ func Index(c *web.Context) {
 		return
 	}
 
-	c.ResponseHeader().Set("Content-Type", "text/html")
-	c.File(200, "./assets/app.html")
+	c.HTML(200, model.Index)
 }

@@ -1,12 +1,14 @@
 package main
 
 import (
+	"net/http"
 	"team/controller"
 	"team/middleware"
 	"team/model"
 	"team/orm"
 	"team/web"
 
+	rice "github.com/GeertJohan/go.rice"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -25,7 +27,7 @@ func main() {
 
 	// Resources.
 	router.GET("/", controller.Index)
-	router.StaticFS("/assets", "./assets")
+	router.GET("/assets/dist/[\\s\\S]+", web.Wrap(http.StripPrefix("/assets/dist/", http.FileServer(rice.MustFindBox("assets/dist").HTTPBox()))))
 	router.StaticFS("/uploads", "./uploads")
 
 	// Deploy

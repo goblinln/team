@@ -44,7 +44,7 @@
 
 ## 使用说明
 
-1. 对于不需要修改原码的用户，可直接从[发行版](https://gitee.com/love_linger/Team/releases)页面中下载编译好的可执行文件，放入`publish`目录中，然后直接第3步
+1. 对于不需要修改原码的用户，可直接从[发行版](https://gitee.com/love_linger/Team/releases)页面中下载编译好的可执行文件
 
 2. 对于有需求修改原码的用户，修改完后可按下面的步骤自行编译。  
 
@@ -54,28 +54,21 @@
     * Node.js
     * Git  
 
-    2.2 前端
+    2.2 编译生成可执行文件
 
     ```shell
-    # 拉取依赖
-    cd frontend
+    # 第一步生成前端JS代码
+    cd team/assets
     npm install
-
-    # 编译生成 publish/assets/app.js
     npm run build
+
+    # 第二步生成可执行文件
+    cd ..
+    go build
+
+    # 第三步使用Go.Rice将资源文件打包入可执行文件中，如果不打入包中，需要将asset/dist/目录也放入部署环境
+    rice append --exec team.exe
     ```
-
-    2.3 后端
-
-    ```shell
-    # 编译生成可执行文件
-    cd backend
-    go build -o ../publish/team.exe
-    ```
-
-3. 将 `publish` 目录下的文件拷贝到服务器部署路径
-
-4. 运行：team。默认端口8080。【注】该版本已内置部署功能，初次访问会进行配置。
 
 
 

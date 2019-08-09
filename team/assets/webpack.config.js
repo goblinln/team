@@ -5,7 +5,7 @@ module.exports = {
     mode: 'production',
     entry: path.resolve(__dirname, './src/app.tsx'),
     output: {
-        path: path.resolve(__dirname, '../publish/assets'),
+        path: path.resolve(__dirname, './dist/'),
         filename: 'app.js',
     },
     resolve: {

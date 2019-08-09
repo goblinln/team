@@ -25,8 +25,7 @@ func (i *Install) Register(group *web.Router) {
 }
 
 func (i *Install) index(c *web.Context) {
-	c.ResponseHeader().Set("Content-Type", "text/html")
-	c.File(200, "./assets/app.html")
+	c.HTML(200, model.Index)
 }
 
 func (i *Install) configure(c *web.Context) {
