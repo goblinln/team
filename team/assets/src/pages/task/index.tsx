@@ -125,7 +125,7 @@ export const TaskPage = (props: {uid: number}) => {
                 <div className={`mt-2 center-child ${isFilterVisible?'':' hide'}`}>
                     <div>
                         <label className='mr-1'>选择项目</label>
-                        <Input.Select style={{width: 150}} value={filter.p} onChange={handleProjectChange}>
+                        <Input.Select style={{width: 100}} value={filter.p} onChange={handleProjectChange}>
                             <option key={'none'} value={-1}>无要求</option>
                             {projs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                         </Input.Select>
@@ -133,7 +133,7 @@ export const TaskPage = (props: {uid: number}) => {
 
                     <div className='ml-3'>
                         <label className='mr-1'>选择分支</label>
-                        <Input.Select style={{width: 150}} value={filter.b} onChange={handleBranchChange}>
+                        <Input.Select style={{width: 100}} value={filter.b} onChange={handleBranchChange}>
                             <option key={'none'} value={-1}>无要求</option>
                             {branches.map((b, i) => <option key={i} value={i}>{b}</option>)}
                         </Input.Select>
@@ -141,7 +141,7 @@ export const TaskPage = (props: {uid: number}) => {
 
                     <div className='ml-3'>
                         <label className='mr-1'>我的角色</label>
-                        <Input.Select style={{width: 150}} value={filter.me} onChange={handleMyRoleChange}>
+                        <Input.Select style={{width: 100}} value={filter.me} onChange={handleMyRoleChange}>
                             <option value={-1}>无要求</option>
                             <option value={0}>发起者</option>
                             <option value={1}>开发者</option>
