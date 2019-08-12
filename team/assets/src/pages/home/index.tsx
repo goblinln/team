@@ -25,7 +25,7 @@ export const Home = () => {
     const [page, setPage] = React.useState<JSX.Element>();
 
     const menus: MainMenu[] = [
-        {name: '任务', id: 'task', icon: 'calendar-check', click: () => setPage(<TaskPage/>)},
+        {name: '任务', id: 'task', icon: 'calendar-check', click: () => setPage(<TaskPage uid={user.id}/>)},
         {name: '项目', id: 'project', icon: 'pie-chart', click: () => setPage(<ProjectPage uid={user.id}/>)},
         {name: '文档', id: 'document', icon: 'read', click: () => setPage(<DocumentPage/>)},
         {name: '分享', id: 'share', icon: 'cloud-upload', click: () => setPage(<SharePage/>)},
@@ -86,7 +86,7 @@ export const Home = () => {
             </Layout.Sider>
 
             <Layout.Content>
-                {page||<TaskPage/>}
+                {page||<TaskPage uid={user.id}/>}
             </Layout.Content>
         </Layout>
     );

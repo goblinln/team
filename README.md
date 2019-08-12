@@ -44,9 +44,9 @@
 
 ## 使用说明
 
-1. 对于不需要修改原码的用户，可直接从[发行版](https://gitee.com/love_linger/Team/releases)页面中下载编译好的可执行文件
+1. [发行版](https://gitee.com/love_linger/Team/releases)中提供Windows与Linux的可执行文件。MacOS用户需要按2说明，自行编译
 
-2. 对于有需求修改原码的用户，修改完后可按下面的步骤自行编译。  
+2. 自行编译说明。  
 
     2.1 环境
 
@@ -67,7 +67,8 @@
     go build
 
     # 第三步使用Go.Rice将资源文件打包入可执行文件中，如果不打入包中，需要将asset/dist/目录也放入部署环境
-    rice append --exec team.exe
+    # 【注】windows下`--exec`后面的参数需要加上.exe后缀
+    rice append --exec team
     ```
 
 

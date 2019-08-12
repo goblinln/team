@@ -8,13 +8,13 @@ import {Board} from './board';
 import {Gantt} from './gantt';
 import {Creator} from './creator';
 
-export const TaskPage = () => {
+export const TaskPage = (props: {uid: number}) => {
     const [page, setPage] = React.useState<'creator'|'board'|'gantt'>('board');
     const [tasks, setTasks] = React.useState<Task[]>([]);
     const [visibleTasks, setVisibleTask] = React.useState<Task[]>([]);
     const [projs, setProjs] = React.useState<Project[]>([]);
     const [isFilterVisible, setFilterVisible] = React.useState<boolean>(false);
-    const [filter, setFilter] = React.useState<{p: number, b: number, n: string}>({p: -1, b: -1, n: ''});
+    const [filter, setFilter] = React.useState<{p: number, b: number, n: string, me: number}>({p: -1, b: -1, n: '', me: -1});
     const [branches, setBranches] = React.useState<string[]>([]);
 
     React.useEffect(() => {
@@ -28,6 +28,9 @@ export const TaskPage = () => {
             if (filter.b != -1 && t.branch != filter.b) return;
             if (filter.n.length > 0 && t.name.indexOf(filter.n) == -1) return;
             if (filter.p != -1 && t.proj.id != filter.p) return;
+
+            const roles: number[] = [t.creator.id, t.developer.id, t.tester.id];
+            if (filter.me != -1 && roles[filter.me] != props.uid) return;
             ret.push(t);
         });
 
@@ -58,7 +61,8 @@ export const TaskPage = () => {
             return {
                 p: selected,
                 b: -1,
-                n: prev.n
+                n: prev.n,
+                me: prev.me,
             }
         });
     };
@@ -69,7 +73,8 @@ export const TaskPage = () => {
             return {
                 p: prev.p,
                 b: selected,
-                n: prev.n
+                n: prev.n,
+                me: prev.me,
             }
         });
     };
@@ -79,10 +84,23 @@ export const TaskPage = () => {
             return {
                 p: prev.p,
                 b: prev.b,
-                n: v
+                n: v,
+                me: prev.me,
             }
         });
     };
+
+    const handleMyRoleChange = (ev: React.ChangeEvent<HTMLSelectElement>) => {
+        let selected = parseInt(ev.target.value);
+        setFilter(prev => {
+            return {
+                p: prev.p,
+                b: prev.b,
+                n: prev.n,
+                me: selected,
+            }
+        });
+    }
 
     const creator = React.useMemo(() => <Creator onDone={() => {fetchTasks(); setPage('board')}}/>, []);
     const board = React.useMemo(() => <Board tasks={visibleTasks} onModified={fetchTasks}/>, [visibleTasks]);
@@ -122,11 +140,21 @@ export const TaskPage = () => {
                     </div>
 
                     <div className='ml-3'>
+                        <label className='mr-1'>我的角色</label>
+                        <Input.Select style={{width: 150}} value={filter.me} onChange={handleMyRoleChange}>
+                            <option value={-1}>无要求</option>
+                            <option value={0}>发起者</option>
+                            <option value={1}>开发者</option>
+                            <option value={2}>测试人</option>
+                        </Input.Select>
+                    </div>
+
+                    <div className='ml-3'>
                         <label className='mr-1'>任务名</label>
                         <Input style={{width: 150}} value={filter.n} onChange={handleNameChange}/>
                     </div>
 
-                    <Button className='ml-3' size='sm' onClick={() => setFilter({p: -1, b: -1, n: ''})}>重置</Button>
+                    <Button className='ml-3' size='sm' onClick={() => setFilter({p: -1, b: -1, n: '', me: -1})}>重置</Button>
                 </div>
             </div>
             
