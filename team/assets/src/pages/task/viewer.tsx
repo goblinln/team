@@ -115,7 +115,7 @@ const TaskDetail = (props: {task: Task; closer: () => void; onModified: () => vo
 
         Modal.open({
             title: '修改任务名称',
-            body: <Input className='my-2' value={newName} onChange={v => newName = v}/>,
+            body: <Input className='my-2' style={{width: 300}} value={newName} onChange={v => newName = v}/>,
             onOk: () => {
                 if (newName.length == 0) {
                     Notification.alert('名称不可为空', 'error');
