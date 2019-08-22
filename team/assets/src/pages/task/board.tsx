@@ -123,7 +123,7 @@ export const Board = (props: BoardProps) => {
 
                                 return (
                                     <Card key={t.id} className='my-1 fg-muted' bordered style={{borderLeft: `4px solid ${endTime.diff(now) < 0?'red':'gray'}`}}>
-                                        <Row flex={{align: 'middle', justify: 'space-between'}} style={{fontSize: 10}}>
+                                        <Row flex={{align: 'middle', justify: 'space-between'}} style={{fontSize: 12}}>
                                             <span><Icon type='pie-chart' className='mr-1'/>{t.proj.name}</span>
                                             <span><Icon type='branches' className='mr-1'/>{t.proj.branches[t.branch]||'默认'}</span>
                                         </Row>
@@ -137,7 +137,7 @@ export const Board = (props: BoardProps) => {
                                             <span style={{color: weight.color}}>{weight.name}</span>
                                             {t.name}
                                         </Button>
-                                        <Row flex={{align: 'middle', justify: 'space-between'}} style={{fontSize: 10}}>
+                                        <Row flex={{align: 'middle', justify: 'space-between'}} style={{fontSize: 12}}>
                                             <span><Icon type='calendar' className='mr-1'/>{t.endTime}</span>
                                             <span>
                                                 {t.creator.name}<Icon type='right'/>{t.developer.name}<Icon type='right'/>{t.tester.name}
