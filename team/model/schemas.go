@@ -97,9 +97,9 @@ type (
 		BringTop    bool      `json:"bringTop"`
 		Weight      int8      `json:"weight"`
 		State       int8      `json:"state"`
-		StartTime   time.Time `json:"startTime"`
-		EndTime     time.Time `json:"endTime"`
-		ArchiveTime time.Time `json:"archiveTime"`
+		StartTime   time.Time `json:"startTime" orm:"default=CURRENT_TIMESTAMP"`
+		EndTime     time.Time `json:"endTime" orm:"default='1970-01-01 00:00:00'"`
+		ArchiveTime time.Time `json:"archiveTime" orm:"default='1970-01-01 00:00:00'"`
 		Tags        []int     `json:"tags"`
 		Content     string    `json:"content"`
 	}
