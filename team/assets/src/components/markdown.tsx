@@ -69,8 +69,6 @@ const Editor = (props: EditorProps) => {
     const textArea = React.useRef<HTMLTextAreaElement>();
     const viewerArea = React.useRef<HTMLDivElement>();
 
-    React.useEffect(() => setContent(props.value||''), [props]);
-
     const toolbar = [
         [
             {useText: true, caption: 'H1', tooltip: '一级标题', modify: (data: string) => `\n# ${data || '一级标题'}  \n`},
