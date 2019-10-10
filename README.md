@@ -2,7 +2,7 @@
 
 小团队协作平台（任务管理系统）
 
-![预览](./Preview.png)
+![预览](./preview.png)
 
 ## 重构说明
 
@@ -58,7 +58,7 @@
 
     ```shell
     # 第一步生成前端JS代码
-    cd team/assets
+    cd view
     npm install
     npm run build
 
@@ -66,7 +66,7 @@
     cd ..
     go build
 
-    # 第三步使用Go.Rice将资源文件打包入可执行文件中，如果不打入包中，需要将asset/dist/目录也放入部署环境
+    # 第三步使用Go.Rice将资源文件打包入可执行文件中，如果不打入包中，需要将view/dist/目录也放入部署环境
     # 【注】windows下`--exec`后面的参数需要加上.exe后缀
     rice append --exec team
     ```

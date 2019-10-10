@@ -81,9 +81,10 @@ typings/
 
 # project temp dirs/files
 .vscode/
-publish/logs/
-publish/uploads/
-backend/go.sum
+logs/
+uploads/
+go.sum
 team.exe
+team
 team.json
 
