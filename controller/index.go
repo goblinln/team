@@ -28,5 +28,5 @@ func Index(c *web.Context) {
 		return
 	}
 
-	c.HTML(200, model.Index)
+	c.HTML(200, model.MainPage)
 }

@@ -1,11 +1,9 @@
 package main
 
 import (
-	"net/http"
 	"team/controller"
 	"team/middleware"
 	"team/model"
-	"team/orm"
 	"team/web"
 
 	rice "github.com/GeertJohan/go.rice"
@@ -14,11 +12,7 @@ import (
 
 func main() {
 	// Open database connections.
-	if model.Environment.Installed {
-		if err := orm.OpenDB("mysql", model.Environment.MySQL.Addr()); err != nil {
-			web.Logger.Fatal("Failed to prepare database : %s", err.Error())
-		}
-	}
+	model.Environment.Prepare()
 
 	// Create router for httpd service
 	router := web.NewRouter()
@@ -26,9 +20,11 @@ func main() {
 	router.Use(middleware.PanicAsError)
 
 	// Resources.
+	resources := rice.MustFindBox("view/dist")
+	model.MainPage = resources.MustString("app.html")
 	router.GET("/", controller.Index)
-	router.GET("/view/dist/[\\s\\S]+", web.Wrap(http.StripPrefix("/view/dist/", http.FileServer(rice.MustFindBox("view/dist").HTTPBox()))))
-	router.StaticFS("/uploads", "./uploads")
+	router.StaticFS("/view/dist", resources.HTTPBox())
+	router.StaticDir("/uploads", "./uploads")
 
 	// Deploy
 	router.UseController("/install", new(controller.Install), middleware.MustNotInstalled)

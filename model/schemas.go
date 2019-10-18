@@ -57,34 +57,6 @@ type (
 		Role    int8  `json:"role"`
 		IsAdmin bool  `json:"isAdmin"`
 	}
-	// Share schema
-	Share struct {
-		ID   int64     `json:"id"`
-		Name string    `json:"name" orm:"type=VARCHAR(128),notnull"`
-		Path string    `json:"url" orm:"type=VARCHAR(128),notnull"`
-		UID  int64     `json:"uid"`
-		Time time.Time `json:"time" orm:"default=CURRENT_TIMESTAMP"`
-		Size int64     `json:"size"`
-	}
-	// Document schema
-	Document struct {
-		ID       int64     `json:"id"`
-		Parent   int64     `json:"parent" orm:"default='-1'"`
-		Title    string    `json:"title" orm:"type=VARCHAR(64),notnull"`
-		Author   int64     `json:"author"`
-		Modifier int64     `json:"modifier"`
-		Time     time.Time `json:"time" orm:"default=CURRENT_TIMESTAMP"`
-		Content  string    `json:"content"`
-	}
-	// Notice schema
-	Notice struct {
-		ID       int64     `json:"id"`
-		Time     time.Time `json:"time" orm:"default=CURRENT_TIMESTAMP"`
-		UID      int64     `json:"uid"`
-		TID      int64     `json:"tid"`
-		Operator int64     `json:"operator"`
-		Event    int16     `json:"event"`
-	}
 	// Task schema
 	Task struct {
 		ID          int64     `json:"id"`
@@ -127,7 +99,73 @@ type (
 		Time  time.Time `json:"time" orm:"default=CURRENT_TIMESTAMP"`
 		Extra string    `json:"extra"`
 	}
+	// Share schema
+	Share struct {
+		ID   int64     `json:"id"`
+		Name string    `json:"name" orm:"type=VARCHAR(128),notnull"`
+		Path string    `json:"url" orm:"type=VARCHAR(128),notnull"`
+		UID  int64     `json:"uid"`
+		Time time.Time `json:"time" orm:"default=CURRENT_TIMESTAMP"`
+		Size int64     `json:"size"`
+	}
+	// Document schema
+	Document struct {
+		ID       int64     `json:"id"`
+		Parent   int64     `json:"parent" orm:"default='-1'"`
+		Title    string    `json:"title" orm:"type=VARCHAR(64),notnull"`
+		Author   int64     `json:"author"`
+		Modifier int64     `json:"modifier"`
+		Time     time.Time `json:"time" orm:"default=CURRENT_TIMESTAMP"`
+		Content  string    `json:"content"`
+	}
+	// Notice schema
+	Notice struct {
+		ID       int64     `json:"id"`
+		Time     time.Time `json:"time" orm:"default=CURRENT_TIMESTAMP"`
+		UID      int64     `json:"uid"`
+		TID      int64     `json:"tid"`
+		Operator int64     `json:"operator"`
+		Event    int16     `json:"event"`
+	}
 )
+
+// FindUser returns user by ID
+func FindUser(ID int64) *User {
+	user := Cache.GetUser(ID)
+	if user == nil {
+		user = &User{ID: ID}
+		if err := orm.Read(user); err != nil {
+			return nil
+		}
+		Cache.SetUser(user)
+	}
+
+	return user
+}
+
+// FindUserInfo returns user's name and avatar.
+func FindUserInfo(ID int64) (string, string) {
+	user := FindUser(ID)
+	if user == nil {
+		return "未知者", ""
+	}
+
+	return user.Name, user.Avatar
+}
+
+// FindProject returns project by ID
+func FindProject(ID int64) *Project {
+	proj := Cache.GetProject(ID)
+	if proj == nil {
+		proj = &Project{ID: ID}
+		if err := orm.Read(proj); err != nil {
+			return nil
+		}
+		Cache.SetProject(proj)
+	}
+
+	return proj
+}
 
 // MakeProjectInfo returns detail information for project
 func MakeProjectInfo(id int64) map[string]interface{} {

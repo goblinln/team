@@ -28,7 +28,7 @@ func (l *Login) index(c *web.Context) {
 		return
 	}
 
-	c.HTML(200, model.Index)
+	c.HTML(200, model.MainPage)
 }
 
 func (l *Login) doLogin(c *web.Context) {

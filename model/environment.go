@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
+	"team/orm"
 )
 
 type (
@@ -31,16 +33,6 @@ func (m *MySQL) Addr() string {
 	)
 }
 
-// Save configuration into ./team.json
-func (e *Env) Save() error {
-	data, err := json.Marshal(e)
-	if err != nil {
-		return err
-	}
-
-	return ioutil.WriteFile("./team.json", data, 0777)
-}
-
 // Environment in runtime.
 var Environment = &Env{
 	Installed: false,
@@ -53,16 +45,31 @@ var Environment = &Env{
 	},
 }
 
-func init() {
+// Save configuration into ./team.json
+func (e *Env) Save() error {
+	data, err := json.Marshal(e)
+	if err != nil {
+		return err
+	}
+
+	return ioutil.WriteFile("./team.json", data, 0777)
+}
+
+// Prepare environment for this app.
+func (e *Env) Prepare() {
 	raw, err := ioutil.ReadFile("./team.json")
 	if err != nil {
 		return
 	}
 
-	err = json.Unmarshal(raw, Environment)
+	err = json.Unmarshal(raw, e)
 	if err != nil {
 		return
 	}
 
-	Environment.Installed = true
+	e.Installed = true
+
+	if err := orm.OpenDB("mysql", e.MySQL.Addr()); err != nil {
+		log.Fatalf("Failed to prepare database : %s", err.Error())
+	}
 }

@@ -25,7 +25,7 @@ func (i *Install) Register(group *web.Router) {
 }
 
 func (i *Install) index(c *web.Context) {
-	c.HTML(200, model.Index)
+	c.HTML(200, model.MainPage)
 }
 
 func (i *Install) configure(c *web.Context) {

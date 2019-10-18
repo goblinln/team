@@ -2,7 +2,6 @@ package model
 
 import (
 	"sync"
-	"team/orm"
 )
 
 // CacheManager --
@@ -60,42 +59,4 @@ func (c *CacheManager) DeleteProject(ID int64) {
 	c.Lock()
 	defer c.Unlock()
 	delete(c.Projects, ID)
-}
-
-// FindUser returns user by ID
-func FindUser(ID int64) *User {
-	user := Cache.GetUser(ID)
-	if user == nil {
-		user = &User{ID: ID}
-		if err := orm.Read(user); err != nil {
-			return nil
-		}
-		Cache.SetUser(user)
-	}
-
-	return user
-}
-
-// FindUserInfo returns user's name and avatar.
-func FindUserInfo(ID int64) (string, string) {
-	user := FindUser(ID)
-	if user == nil {
-		return "未知者", ""
-	}
-
-	return user.Name, user.Avatar
-}
-
-// FindProject returns project by ID
-func FindProject(ID int64) *Project {
-	proj := Cache.GetProject(ID)
-	if proj == nil {
-		proj = &Project{ID: ID}
-		if err := orm.Read(proj); err != nil {
-			return nil
-		}
-		Cache.SetProject(proj)
-	}
-
-	return proj
 }

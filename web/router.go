@@ -171,13 +171,15 @@ func (r *Router) Add(method string, pattern string, handler Handler, middlewares
 	}
 }
 
-// StaticFS registered a static file server router
-func (r *Router) StaticFS(prefix, dir string, middlewares ...Middleware) {
+// StaticDir registered a static file server by directory.
+func (r *Router) StaticDir(prefix, dir string, middlewares ...Middleware) {
+	r.StaticFS(prefix, http.Dir(dir), middlewares...)
+}
+
+// StaticFS registered a static file server by given filesystem.
+func (r *Router) StaticFS(prefix string, fs http.FileSystem, middlewares ...Middleware) {
 	uri := strings.TrimRight(prefix, "/") + "/"
-	r.Add("GET", uri+`[\s\S]+`, func(c *Context) {
-		h := http.StripPrefix(uri, http.FileServer(http.Dir(dir)))
-		h.ServeHTTP(c.rsp, c.req)
-	}, middlewares...)
+	r.Add("GET", uri+`[\s\S]+`, Wrap(http.StripPrefix(uri, http.FileServer(fs))), middlewares...)
 }
 
 // GET route register
