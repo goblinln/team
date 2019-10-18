@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"io/ioutil"
 	"mime/multipart"
 	"net"
 	"net/http"
@@ -60,6 +61,16 @@ func (c *Context) RemoteAddr() string {
 // Body returns request body
 func (c *Context) Body() io.ReadCloser {
 	return c.req.Body
+}
+
+// BodyAsJSON parse body content as application/json.
+func (c *Context) BodyAsJSON(to interface{}) error {
+	buf, err := ioutil.ReadAll(c.req.Body)
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(buf, to)
 }
 
 // RequestHeader returns HTTP header map of request.
