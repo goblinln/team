@@ -14,11 +14,15 @@ interface Parameter {
 }
 
 export const request = (param: Parameter) => {
-    if (!(param.data instanceof FormData) && !(param.data instanceof URLSearchParams)) param.data = JSON.stringify(param.data);
-    
-    let init : RequestInit = { method: param.method||'GET', body: param.data, credentials: "include" };
-    let finish = () => { !param.dontShowLoading&&Loading.hide(); }
+    let init : RequestInit = { method: param.method||'GET', credentials: "include" };
+    if (param.data instanceof FormData || param.data instanceof URLSearchParams) {
+        init.body = param.data
+    } else {
+        init.headers = {'content-type': 'application/json'}
+        init.body = JSON.stringify(param.data);
+    }
 
+    let finish = () => { !param.dontShowLoading&&Loading.hide(); }
     if (!param.dontShowLoading) Loading.show();
 
     if (param.success == null) {
