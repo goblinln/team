@@ -24,7 +24,7 @@ func main() {
 	model.MainPage = resources.MustString("app.html")
 	router.GET("/", controller.Index)
 	router.StaticFS("/view/dist", resources.HTTPBox())
-	router.StaticFS("/uploads", web.Dir("./uploads"))
+	router.StaticFS("/uploads", web.Dir("uploads"))
 
 	// Deploy
 	router.UseController("/install", new(controller.Install), middleware.MustNotInstalled)
