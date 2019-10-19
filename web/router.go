@@ -54,6 +54,11 @@ func Wrap(handler http.Handler) Handler {
 	}
 }
 
+// Dir returns a http.FileSystem for StaticFS
+func Dir(path string) http.FileSystem {
+	return http.Dir(path)
+}
+
 // WrapFunc wraps original http handle function to web.Handler
 func WrapFunc(handle func(w http.ResponseWriter, r *http.Request)) Handler {
 	return func(c *Context) {
@@ -169,11 +174,6 @@ func (r *Router) Add(method string, pattern string, handler Handler, middlewares
 	} else {
 		r.dispatchers[method] = []*Dispatcher{dispatcher}
 	}
-}
-
-// StaticDir registered a static file server by directory.
-func (r *Router) StaticDir(prefix, dir string, middlewares ...Middleware) {
-	r.StaticFS(prefix, http.Dir(dir), middlewares...)
 }
 
 // StaticFS registered a static file server by given filesystem.
