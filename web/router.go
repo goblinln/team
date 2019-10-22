@@ -116,6 +116,18 @@ func (r *Router) Invoke(c *Context, handler Handler) {
 	caller(c)
 }
 
+// SetNotFound hooks 404 error handler.
+func (r *Router) SetNotFound(handler Handler) {
+	r.notFound = handler
+}
+
+// SetPage serves given url as simple HTML page.
+func (r *Router) SetPage(url string, html string) {
+	r.GET(url, func(c *Context) {
+		c.HTML(200, html)
+	})
+}
+
 // Add a new route
 func (r *Router) Add(method string, pattern string, handler Handler, middlewares ...Middleware) {
 	pattern = r.prefix + pattern
