@@ -138,6 +138,7 @@ func CreateTable(v interface{}) error {
 	builder.WriteString(strings.Join(fields, ",\n"))
 	builder.WriteString(") DEFAULT CHARSET utf8;")
 
+	fmt.Println(builder.String())
 	_, err := db.Exec(builder.String())
 	return err
 }

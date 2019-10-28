@@ -70,8 +70,8 @@ type (
 		Weight      int8      `json:"weight"`
 		State       int8      `json:"state"`
 		StartTime   time.Time `json:"startTime" orm:"default=CURRENT_TIMESTAMP"`
-		EndTime     time.Time `json:"endTime" orm:"notnull"`
-		ArchiveTime time.Time `json:"archiveTime" orm:"notnull"`
+		EndTime     time.Time `json:"endTime" orm:"notnull,default='2000-01-01'"`
+		ArchiveTime time.Time `json:"archiveTime" orm:"notnull,default='2000-01-01'"`
 		Tags        []int     `json:"tags"`
 		Content     string    `json:"content"`
 	}
