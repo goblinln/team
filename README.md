@@ -71,6 +71,61 @@
     rice append --exec team
     ```
 
+## 源代码说明
+
+    repo
+    |-- controller                  - 控制器
+    |   |-- admin.go                    - 处理 /admin/* 的请求 （系统管理功能）
+    |   |-- documents.go                - 处理 /api/document/* 的请求 （文档管理）
+    |   |-- file.go                     - 处理 /api/file/* 的请求 （文件管理）
+    |   |-- index.go                    - 处理 / 的请求（主页）
+    |   |-- install.go                  - 处理 /install/* 的请求（网站部署功能）
+    |   |-- login.go                    - 处理 /login/* 的请求（登录功能）
+    |   |-- logout.go                   - 处理 /logout/* 的请求（登出功能）
+    |   |-- notice.go                   - 处理 /api/notice/* 的请求（通知功能）
+    |   |-- project.go                  - 处理 /api/project/* 的请求（项目模块）
+    |   |-- task.go                     - 处理 /api/task/* 的请求（任务模块）
+    |   |-- user.go                     - 处理 /api/user/* 的请求（个人信息管理）
+    |
+    |-- middleware                  - 中间件
+    |   |-- authorization.go            - 权限相关
+    |   |-- logger.go                   - 访问日志记录
+    |   |-- panic_as_error.go           - 统一的错误处理
+    |   |-- prerequisites.go            - 部署检测
+    |
+    |-- model                       - 数据模型
+    |   |-- cache.go                    - 运行期必要的缓存
+    |   |-- environment.go              - 环境配置数据定义
+    |   |-- main_page.go                - 只是定义了一个主页内容的数据变量，用于其他模块使用
+    |   |-- schemas.go                  - 核心数据类型定义（也是数据库中表结构定义）
+    |   |-- token.go                    - 自动登录的数据定义
+    |   
+    |-- orm                         - ORM
+    |   |-- orm.go                      - 实现的一个简单的golang struct与MySQL表映射的ORM库
+    |
+    |-- view                        - 视图层（纯前端，非服务器渲染）
+    |   |-- dist                        - 静态文件（包含生成好的js bundle）
+    |   |-- src                         - 前端代码（React + TypeScript）
+    |   |   |-- common                      - 通信协议、常用函数、常用类
+    |   |   |-- components                  - 实现的组件库
+    |   |   |-- pagas                       - 页面实现
+    |   |   |-- app.tsx                     - 主入口
+    |   |
+    |   |-- package.json                - NPM依赖（建议使用cnpm安装）
+    |   |-- tsconfig.json               - TypeScript配置
+    |   |-- webpack.config.js           - webpack配置（打包js bundle的命令：npm run build）
+    |
+    |-- web                         - 网络框架
+    |   |-- context.go                  - HTTP Context定义
+    |   |-- logger.go                   - 日志工具
+    |   |-- responser.go                - 响应类
+    |   |-- router.go                   - 路由组件实现
+    |   |-- session.go                  - 会话功能
+    |   |-- value.go                    - 参数
+    |
+    |-- go.mod                      - golang工程依赖
+    |-- main.go                     - 主入口
+
 
 
 
