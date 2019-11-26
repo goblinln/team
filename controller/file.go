@@ -105,7 +105,13 @@ func (f *File) download(c *web.Context) {
 
 func (f *File) deleteShare(c *web.Context) {
 	id := c.RouteValue("id").MustInt("")
-	orm.Delete("share", id)
+	share := &model.Share{ID: id}
+	err := orm.Read(share)
+	if err == nil {
+		os.Remove("." + share.Path)
+		orm.Delete("share", id)
+	}
+
 	c.JSON(200, web.Map{})
 }
 
