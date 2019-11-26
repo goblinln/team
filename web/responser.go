@@ -1,6 +1,8 @@
 package web
 
 import (
+	"bufio"
+	"net"
 	"net/http"
 )
 
@@ -42,4 +44,9 @@ func (r *Responser) WriteHeader(code int) {
 // Flush send buffer.
 func (r *Responser) Flush() {
 	r.writer.(http.Flusher).Flush()
+}
+
+// Hijack implements http.Hijacker interface.
+func (r *Responser) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	return r.writer.(http.Hijacker).Hijack()
 }
