@@ -22,6 +22,7 @@ const (
 	TaskEventComment      = 12
 	TaskEventMoveBack     = 13
 	TaskEventRename       = 14
+	TaskEventSetStatus    = 15
 )
 
 var (

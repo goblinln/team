@@ -8,17 +8,19 @@
   },
   "dependencies": {
     "moment": "^2.24.0",
-    "react": "^16.9.0",
-    "react-dom": "^16.9.0",
-    "react-markdown": "^4.1.0"
+    "react": "^16.12.0",
+    "react-beautiful-dnd": "^12.2.0",
+    "react-dom": "^16.12.0",
+    "react-markdown": "^4.2.2"
   },
   "devDependencies": {
-    "@types/react": "^16.8.25",
-    "@types/react-dom": "^16.8.5",
-    "ts-loader": "^5.2.1",
+    "@types/react": "^16.9.15",
+    "@types/react-beautiful-dnd": "^11.0.3",
+    "@types/react-dom": "^16.9.4",
     "css-loader": "^2.1.1",
     "style-loader": "^0.23.1",
     "ts-import-plugin": "^1.5.5",
+    "ts-loader": "^5.2.1",
     "typescript": "^3.4.5",
     "webpack": "^4.32.2",
     "webpack-cli": "^3.3.2"

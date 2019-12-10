@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"strconv"
 	"time"
 
 	"team/model"
@@ -29,6 +30,7 @@ func (t *Task) Register(group *web.Router) {
 	group.PUT("/:id/weight", t.setWeight)
 	group.PUT("/:id/time", t.setTime)
 	group.PUT("/:id/content", t.setContent)
+	group.PUT("/:id/status", t.setStatus)
 	group.POST("/:id/comment", t.addComment)
 }
 
@@ -377,6 +379,61 @@ func (t *Task) setContent(c *web.Context) {
 	web.Assert(err == nil, "更新数据库失败")
 
 	model.AfterTaskOperation(task, uid, model.TaskEventModContent, "")
+	c.JSON(200, web.Map{})
+}
+
+func (t *Task) setStatus(c *web.Context) {
+	tid := c.RouteValue("id").MustInt("")
+	status := int8(c.FormValue("moveTo").MustInt("非法的任务状态"))
+	uid := c.Session.Get("uid").(int64)
+	task := &model.Task{ID: tid}
+	err := orm.Read(task)
+	web.Assert(err == nil, "任务不存在或已被删除")
+
+	if task.State == status {
+		c.JSON(200, &web.Map{})
+		return
+	}
+
+	ev := model.TaskEventSetStatus
+	validOperator := false
+	switch task.State {
+	case 0:
+		validOperator = (uid == task.Developer && status == 1)
+	case 1:
+		validOperator = (uid == task.Developer && status < 3)
+	case 2:
+		validOperator = (uid == task.Tester && status > 0 && status < 4) || uid == task.Creator
+	case 3:
+		validOperator = (uid == task.Tester && status > 0 && status < 3) || uid == task.Creator
+	case 4:
+		validOperator = uid == task.Creator
+	}
+
+	if !validOperator {
+		rows, err := orm.Query("SELECT COUNT(*) FROM `projectmember` WHERE `pid`=? AND `uid`=? AND `isadmin`=1", task.PID, uid)
+		web.Assert(err == nil, "您不可修改该任务状态")
+		defer rows.Close()
+
+		web.Assert(rows.Next(), "您无权修改该任务")
+
+		count := 0
+		web.Assert(rows.Scan(&count) == nil && count > 0, "您无权修改该任务")
+	}
+
+	if task.State == 4 {
+		task.ArchiveTime = model.TaskTimeInfinite
+	}
+
+	if status == 4 {
+		task.ArchiveTime = time.Now()
+	}
+
+	task.State = status
+	err = orm.Update(task)
+	web.Assert(err == nil, "修改任务状态失败")
+
+	model.AfterTaskOperation(task, c.Session.Get("uid").(int64), ev, strconv.Itoa(int(status)))
 	c.JSON(200, web.Map{})
 }
 

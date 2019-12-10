@@ -25,6 +25,7 @@ const makeTaskEvent = (ev: TaskEvent) => {
     case 12: desc = '评论了任务'; break;
     case 13: desc = '回退了任务状态'; break;
     case 14: desc = '修改了任务名，原名：' + ev.extra; break;
+    case 15: desc = '修改了任务状态为：' + TaskStatus[parseInt(ev.extra)].name; break;
     default: desc = '对任务的其他内容进行了修改'; break;
     }
 
