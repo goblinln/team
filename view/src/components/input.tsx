@@ -306,11 +306,9 @@ Input.Uploader = (props: UploaderProps) => {
     const [uploaded, setUploaded] = React.useState<{itemId: string; node: React.ReactNode}[]>([]);
 
     const Item = (props: {itemId: string}) => {
+        const [autoClicked, setAutoClicked] = React.useState<boolean>(false);
         const [valid, setValid] = React.useState<boolean>(false);
         const [fileName, setFileName] = React.useState<string>('');
-        const ref = React.useRef<HTMLInputElement>(null);
-
-        React.useEffect(() => ref.current.click(), []);
 
         const removeSelf = () => {
             setUploaded(prev => {
@@ -325,14 +323,21 @@ Input.Uploader = (props: UploaderProps) => {
             if (ev.target.files.length == 0) {
                 removeSelf();
             } else {
-                setFileName(ev.target.files[0].name)
+                setFileName(ev.target.files[0].name);
                 setValid(true);
             }
-        };
+        }
+
+        const autoClick = (node: HTMLInputElement) => {
+            if (!autoClicked && node) {
+                setAutoClicked(true);
+                node.click();
+            }
+        }
 
         return (
             <div className='uploader-item' hidden={!valid}>
-                <input ref={ref} type='file' name={name} accept={accept} onChange={handleChange} hidden/>
+                <input ref={autoClick} type='file' name={name} accept={accept} onChange={handleChange} hidden/>
                 <span>{fileName}</span>
                 <Icon type='close' className='ml-2' onClick={removeSelf}/>
             </div>

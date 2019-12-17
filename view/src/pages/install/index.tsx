@@ -70,7 +70,7 @@ export const Install = () => {
 
     const startDBTimer = () => {
         fetchDBStatus();
-        dbTimer.current = setInterval(() => {
+        dbTimer.current = window.setInterval(() => {
             fetchDBStatus();
         }, 500);
     };
