@@ -18,14 +18,9 @@ type Install struct {
 
 // Register implements web.Controller interface.
 func (i *Install) Register(group *web.Router) {
-	group.GET("", i.index)
 	group.POST("/configure", i.configure)
 	group.GET("/status", i.status)
 	group.POST("/admin", i.createAdmin)
-}
-
-func (i *Install) index(c *web.Context) {
-	c.HTML(200, model.MainPage)
 }
 
 func (i *Install) configure(c *web.Context) {

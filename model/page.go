@@ -1,3 +1,7 @@
+package model
+
+// Page template for this app.
+var Page = `
 <!DOCTYPE html>
 <html>
 	<head>
@@ -11,3 +15,4 @@
 		<script src="/view/dist/app.js"></script>
 	</body>
 </html>
+`

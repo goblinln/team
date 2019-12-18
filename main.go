@@ -20,18 +20,17 @@ func main() {
 	router.Use(middleware.PanicAsError)
 
 	// Resources.
-	resources := rice.MustFindBox("view/dist")
-	model.MainPage = resources.MustString("app.html")
-	router.GET("/", controller.Index)
-	router.StaticFS("/view/dist", resources.HTTPBox())
+	router.SetPage("/", model.Page)
+	router.StaticFS("/view/dist", rice.MustFindBox("view/dist").HTTPBox())
 	router.StaticFS("/uploads", web.Dir("uploads"))
 
-	// Deploy
-	router.UseController("/install", new(controller.Install), middleware.MustNotInstalled)
-
-	// Login/out
-	router.UseController("/login", new(controller.Login), middleware.MustInstalled)
+	// Home/Login/Logout
+	router.GET("/home", controller.Home)
 	router.GET("/logout", controller.Logout)
+	router.POST("/login", controller.Login)
+
+	// Install
+	router.UseController("/install", new(controller.Install), middleware.MustNotInstalled)
 
 	// Normal API
 	api := router.Group("/api")

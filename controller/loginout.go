@@ -13,25 +13,8 @@ import (
 	"team/web"
 )
 
-// Login controller
-type Login int
-
-// Register implements web.Controller interface.
-func (l *Login) Register(group *web.Router) {
-	group.GET("", l.index)
-	group.POST("", l.doLogin)
-}
-
-func (l *Login) index(c *web.Context) {
-	if c.Session.Has("uid") {
-		c.Redirect(302, "/")
-		return
-	}
-
-	c.HTML(200, model.MainPage)
-}
-
-func (l *Login) doLogin(c *web.Context) {
+// Login handler
+func Login(c *web.Context) {
 	account := c.PostFormValue("account").MustString("登录帐号未填写")
 	password := c.PostFormValue("password").MustString("登录密码未填写")
 	remember, _ := c.PostFormValue("remember").Bool()
@@ -73,4 +56,10 @@ func (l *Login) doLogin(c *web.Context) {
 
 	c.Session.Set("uid", user.ID)
 	c.JSON(200, web.Map{})
+}
+
+// Logout handler.
+func Logout(c *web.Context) {
+	c.EndSession()
+	c.Redirect(302, "/")
 }

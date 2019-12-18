@@ -5,10 +5,10 @@ import (
 	"team/web"
 )
 
-// Index handler.
-func Index(c *web.Context) {
+// Home handler.
+func Home(c *web.Context) {
 	if !model.Environment.Installed {
-		c.Redirect(302, "/install")
+		c.JSON(200, web.Map{"data": "install"})
 		return
 	}
 
@@ -24,9 +24,9 @@ func Index(c *web.Context) {
 			}
 		}
 
-		c.Redirect(302, "/login")
+		c.JSON(200, web.Map{"data": "login"})
 		return
 	}
 
-	c.HTML(200, model.MainPage)
+	c.JSON(200, web.Map{"data": "home"})
 }
