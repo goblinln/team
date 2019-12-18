@@ -21,7 +21,7 @@ func main() {
 
 	// Resources.
 	router.SetPage("/", model.Page)
-	router.StaticFS("/view/dist", rice.MustFindBox("view/dist").HTTPBox())
+	router.StaticFS("/assets", rice.MustFindBox("view/dist").HTTPBox())
 	router.StaticFS("/uploads", web.Dir("uploads"))
 
 	// Home/Login/Logout
