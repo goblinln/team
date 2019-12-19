@@ -17,7 +17,7 @@ export const ProjectPage = (props: {uid: number}) => {
     }, []);
 
     return (
-        <Layout  style={{width: '100%', height: '100%'}}>
+        <Layout style={{width: '100%', height: '100%'}}>
             <Layout.Sider width={200} theme='light'>            
                 <div style={{padding: 8, borderBottom: '1px solid #E2E2E2'}}>
                     <label className='text-bold fg-muted' style={{fontSize: '1.2em'}}><Icon type='pie-chart' className='mr-2'/>项目列表</label>

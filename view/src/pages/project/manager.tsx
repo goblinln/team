@@ -23,7 +23,7 @@ export const Manager = (props: {pid: number}) => {
         )}
     ];
 
-    React.useEffect(() => fetchProject(), []);
+    React.useEffect(() => fetchProject(), [props]);
 
     const fetchProject = () => {
         request({url: `/api/project/${props.pid}`, success: (data: Project) => {
