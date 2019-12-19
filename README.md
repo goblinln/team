@@ -59,7 +59,7 @@
     rice append --exec team
     ```
 
-3. 运行team可执行文件，访问**http://localhost:8080/**进行配置
+3. 运行team可执行文件，访问 http://localhost:8080 进行配置
 
 ## 源代码说明
 
