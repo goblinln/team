@@ -70,10 +70,9 @@
     |   |-- admin.go                    - 处理 /admin/* 的请求 （系统管理功能）
     |   |-- documents.go                - 处理 /api/document/* 的请求 （文档管理）
     |   |-- file.go                     - 处理 /api/file/* 的请求 （文件管理）
-    |   |-- index.go                    - 处理 / 的请求（主页）
+    |   |-- home.go                     - 处理 / 的请求（主页）
     |   |-- install.go                  - 处理 /install/* 的请求（网站部署功能）
-    |   |-- login.go                    - 处理 /login/* 的请求（登录功能）
-    |   |-- logout.go                   - 处理 /logout/* 的请求（登出功能）
+    |   |-- loginout.go                 - 处理 /login 及 /logout 的请求（登录/登出功能）
     |   |-- notice.go                   - 处理 /api/notice/* 的请求（通知功能）
     |   |-- project.go                  - 处理 /api/project/* 的请求（项目模块）
     |   |-- task.go                     - 处理 /api/task/* 的请求（任务模块）
