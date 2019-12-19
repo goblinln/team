@@ -1,21 +1,8 @@
 # Team
 
-小团队协作平台（任务管理系统）
+小团队协作平台（任务管理系统）。**IE等旧浏览器不支持。推荐Chrome**
 
 ![预览](./screenshot.png)
-
-## 重构说明
-
-1. 新版移除`Ant-Design`的依赖，改为使用自己实现的组件库。主要原因有：
-    * Antd太大了，项目按需加载后，生成的app.js都2.5MB。
-    * Antd的依赖过重
-    * Form使用起来繁琐
-    * Dropdown及Popover感觉有点反人类，为什么具体内容不是child而是attribute，而本可以做成label属性的反而是child
-    * 想使用React HOOK实现一个通用的组件库，方便其他项目使用
-2. 新版组件库的样式参考了`Ant-Design`与`layui`
-3. 新版API不再使用PATCH方法，因为发现Edge等浏览器会有问题
-4. 新版js使用es6，字体使用woff格式，IE等老旧浏览器不可用
-5. 2.x与3.x数据兼容。
 
 ## 实现功能
 
@@ -67,11 +54,16 @@
     go build
 
     # 第三步使用Go.Rice将资源文件打包入可执行文件中，如果不打入包中，需要将view/dist/目录也放入部署环境
-    # 【注】windows下`--exec`后面的参数需要加上.exe后缀
+    # 【注1】Go.Rice的安装方式`go get github.com/GeertJohan/go.rice/rice`
+    # 【注2】windows下`--exec`后面的参数需要加上.exe后缀
     rice append --exec team
     ```
 
+3. 运行team可执行文件，访问**http://localhost:8080/**进行配置
+
 ## 源代码说明
+
+为方便二次开发，对源代码结构进行统一说明
 
     repo
     |-- controller                  - 控制器
@@ -96,7 +88,6 @@
     |-- model                       - 数据模型
     |   |-- cache.go                    - 运行期必要的缓存
     |   |-- environment.go              - 环境配置数据定义
-    |   |-- main_page.go                - 只是定义了一个主页内容的数据变量，用于其他模块使用
     |   |-- schemas.go                  - 核心数据类型定义（也是数据库中表结构定义）
     |   |-- token.go                    - 自动登录的数据定义
     |   
@@ -107,7 +98,7 @@
     |   |-- dist                        - 静态文件（包含生成好的js bundle）
     |   |-- src                         - 前端代码（React + TypeScript）
     |   |   |-- common                      - 通信协议、常用函数、常用类
-    |   |   |-- components                  - 实现的组件库
+    |   |   |-- components                  - 实现的组件库，样式参考了antd与layui
     |   |   |-- pagas                       - 页面实现
     |   |   |-- app.tsx                     - 主入口
     |   |
