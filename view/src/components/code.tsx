@@ -21,7 +21,7 @@ export const Code = (props: CodeProps) => {
         <pre {...classes} {...nativeProps}>
             <h3 className='code-title'>{label||'代码'}</h3>
             <ol className='code-content'>
-                {data.split('\n').map((line, idx) => {
+                {data&&data.split('\n').map((line, idx) => {
                     return <li key={idx}>{line}</li>
                 })}
             </ol>
