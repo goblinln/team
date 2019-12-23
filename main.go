@@ -1,34 +1,26 @@
 package main
 
 import (
+	"team/config"
 	"team/controller"
 	"team/middleware"
-	"team/model"
+	"team/orm"
 	"team/web"
 
 	rice "github.com/GeertJohan/go.rice"
 	_ "github.com/go-sql-driver/mysql"
 )
 
-const singlePage = `
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=3, shrink-to-fit=no">
-		<title>团队协作系统</title>
-		<link rel="shortcut icon" href="/assets/app.ico" />
-	</head>
-	<body>
-		<div id="app"></div>
-		<script src="/assets/app.js"></script>
-	</body>
-</html>
-`
-
 func main() {
-	// Open database connections.
-	model.Environment.Prepare()
+	// Load configuration.
+	config.Default.Load()
+
+	// Open database
+	if config.Default.Installed {
+		if err := orm.OpenDB("mysql", config.Default.GetMySQLAddr()); err != nil {
+			web.Logger.Fatal("Failed to connect to database: %s. Reason: %v", config.Default.GetMySQLAddr(), err)
+		}
+	}
 
 	// Create router for httpd service
 	router := web.NewRouter()
@@ -36,7 +28,7 @@ func main() {
 	router.Use(middleware.PanicAsError)
 
 	// Resources.
-	router.SetPage("/", singlePage)
+	router.SetPage("/", rice.MustFindBox("view/dist").MustString("app.html"))
 	router.StaticFS("/assets", rice.MustFindBox("view/dist").HTTPBox())
 	router.StaticFS("/uploads", web.Dir("uploads"))
 
@@ -69,5 +61,5 @@ func main() {
 		middleware.MustLoginedAsAdmin)
 
 	// Start service.
-	router.Start(model.Environment.AppPort)
+	router.Start(config.Default.AppPort)
 }
