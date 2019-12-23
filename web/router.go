@@ -1,6 +1,7 @@
 package web
 
 import (
+	"errors"
 	"net/http"
 	"regexp"
 	"strings"
@@ -63,6 +64,20 @@ func Dir(path string) http.FileSystem {
 func WrapFunc(handle func(w http.ResponseWriter, r *http.Request)) Handler {
 	return func(c *Context) {
 		handle(c.rsp, c.req)
+	}
+}
+
+// AssertError panics when err exists.
+func AssertError(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+// Assert panics when test expr failed.
+func Assert(expr bool, errMsg string) {
+	if !expr {
+		panic(errors.New(errMsg))
 	}
 }
 

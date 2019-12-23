@@ -12,13 +12,6 @@ type Value struct {
 
 var errMissing = errors.New("Parameter NOT exists")
 
-// Assert panics when test expr failed.
-func Assert(expr bool, errMsg string) {
-	if !expr {
-		panic(errors.New(errMsg))
-	}
-}
-
 // Bool returns parsed boolean value.
 func (v *Value) Bool() (bool, error) {
 	if v.data == nil || len(v.data) == 0 {
