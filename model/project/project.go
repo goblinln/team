@@ -138,14 +138,15 @@ func Add(name string, uid int64, role int8) error {
 		return errors.New("默认管理员当前被禁止登录")
 	}
 
-	proj := &Project{Name: name}
+	proj := &Project{Name: name, Milestones: []*Milestone{}, Members: []*Member{}}
 	rs, err := orm.Insert(proj)
 	if err != nil {
 		return errors.New("写入新项目失败")
 	}
 
 	proj.ID, _ = rs.LastInsertId()
-	orm.Insert(&Member{PID: proj.ID, UID: uid, Role: role, IsAdmin: true})
+	proj.Members = append(proj.Members, &Member{PID: proj.ID, UID: uid, Role: role, IsAdmin: true, User: admin})
+	orm.Insert(proj.Members[0])
 	projectCache.Store(proj.ID, proj)
 	return nil
 }
