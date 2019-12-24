@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"team/model"
+	"team/model/user"
 	"team/web"
 )
 
@@ -11,12 +11,12 @@ import (
 func AutoLogin(next web.Handler) web.Handler {
 	return func(c *web.Context) {
 		if !c.Session.Has("uid") {
-			cookie, err := c.Cookie(model.AutoLoginCookieKey)
+			cookie, err := c.Cookie(user.AutoLoginCookieKey)
 			if err == nil {
-				uid := model.TryAutoLogin(cookie.Value, c.RemoteIP())
+				uid := user.AutoLogin(cookie.Value, c.RemoteIP())
 				if uid < 0 {
 					c.SetCookie(&http.Cookie{
-						Name:   model.AutoLoginCookieKey,
+						Name:   user.AutoLoginCookieKey,
 						Value:  "",
 						MaxAge: -1,
 					})
@@ -49,7 +49,7 @@ func MustLoginedAsAdmin(next web.Handler) web.Handler {
 			return
 		}
 
-		me := model.FindUser(c.Session.Get("uid").(int64))
+		me := user.Find(c.Session.Get("uid").(int64))
 		if me == nil {
 			c.JSON(http.StatusUnauthorized, web.Map{"err": "请先登录后操作"})
 			return

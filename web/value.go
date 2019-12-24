@@ -12,13 +12,6 @@ type Value struct {
 
 var errMissing = errors.New("Parameter NOT exists")
 
-// Assert panics when test expr failed.
-func Assert(expr bool, errMsg string) {
-	if !expr {
-		panic(errors.New(errMsg))
-	}
-}
-
 // Bool returns parsed boolean value.
 func (v *Value) Bool() (bool, error) {
 	if v.data == nil || len(v.data) == 0 {
@@ -52,26 +45,26 @@ func (v *Value) MustInt(errMsg string) int64 {
 }
 
 // Ints returns parsed interger array
-func (v *Value) Ints() ([]int64, error) {
+func (v *Value) Ints() ([]int, error) {
 	if v.data == nil {
-		return []int64{}, errMissing
+		return []int{}, errMissing
 	}
 
-	ret := []int64{}
+	ret := []int{}
 	for _, s := range v.data {
 		n, err := strconv.ParseInt(s, 10, 64)
 		if err != nil {
 			return ret, err
 		}
 
-		ret = append(ret, n)
+		ret = append(ret, int(n))
 	}
 
 	return ret, nil
 }
 
 // MustInts panics when Ints() returns error.
-func (v *Value) MustInts(errMsg string) []int64 {
+func (v *Value) MustInts(errMsg string) []int {
 	n, e := v.Ints()
 	Assert(e == nil, errMsg)
 	return n

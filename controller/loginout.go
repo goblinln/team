@@ -1,15 +1,9 @@
 package controller
 
 import (
-	"crypto/md5"
-	"encoding/base64"
-	"encoding/json"
-	"fmt"
 	"net/http"
-	"time"
 
-	"team/model"
-	"team/orm"
+	"team/model/user"
 	"team/web"
 )
 
@@ -19,42 +13,19 @@ func Login(c *web.Context) {
 	password := c.PostFormValue("password").MustString("登录密码未填写")
 	remember, _ := c.PostFormValue("remember").Bool()
 
-	hash := md5.New()
-	hash.Write([]byte(password))
+	logined, cookie := user.Login(account, password, c.RemoteIP(), remember)
+	web.Assert(logined != nil, "帐号或密码不正确")
+	web.Assert(!logined.IsLocked, "帐号已被禁止登录，请联系管理员解除锁定！")
 
-	user := &model.User{Account: account, Password: fmt.Sprintf("%X", hash.Sum(nil))}
-	err := orm.Read(user, "account", "password")
-	web.Assert(err == nil, "帐号或密码不正确")
-	web.Assert(!user.IsLocked, "帐号已被禁止登录，请联系管理员解除锁定！")
-
-	if remember {
-		expire := time.Now().Add(30 * 24 * time.Hour)
-		code := fmt.Sprintf("%d|%s|%s", user.ID, c.RemoteIP(), model.AutoLoginSecret)
-		sign := md5.New()
-		sign.Write([]byte(code))
-
-		token := &model.AutoLoginToken{
-			ID:   user.ID,
-			IP:   c.RemoteIP(),
-			Sign: fmt.Sprintf("%X", sign.Sum(nil)),
-		}
-
-		j, err := json.Marshal(token)
-		if err == nil {
-			c.SetCookie(&http.Cookie{
-				Name:    model.AutoLoginCookieKey,
-				Value:   base64.StdEncoding.EncodeToString(j),
-				Expires: expire,
-			})
-
-			user.AutoLoginExpire = expire.Unix()
-			orm.Update(user)
-		}
+	if cookie != nil {
+		c.SetCookie(&http.Cookie{
+			Name:    cookie.Name,
+			Value:   cookie.Value,
+			Expires: cookie.Expires,
+		})
 	}
 
-	model.Cache.SetUser(user)
-
-	c.Session.Set("uid", user.ID)
+	c.Session.Set("uid", logined.ID)
 	c.JSON(200, web.Map{})
 }
 

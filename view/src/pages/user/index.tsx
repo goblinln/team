@@ -22,21 +22,15 @@ export const UserPage = (props: UserPageProps) => {
 
         switch (notice.ev) {
         case 0: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>创建了{link}</p>;
-        case 1: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>接手了{link}</p>;
-        case 2: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>开启了{link}的测试流程</p>;
-        case 3: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>将{link}设置为已完成</p>;
-        case 4: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>归档了{link}</p>;
-        case 5: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>修改了{link}的开始时间</p>;
-        case 6: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>修改了{link}的结束时间</p>;
-        case 7: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>移交了{link}</p>;
-        case 8: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>重新指派了{link}的开发者</p>;
-        case 9: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>重新指定了{link}的测试者</p>;
-        case 10: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>修改了{link}的优先级</p>;
-        case 11: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>修改了{link}的具体内容</p>;
-        case 12: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>评论了{link}</p>;
-        case 13: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>回退了{link}的状态</p>;
-        case 14: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>重命名{link}</p>;
-        case 15: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>修改了{link}的状态</p>;
+        case 1: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>重命名{link}</p>;
+        case 2: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>修改了{link}的状态</p>;
+        case 3: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>修改了{link}的时间计划</p>;
+        case 4: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>移交了{link}</p>;
+        case 5: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>重新指派了{link}的开发者</p>;
+        case 6: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>重新指定了{link}的测试者</p>;
+        case 7: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>修改了{link}的优先级</p>;
+        case 8: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>修改了{link}的具体内容</p>;
+        case 9: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>评论了{link}</p>;
         default: return <p style={{marginBottom: 2}}><b>{notice.operator}</b>对{link}进行了其他修改</p>;
         }
     }
