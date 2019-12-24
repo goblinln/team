@@ -67,6 +67,7 @@ func (i *Install) configure(c *web.Context) {
 			{Table: "user", Schema: &user.User{}},
 			{Table: "notice", Schema: &notice.Notice{}},
 			{Table: "project", Schema: &project.Project{}},
+			{Table: "project milestone", Schema: &project.Milestone{}},
 			{Table: "project member", Schema: &project.Member{}},
 			{Table: "task", Schema: &task.Task{}},
 			{Table: "task attachment", Schema: &task.Attachment{}},

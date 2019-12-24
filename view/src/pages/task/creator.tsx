@@ -43,8 +43,7 @@ export const Creator = (props: {onDone: () => void}) => {
 
     const form = Form.useForm({
         name: {required: '任务标题不可为空', length: {min: 2, max: 64, message: '任务名在2到64个字符之间'}},
-        proj: {required: '请指定所属项目'},
-        branch: {required: '请指定所属分支'},
+        pid: {required: '请指定所属项目'},
         weight: {required: '请指定优先级'},
         developer: {required: '未指定开发人员'},
         tester: {required: '请指定测试人员'},
@@ -102,16 +101,17 @@ export const Creator = (props: {onDone: () => void}) => {
                     </Form.Field>
                 </Col>
                 <Col span={{xs: 2}}>
-                    <Form.Field htmlFor='proj' label='项目'>
-                        <Input.Select name='proj' onChange={handleProjectChange}>
+                    <Form.Field htmlFor='pid' label='项目'>
+                        <Input.Select name='pid' onChange={handleProjectChange}>
                             {projs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                         </Input.Select>
                     </Form.Field>
                 </Col>
                 <Col span={{xs: 2}}>
-                    <Form.Field htmlFor='branch' label='分支'>
-                        <Input.Select name='branch'>
-                            {selectedProj&&selectedProj.branches.map((b, i) => <option key={i} value={i}>{b}</option>)}
+                    <Form.Field htmlFor='mid' label='里程碑'>
+                        <Input.Select name='mid'>
+                            <option value={-1}>默认</option>
+                            {selectedProj&&selectedProj.milestones.map((m, i) => <option key={i} value={i}>{m.name}</option>)}
                         </Input.Select>
                     </Form.Field>
                 </Col>
@@ -224,7 +224,7 @@ export const Creator = (props: {onDone: () => void}) => {
                 </Input.Uploader>
             </Form.Field>
 
-            <Button theme='primary' onClick={ev => {ev.preventDefault(); form.submit()}}><Icon type='plus' className='mr-1'/>发布任务</Button>
+            <Button theme='primary' onClick={ev => {ev.preventDefault(); form.submit();}}><Icon type='plus' className='mr-1'/>发布任务</Button>
         </Form>
     );
 };

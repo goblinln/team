@@ -54,7 +54,7 @@ var userCache = sync.Map{}
 func GetAll() ([]*User, error) {
 	users := []*User{}
 
-	rows, err := orm.Query("SELETE * FROM `user`")
+	rows, err := orm.Query("SELECT * FROM `user`")
 	if err != nil {
 		return users, err
 	}
@@ -67,6 +67,7 @@ func GetAll() ([]*User, error) {
 			return users, err
 		}
 
+		one.Password = ""
 		userCache.Store(one.ID, one)
 		users = append(users, one)
 	}
@@ -86,6 +87,7 @@ func Find(ID int64) *User {
 		return nil
 	}
 
+	user.Password = ""
 	userCache.Store(ID, user)
 	return user
 }
@@ -220,7 +222,30 @@ func Login(account, pswd, ip string, remember bool) (*User, *AutoLoginCookie) {
 	return try, nil
 }
 
+// SetPassword changes user's password
+func SetPassword(uid int64, old, pswd string) error {
+	u := &User{ID: uid}
+	if err := orm.Read(u); err != nil {
+		return err
+	}
+
+	hashOld := md5.New()
+	hashOld.Write([]byte(old))
+	checkOld := fmt.Sprintf("%X", hashOld.Sum(nil))
+	if checkOld != u.Password {
+		return errors.New("原始密码错误")
+	}
+
+	hashNew := md5.New()
+	hashNew.Write([]byte(pswd))
+	wanted := fmt.Sprintf("%X", hashNew.Sum(nil))
+
+	_, err := orm.Exec("UPDATE `user` SET `password`=? WHERE `id`=?", wanted, uid)
+	return err
+}
+
 // Save user data to database.
 func (u *User) Save() error {
-	return orm.Update(u)
+	_, err := orm.Exec("UPDATE `user` SET `name`=?,`avatar`=? WHERE `id`=?", u.Name, u.Avatar, u.ID)
+	return err
 }

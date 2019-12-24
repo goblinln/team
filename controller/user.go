@@ -1,9 +1,6 @@
 package controller
 
 import (
-	"crypto/md5"
-	"fmt"
-
 	"team/model/user"
 	"team/web"
 )
@@ -25,22 +22,12 @@ func (u *User) info(c *web.Context) {
 
 func (u *User) setPswd(c *web.Context) {
 	uid := c.Session.Get("uid").(int64)
-	me := user.Find(uid)
-
 	oldPswd := c.FormValue("oldPswd").MustString("请填写原始密码")
-	hashOld := md5.New()
-	hashOld.Write([]byte(oldPswd))
-	checkOld := fmt.Sprintf("%X", hashOld.Sum(nil))
-	web.Assert(checkOld == me.Password, "原始密码错误")
-
 	newPswd := c.FormValue("newPswd").MustString("请输入新密码")
 	cfmPswd := c.FormValue("cfmPswd").MustString("请再次确认新密码")
-	web.Assert(newPswd == cfmPswd, "两次输入的新密码不一致")
 
-	hashNew := md5.New()
-	hashNew.Write([]byte(newPswd))
-	me.Password = fmt.Sprintf("%X", hashNew.Sum(nil))
-	web.AssertError(me.Save())
+	web.Assert(newPswd == cfmPswd, "两次输入的新密码不一致")
+	web.AssertError(user.SetPassword(uid, oldPswd, newPswd))
 
 	c.JSON(200, web.Map{})
 }

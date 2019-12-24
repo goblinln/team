@@ -47,6 +47,29 @@ export interface ProjectMember {
 }
 
 /**
+ * 项目里程
+ */
+export interface ProjectMilestone {
+    /**
+     * 唯一ID
+     */
+    id: number;
+    /**
+     * 显示名称
+     */
+    name: string;
+    /**
+     * 计划开始时间
+     */
+    startTime: string;
+
+    /**
+     * 计划截止时间
+     */
+    endTime: string;
+}
+
+/**
  * 项目信息
  */
 export interface Project {
@@ -65,7 +88,7 @@ export interface Project {
     /**
      * 分支列表
      */
-    branches?: string[];
+    milestones?: ProjectMilestone[];
 }
 
 /**
@@ -134,7 +157,7 @@ export interface Task {
     /**
      * 所属分支
      */
-    branch: number,
+    milestone: ProjectMilestone,
 
     /**
      * 是否置顶
@@ -233,7 +256,7 @@ export interface Notice {
 }
 
 /**
- * WIKI文档
+ * 文档
  */
 export interface Document {
     /**

@@ -80,7 +80,7 @@ type (
 // GetAllByUID returns tasks by user ID.
 func GetAllByUID(uid int64) ([]map[string]interface{}, error) {
 	rows, err := orm.Query(
-		"SELECT `id`,`pid`,`branch`,`creator`,`developer`,`tester`,`name`,`bringtop`,`weight`,`state`,`starttime`,`endtime` "+
+		"SELECT `id`,`pid`,`mid`,`creator`,`developer`,`tester`,`name`,`bringtop`,`weight`,`state`,`starttime`,`endtime` "+
 			"FROM `task` WHERE `state`<4 AND (`creator`=? OR `developer`=? OR `tester`=?)",
 		uid, uid, uid)
 
@@ -106,7 +106,7 @@ func GetAllByUID(uid int64) ([]map[string]interface{}, error) {
 // GetAllByPID returns tasks by project ID.
 func GetAllByPID(pid int64) ([]map[string]interface{}, error) {
 	rows, err := orm.Query(
-		"SELECT `id`,`pid`,`branch`,`creator`,`developer`,`tester`,`name`,`bringtop`,`weight`,`state`,`starttime`,`endtime` "+
+		"SELECT `id`,`pid`,`mid`,`creator`,`developer`,`tester`,`name`,`bringtop`,`weight`,`state`,`starttime`,`endtime` "+
 			"FROM `task` WHERE `state`<4 AND `pid`=?",
 		pid)
 
@@ -253,14 +253,14 @@ func (t *Task) SetState(operator int64, state int8, isAdmin bool) error {
 		t.ArchiveTime = time.Now()
 	}
 
-	_, err := orm.Exec("UPDATE `task` SET `state`=? AND `archivetime`=? WHERE `id`=?", state, t.ArchiveTime.Format("2006-01-02"), t.ID)
+	_, err := orm.Exec("UPDATE `task` SET `state`=?,`archivetime`=? WHERE `id`=?", state, t.ArchiveTime.Format("2006-01-02"), t.ID)
 	return err
 }
 
 // SetTime changes task's timeline.
 func (t *Task) SetTime(start, end time.Time) error {
 	_, err := orm.Exec(
-		"UPDATE `task` SET `starttime`=? AND `endtime`=? WHERE `id`=?",
+		"UPDATE `task` SET `starttime`=?,`endtime`=? WHERE `id`=?",
 		start.Format("2006-01-02"), end.Format("2006-01-02"), t.ID)
 	return err
 }
@@ -401,6 +401,8 @@ func (t *Task) Brief() map[string]interface{} {
 func (t *Task) Detail() map[string]interface{} {
 	info := t.Brief()
 
+	info["content"] = t.Content
+	info["tags"] = t.Tags
 	info["comments"] = t.GetComments()
 	info["events"] = t.GetEvents()
 	info["attachments"] = t.GetAttachments()

@@ -16,8 +16,8 @@ type (
 		Name string `json:"name" orm:"type=VARCHAR(64),unique,notnull"`
 
 		// Runtime data.
-		Milestones []*Milestone `json:"-" orm:"-"`
-		Members    []*Member    `json:"-" orm:"-"`
+		Milestones []*Milestone `json:"milestones" orm:"-"`
+		Members    []*Member    `json:"members" orm:"-"`
 	}
 
 	// Milestone schema
@@ -32,10 +32,13 @@ type (
 	// Member schema
 	Member struct {
 		ID      int64 `json:"id"`
-		PID     int64 `json:"pid"`
-		UID     int64 `json:"uid"`
+		PID     int64 `json:"-"`
+		UID     int64 `json:"-"`
 		Role    int8  `json:"role"`
 		IsAdmin bool  `json:"isAdmin"`
+
+		// Runtime data
+		User *user.User `json:"user" orm:"-"`
 	}
 )
 
@@ -160,26 +163,15 @@ func Delete(ID int64) {
 
 // Info returns detail information
 func (p *Project) Info() map[string]interface{} {
-	if p.Members == nil {
-		p.FetchMembers()
-	}
-
-	if p.Milestones == nil {
-		p.FetchMilestones()
-	}
-
 	members := []map[string]interface{}{}
 	for _, one := range p.Members {
-		u := user.Find(one.UID)
-		if u == nil || u.IsLocked {
-			continue
+		if !one.User.IsLocked {
+			members = append(members, map[string]interface{}{
+				"user":    one.User,
+				"role":    one.Role,
+				"isAdmin": one.IsAdmin,
+			})
 		}
-
-		members = append(members, map[string]interface{}{
-			"user":    u,
-			"role":    one.Role,
-			"isAdmin": one.IsAdmin,
-		})
 	}
 
 	milestones := []*Milestone{}
@@ -200,6 +192,8 @@ func (p *Project) Info() map[string]interface{} {
 
 // FetchMilestones preloads all valid(NOT ended) milestones for this project.
 func (p *Project) FetchMilestones() {
+	p.Milestones = []*Milestone{}
+
 	rows, err := orm.Query("SELECT * FROM `milestone` WHERE `pid`=?", p.ID)
 	if err != nil {
 		return
@@ -207,7 +201,6 @@ func (p *Project) FetchMilestones() {
 
 	defer rows.Close()
 
-	p.Milestones = []*Milestone{}
 	for rows.Next() {
 		one := &Milestone{}
 		if err = orm.Scan(rows, one); err != nil {
@@ -249,6 +242,8 @@ func (p *Project) FindMilestone(mid int64) *Milestone {
 
 // FetchMembers preloads all members for this project.
 func (p *Project) FetchMembers() {
+	p.Members = []*Member{}
+
 	rows, err := orm.Query("SELECT * FROM `member` WHERE `pid`=?", p.ID)
 	if err != nil {
 		return
@@ -256,14 +251,17 @@ func (p *Project) FetchMembers() {
 
 	defer rows.Close()
 
-	p.Members = []*Member{}
 	for rows.Next() {
 		one := &Member{}
 		if err = orm.Scan(rows, one); err != nil {
 			continue
 		}
 
-		p.Members = append(p.Members, one)
+		u := user.Find(one.UID)
+		if u != nil {
+			one.User = u
+			p.Members = append(p.Members, one)
+		}
 	}
 }
 
@@ -279,6 +277,7 @@ func (p *Project) AddMember(uid int64, role int8, isAdmin bool) error {
 	rs, err := orm.Insert(add)
 	if err == nil {
 		add.ID, _ = rs.LastInsertId()
+		add.User = user.Find(uid)
 		p.Members = append(p.Members, add)
 	}
 

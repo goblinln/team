@@ -15,7 +15,7 @@ export const Tasks = (props: {proj: Project, isAdmin: boolean}) => {
     const [isFilterVisible, setFilterVisible] = React.useState<boolean>(false);
     const [tasks, setTasks] = React.useState<Task[]>([]);
     const [visibleTasks, setVisibleTask] = React.useState<Task[]>([]);
-    const [filter, setFilter] = React.useState<{m: number, b: number, n: string}>({m: -1, b: -1, n: ''});
+    const [filter, setFilter] = React.useState<{mem: number, mid: number, n: string}>({mem: -1, mid: -1, n: ''});
 
     React.useEffect(() => {
         fetchTasks();
@@ -25,10 +25,10 @@ export const Tasks = (props: {proj: Project, isAdmin: boolean}) => {
         let ret: Task[] = [];
 
         tasks.forEach(t => {
-            if (filter.b != -1 && t.branch != filter.b) return;
+            if (filter.mid != -1 && (!t.milestone || t.milestone.id != filter.mid)) return;
             if (filter.n.length > 0 && t.name.indexOf(filter.n) == -1) return;
-            if (filter.m != -1) {
-                if (t.creator.id != filter.m && t.developer.id != filter.m && t.tester.id != filter.m) return;
+            if (filter.mem != -1) {
+                if (t.creator.id != filter.mem && t.developer.id != filter.mem && t.tester.id != filter.mem) return;
             }
 
             ret.push(t);
@@ -45,19 +45,19 @@ export const Tasks = (props: {proj: Project, isAdmin: boolean}) => {
         let selected = parseInt(ev.target.value);
         setFilter(prev => {
             return {
-                m: selected,
-                b: prev.b,
+                mem: selected,
+                mid: prev.mid,
                 n: prev.n
             }
         });
     };
 
-    const handleBranchChange = (ev: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleMilestoneChange = (ev: React.ChangeEvent<HTMLSelectElement>) => {
         let selected = parseInt(ev.target.value);
         setFilter(prev => {
             return {
-                m: prev.m,
-                b: selected,
+                mem: prev.mem,
+                mid: selected,
                 n: prev.n
             }
         });
@@ -66,8 +66,8 @@ export const Tasks = (props: {proj: Project, isAdmin: boolean}) => {
     const handleNameChange = (v: string) => {
         setFilter(prev => {
             return {
-                m: prev.m,
-                b: prev.b,
+                mem: prev.mem,
+                mid: prev.mid,
                 n: v
             }
         });
@@ -91,17 +91,17 @@ export const Tasks = (props: {proj: Project, isAdmin: boolean}) => {
                 <div className={`mt-2 center-child ${isFilterVisible?'':' hide'}`}>
                     <div>
                         <label className='mr-1'>选择成员</label>
-                        <Input.Select style={{width: 150}} value={filter.m} onChange={handleMemberChange}>
+                        <Input.Select style={{width: 150}} value={filter.mem} onChange={handleMemberChange}>
                             <option key={'none'} value={-1}>无要求</option>
                             {proj.members.map(m => <option key={m.user.id} value={m.user.id}>【{ProjectRole[m.role]}】{m.user.name}</option>)}
                         </Input.Select>
                     </div>
 
                     <div className='ml-3'>
-                        <label className='mr-1'>选择分支</label>
-                        <Input.Select style={{width: 150}} value={filter.b} onChange={handleBranchChange}>
+                        <label className='mr-1'>里程碑</label>
+                        <Input.Select style={{width: 150}} value={filter.mid} onChange={handleMilestoneChange}>
                             <option key={'none'} value={-1}>无要求</option>
-                            {proj.branches.map((b, i) => <option key={i} value={i}>{b}</option>)}
+                            {proj.milestones.map((m, i) => <option key={i} value={m.id}>{m.name}</option>)}
                         </Input.Select>
                     </div>
 
@@ -110,7 +110,7 @@ export const Tasks = (props: {proj: Project, isAdmin: boolean}) => {
                         <Input style={{width: 150}} value={filter.n} onChange={handleNameChange}/>
                     </div>
 
-                    <Button className='ml-3' size='sm' onClick={() => setFilter({m: -1, b: -1, n: ''})}>重置</Button>
+                    <Button className='ml-3' size='sm' onClick={() => setFilter({mem: -1, mid: -1, n: ''})}>重置</Button>
                 </div>
             </div>
             

@@ -5,7 +5,7 @@ import {Project, ProjectMember, User} from '../../common/protocol';
 import {request} from '../../common/request';
 import { ProjectRole } from '../../common/consts';
 
-export const Manager = (props: {pid: number}) => {
+export const Members = (props: {pid: number}) => {
     const [proj, setProj] = React.useState<Project>();
 
     const memberSchema: TableColumn[] = [
@@ -30,30 +30,6 @@ export const Manager = (props: {pid: number}) => {
             data.members.sort((a, b) => a.user.account.localeCompare(b.user.account));
             setProj(data);
         }});
-    };
-
-    const addBranch = () => {
-        let branch: string = '';
-
-        Modal.open({
-            title: '添加分支',
-            body: <Input className='my-2' onChange={v => branch = v}/>,
-            onOk: () => {
-                if (branch.length == 0) {
-                    Notification.alert('分支不可为空', 'error');
-                    return;
-                }
-
-                if (proj.branches.indexOf(branch) >= 0) {
-                    Notification.alert('同名分支已存在', 'error');
-                    return;
-                }
-
-                let param = new FormData();
-                param.append('branch', branch);
-                request({url: `/api/project/${props.pid}/branch`, method: 'POST', data: param, success: fetchProject});
-            }
-        });
     };
 
     const addMember = () => {
@@ -153,23 +129,6 @@ export const Manager = (props: {pid: number}) => {
 
     return (
         <div className='m-4'>
-            <Card
-                header={
-                    <Row flex={{align: 'middle', justify: 'space-between'}}>
-                        <span>
-                            <Icon type='branches' className='mr-2'/>
-                            分支列表
-                        </span>
-                        <Button theme='link' onClick={addBranch}><Icon type='plus' className='mr-1'/>添加分支</Button>
-                    </Row>
-                }
-                bordered
-                shadowed>
-                <div className='p-2'>
-                    {proj&&proj.branches.map((b, i) => <Badge key={i} theme='primary'>{b}</Badge>)}
-                </div>
-            </Card>
-
             <Card
                 className='mt-3'
                 bodyProps={{className: 'p-2'}}
