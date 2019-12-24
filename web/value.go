@@ -45,26 +45,26 @@ func (v *Value) MustInt(errMsg string) int64 {
 }
 
 // Ints returns parsed interger array
-func (v *Value) Ints() ([]int64, error) {
+func (v *Value) Ints() ([]int, error) {
 	if v.data == nil {
-		return []int64{}, errMissing
+		return []int{}, errMissing
 	}
 
-	ret := []int64{}
+	ret := []int{}
 	for _, s := range v.data {
 		n, err := strconv.ParseInt(s, 10, 64)
 		if err != nil {
 			return ret, err
 		}
 
-		ret = append(ret, n)
+		ret = append(ret, int(n))
 	}
 
 	return ret, nil
 }
 
 // MustInts panics when Ints() returns error.
-func (v *Value) MustInts(errMsg string) []int64 {
+func (v *Value) MustInts(errMsg string) []int {
 	n, e := v.Ints()
 	Assert(e == nil, errMsg)
 	return n
