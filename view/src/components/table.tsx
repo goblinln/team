@@ -38,6 +38,7 @@ export const Table = (props: TableProps) => {
 
     React.useEffect(() => {
         if (!dataSource||dataSource.length == 0) {
+            setRecords([]);
             setPage(0);
             setTotalPage(1);
             return;
