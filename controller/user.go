@@ -4,8 +4,7 @@ import (
 	"crypto/md5"
 	"fmt"
 
-	"team/model"
-	"team/orm"
+	"team/model/user"
 	"team/web"
 )
 
@@ -21,13 +20,12 @@ func (u *User) Register(group *web.Router) {
 
 func (u *User) info(c *web.Context) {
 	uid := c.Session.Get("uid").(int64)
-	me := model.FindUser(uid)
-	c.JSON(200, web.Map{"data": me})
+	c.JSON(200, web.Map{"data": user.Find(uid)})
 }
 
 func (u *User) setPswd(c *web.Context) {
 	uid := c.Session.Get("uid").(int64)
-	me := model.FindUser(uid)
+	me := user.Find(uid)
 
 	oldPswd := c.FormValue("oldPswd").MustString("请填写原始密码")
 	hashOld := md5.New()
@@ -42,22 +40,20 @@ func (u *User) setPswd(c *web.Context) {
 	hashNew := md5.New()
 	hashNew.Write([]byte(newPswd))
 	me.Password = fmt.Sprintf("%X", hashNew.Sum(nil))
-	err := orm.Update(me)
-	web.Assert(err == nil, "更新密码失败")
+	web.AssertError(me.Save())
 
 	c.JSON(200, web.Map{})
 }
 
 func (u *User) setAvatar(c *web.Context) {
 	uid := c.Session.Get("uid").(int64)
-	me := model.FindUser(uid)
+	me := user.Find(uid)
 
 	fhs := c.MultipartForm().File["img"]
 	web.Assert(len(fhs) > 0, "更新头像参数错误")
 
 	me.Avatar, _ = new(File).save(fhs[0], uid)
-	err := orm.Update(me)
-	web.Assert(err == nil, "更新数据库失败")
+	web.AssertError(me.Save())
 
 	c.JSON(200, web.Map{"data": me.Avatar})
 }

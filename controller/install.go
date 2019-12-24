@@ -5,7 +5,12 @@ import (
 	"fmt"
 
 	"team/config"
-	"team/model"
+	"team/model/document"
+	"team/model/notice"
+	"team/model/project"
+	"team/model/share"
+	"team/model/task"
+	"team/model/user"
 	"team/orm"
 	"team/web"
 )
@@ -59,16 +64,16 @@ func (i *Install) configure(c *web.Context) {
 		}
 
 		jobs := []Job{
-			{Table: "user", Schema: &model.User{}},
-			{Table: "project", Schema: &model.Project{}},
-			{Table: "project member", Schema: &model.ProjectMember{}},
-			{Table: "task", Schema: &model.Task{}},
-			{Table: "task attachment", Schema: &model.TaskAttachment{}},
-			{Table: "task event", Schema: &model.TaskEvent{}},
-			{Table: "task comment", Schema: &model.TaskComment{}},
-			{Table: "document", Schema: &model.Document{}},
-			{Table: "notice", Schema: &model.Notice{}},
-			{Table: "share", Schema: &model.Share{}},
+			{Table: "user", Schema: &user.User{}},
+			{Table: "notice", Schema: &notice.Notice{}},
+			{Table: "project", Schema: &project.Project{}},
+			{Table: "project member", Schema: &project.Member{}},
+			{Table: "task", Schema: &task.Task{}},
+			{Table: "task attachment", Schema: &task.Attachment{}},
+			{Table: "task event", Schema: &task.Event{}},
+			{Table: "task comment", Schema: &task.Comment{}},
+			{Table: "document", Schema: &document.Document{}},
+			{Table: "share", Schema: &share.Share{}},
 		}
 
 		for _, job := range jobs {
@@ -107,7 +112,7 @@ func (i *Install) createAdmin(c *web.Context) {
 	hash := md5.New()
 	hash.Write([]byte(pswd))
 
-	user := &model.User{
+	user := &user.User{
 		Account:  account,
 		Name:     name,
 		Password: fmt.Sprintf("%X", hash.Sum(nil)),
