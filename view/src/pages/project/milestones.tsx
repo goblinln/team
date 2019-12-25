@@ -15,7 +15,7 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
         {label: '结束时间', dataIndex: 'endTime'},
         {label: '操作', renderer: (data: ProjectMilestone) => (
             <span>
-                <a className='link' onClick={() => null}>查看</a>
+                <a className='link' onClick={() => null}>详情</a>
                 {props.isAdmin && [
                     <div key='d-0' className='divider-v'/>,
                     <a key='edit' className='link' onClick={() => editMilestone(data)}>编辑</a>,
