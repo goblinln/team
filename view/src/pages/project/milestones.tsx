@@ -128,14 +128,14 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
             <Card
                 className='mt-3'
                 bodyProps={{className: 'p-2'}}
-                header={
+                header={props.isAdmin ? (
                     <Row flex={{align: 'middle', justify: 'space-between'}}>
                         <span>
                             <Icon type='idcard' className='mr-2'/>
                             里程碑列表
                         </span>
                         <Button theme='link' onClick={addMilestone}><Icon type='plus' className='mr-1'/>新建里程碑</Button>
-                    </Row>
+                    </Row>) : <span><Icon type='idcard' className='mr-2'/>里程碑列表</span>
                 }
                 bordered
                 shadowed>
