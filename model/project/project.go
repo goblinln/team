@@ -24,9 +24,10 @@ type (
 	Milestone struct {
 		ID        int64     `json:"id"`
 		PID       int64     `json:"-"`
-		Name      string    `json:"name" orm:"type=VARCHAR(64),unique,notnull"`
+		Name      string    `json:"name" orm:"type=VARCHAR(64),notnull"`
 		StartTime time.Time `json:"-" orm:"notnull,default='2000-01-01'"`
 		EndTime   time.Time `json:"-" orm:"notnull,default='2000-01-01'"`
+		Desc      string    `json:"desc"`
 	}
 
 	// Member schema
@@ -222,6 +223,7 @@ func (p *Project) GetMilestones() []map[string]interface{} {
 			"name":      one.Name,
 			"startTime": one.StartTime.Format("2006-01-02"),
 			"endTime":   one.EndTime.Format("2006-01-02"),
+			"desc":      one.Desc,
 		})
 	}
 
@@ -229,12 +231,13 @@ func (p *Project) GetMilestones() []map[string]interface{} {
 }
 
 // AddMilestone adds new milestone to this project.
-func (p *Project) AddMilestone(name string, startTime, endTime time.Time) error {
+func (p *Project) AddMilestone(name, desc string, startTime, endTime time.Time) error {
 	add := &Milestone{
 		PID:       p.ID,
 		Name:      name,
 		StartTime: startTime,
 		EndTime:   endTime,
+		Desc:      desc,
 	}
 
 	rs, err := orm.Insert(add)
@@ -276,7 +279,7 @@ func (p *Project) FindMilestone(mid int64) *Milestone {
 }
 
 // EditMilestone modifies milestone in this project.
-func (p *Project) EditMilestone(mid int64, name string, start, end time.Time) error {
+func (p *Project) EditMilestone(mid int64, name, desc string, start, end time.Time) error {
 	milestone := p.FindMilestone(mid)
 	if milestone == nil {
 		return errors.New("编辑的里程碑不存在或已删除")
@@ -285,6 +288,7 @@ func (p *Project) EditMilestone(mid int64, name string, start, end time.Time) er
 	milestone.Name = name
 	milestone.StartTime = start
 	milestone.EndTime = end
+	milestone.Desc = desc
 
 	return orm.Update(milestone)
 }

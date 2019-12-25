@@ -23,7 +23,7 @@ func (p *Project) Register(group *web.Router) {
 
 	group.GET("/:id/milestone/list", p.getMilestones)
 	group.POST("/:id/milestone", p.addMilestone)
-	group.PUT(`/:id/milestone/{mid:[\d]+}`, p.delMilestone)
+	group.PUT(`/:id/milestone/{mid:[\d]+}`, p.editMilestone)
 	group.DELETE(`/:id/milestone/{mid:[\d]+}`, p.delMilestone)
 }
 
@@ -135,10 +135,11 @@ func (*Project) addMilestone(c *web.Context) {
 	name := c.PostFormValue("name").MustString("里程碑名不可为空")
 	startTime, _ := time.Parse("2006-01-02", c.PostFormValue("startTime").MustString("开始时间不可为空"))
 	endTime, _ := time.Parse("2006-01-02", c.PostFormValue("endTime").MustString("终止时间不可为空"))
+	desc := c.PostFormValue("desc").String()
 
 	proj := project.Find(pid)
 	web.Assert(proj != nil, "项目不存在或已被删除")
-	web.AssertError(proj.AddMilestone(name, startTime, endTime))
+	web.AssertError(proj.AddMilestone(name, desc, startTime, endTime))
 
 	c.JSON(200, web.Map{})
 }
@@ -150,10 +151,11 @@ func (*Project) editMilestone(c *web.Context) {
 	name := c.PostFormValue("name").MustString("里程碑名不可为空")
 	startTime, _ := time.Parse("2006-01-02", c.PostFormValue("startTime").MustString("开始时间不可为空"))
 	endTime, _ := time.Parse("2006-01-02", c.PostFormValue("endTime").MustString("终止时间不可为空"))
+	desc := c.PostFormValue("desc").String()
 
 	proj := project.Find(pid)
 	web.Assert(proj != nil, "项目不存在或已被删除")
-	web.AssertError(proj.EditMilestone(mid, name, startTime, endTime))
+	web.AssertError(proj.EditMilestone(mid, name, desc, startTime, endTime))
 
 	c.JSON(200, web.Map{})
 }
