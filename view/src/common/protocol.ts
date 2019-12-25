@@ -67,6 +67,11 @@ export interface ProjectMilestone {
      * 计划截止时间
      */
     endTime: string;
+
+    /**
+     * 描述
+     */
+    desc?: string;
 }
 
 /**

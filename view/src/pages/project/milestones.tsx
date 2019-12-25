@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as moment from 'moment';
 
-import { TableColumn, FormProxy, FormFieldValidator, Modal, Form, Input, Card, Row, Icon, Button, Table } from '../../components';
+import { TableColumn, FormProxy, FormFieldValidator, Modal, Form, Input, Card, Row, Icon, Button, Table, Timeline, Markdown } from '../../components';
 import { ProjectMilestone } from '../../common/protocol';
 import { request } from '../../common/request';
 
@@ -36,13 +36,15 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
 
     const fetchMilestones = () => {
         request({url: `/api/project/${props.pid}/milestone/list`, success: (data: ProjectMilestone[]) => {
-            data.sort((a, b) => {
-                let offset = moment(b.startTime).diff(moment(a.startTime))
-                return offset == 0 ? moment(b.endTime).diff(moment(a.endTime)) : offset;
-            })
-
+            data.sort((a, b) => b.id - a.id)
             setMilestones(data);
         }});
+    };
+
+    const uploadForDesc = (file: File, done: (url: string) => void) => {
+        let param = new FormData();
+        param.append('img', file, file.name);        
+        request({url: '/api/file/upload', method: 'POST', data: param, success: (data: any) => done(data.url)});
     };
 
     const addMilestone = () => {
@@ -61,7 +63,7 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
         closer = Modal.open({
             title: '新建里程碑',
             body: (
-                <Form style={{width: 300}} form={() => {form = Form.useForm(validator); return form}} onSubmit={submit}>
+                <Form style={{width: 650}} form={() => {form = Form.useForm(validator); return form}} onSubmit={submit}>
                     <Form.Field htmlFor='name' label='名称'>
                         <Input name='name' autoComplete='off'/>
                     </Form.Field>
@@ -70,6 +72,9 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
                     </Form.Field>
                     <Form.Field htmlFor='endTime' label='结束时间'>
                         <Input.DatePicker name='endTime' mode='date' value={moment().add(1, 'd').format('YYYY-MM-DD')}/>
+                    </Form.Field>
+                    <Form.Field htmlFor='desc' label='描述'>
+                        <Markdown.Editor name='desc' rows={10} onUpload={uploadForDesc}/>
                     </Form.Field>
                 </Form> 
             ),
@@ -93,7 +98,7 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
         closer = Modal.open({
             title: '编辑里程碑',
             body: (
-                <Form style={{width: 300}} form={() => {form = Form.useForm(validator); return form}} onSubmit={submit}>
+                <Form style={{width: 650}} form={() => {form = Form.useForm(validator); return form}} onSubmit={submit}>
                     <Form.Field htmlFor='name' label='名称'>
                         <Input name='name' autoComplete='off' value={m.name}/>
                     </Form.Field>
@@ -102,6 +107,9 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
                     </Form.Field>
                     <Form.Field htmlFor='endTime' label='结束时间'>
                         <Input.DatePicker name='endTime' mode='date' value={m.endTime}/>
+                    </Form.Field>
+                    <Form.Field htmlFor='desc' label='描述'>
+                        <Markdown.Editor name='desc' rows={10} value={m.desc} onUpload={uploadForDesc}/>
                     </Form.Field>
                 </Form>
             ),
@@ -124,23 +132,43 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
     };
 
     return (
-        <div className='m-4'>
-            <Card
-                className='mt-3'
-                bodyProps={{className: 'p-2'}}
-                header={props.isAdmin ? (
-                    <Row flex={{align: 'middle', justify: 'space-between'}}>
-                        <span>
-                            <Icon type='idcard' className='mr-2'/>
-                            里程碑列表
-                        </span>
-                        <Button theme='link' onClick={addMilestone}><Icon type='plus' className='mr-1'/>新建里程碑</Button>
-                    </Row>) : <span><Icon type='idcard' className='mr-2'/>里程碑列表</span>
-                }
-                bordered
-                shadowed>
-                <Table dataSource={milestones} columns={schema}/>
-            </Card>
+        <div>
+            <div style={{padding: '8px 16px', borderBottom: '1px solid #e2e2e2'}}>
+                <label className='text-bold fg-muted' style={{fontSize: '1.2em'}}>
+                    <Icon type='idcard' className='mr-1'/>里程计划
+                </label>
+            </div>
+
+            <Timeline className='p-4'>
+                <Timeline.Item icon={<Icon type='plus-square'/>}>
+                    <Button onClick={addMilestone}>新建里程碑</Button>
+                </Timeline.Item>
+
+                {milestones.map((m, i) => (
+                    <Timeline.Item icon={<Icon type='flag-fill'/>} key={i}>
+                        <Card
+                            style={{maxWidth: 200}}
+                            header={<span className='text-bold'>{m.name}</span>} 
+                            footer={(
+                                <span>
+                                    <a className='link' onClick={() => null}>详情</a>
+                                    {props.isAdmin && [
+                                        <div key='d-0' className='divider-v'/>,
+                                        <a key='edit' className='link' onClick={() => editMilestone(m)}>编辑</a>,
+                                        <div key='d-1' className='divider-v'/>,
+                                        <a key='delete' className='link' onClick={() => delMilestone(m)}>删除</a>,
+                                    ]}                
+                                </span>
+                            )}
+                            shadowed>
+                            <ul style={{listStyle: 'disc', paddingLeft: 24}}>
+                                <li>开始：{m.startTime}</li>
+                                <li>结束：{m.endTime}</li>
+                            </ul>
+                        </Card>
+                    </Timeline.Item>
+                ))}
+            </Timeline>
         </div>
     );
 }
