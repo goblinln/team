@@ -259,6 +259,18 @@ func (t *Task) SetState(operator int64, state int8, isAdmin bool) error {
 
 // SetTime changes task's timeline.
 func (t *Task) SetTime(start, end time.Time) error {
+	proj := project.Find(t.PID)
+	if proj == nil {
+		return errors.New("任务所属项目不存在或已删除")
+	}
+
+	milestone := proj.FindMilestone(t.MID)
+	if milestone != nil {
+		if start.Before(milestone.StartTime) || end.After(milestone.EndTime) {
+			return errors.New("任务时间与所属里程碑不匹配")
+		}
+	}
+
 	_, err := orm.Exec(
 		"UPDATE `task` SET `starttime`=?,`endtime`=? WHERE `id`=?",
 		start.Format("2006-01-02"), end.Format("2006-01-02"), t.ID)

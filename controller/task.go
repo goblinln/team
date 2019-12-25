@@ -80,7 +80,14 @@ func (*Task) create(c *web.Context) {
 	}
 
 	proj := project.Find(pid)
-	web.Assert(proj != nil, "项目不存在或已被删除")
+	web.Assert(proj != nil, "任务所属项目不存在或已删除")
+
+	milestone := proj.FindMilestone(mid)
+	if milestone != nil {
+		web.Assert(
+			startTime.After(milestone.StartTime) && endTime.Before(milestone.EndTime),
+			"任务时间计划与所属里程碑不匹配")
+	}
 
 	t := task.Add(name, pid, mid, int8(weight), me.IsSu, creator.ID, did, tid, startTime, endTime, tags, content)
 	fhs, ok := c.MultipartForm().File["files[]"]
