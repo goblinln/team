@@ -25,7 +25,7 @@ export const TaskPage = (props: {uid: number}) => {
         let ret: Task[] = [];
 
         tasks.forEach(t => {
-            if (filter.m != -1 && t.milestone.id != filter.m) return;
+            if (filter.m != -1 && (!t.milestone || t.milestone.id != filter.m)) return;
             if (filter.n.length > 0 && t.name.indexOf(filter.n) == -1) return;
             if (filter.p != -1 && t.proj.id != filter.p) return;
 

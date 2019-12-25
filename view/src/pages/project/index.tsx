@@ -6,6 +6,7 @@ import {request} from '../../common/request';
 
 import {Tasks} from './tasks';
 import {Members} from './members';
+import {Milestones} from './milestones';
 
 export const ProjectPage = (props: {uid: number}) => {
     const [projs, setProjs] = React.useState<Project[]>([]);
@@ -37,6 +38,7 @@ export const ProjectPage = (props: {uid: number}) => {
                             return (
                                 <Menu.SubMenu key={p.id} collapse='disabled' label={<Row flex={{align: 'middle', justify: 'space-between'}}>{p.name}<Badge className='ml-2' theme='info'>{isAdmin?'管理员':'成员'}</Badge></Row>}>
                                     <Menu.Item onClick={() => setPage(<Tasks proj={p} isAdmin={isAdmin}/>)}>任务列表</Menu.Item>
+                                    <Menu.Item onClick={() => setPage(<Milestones pid={p.id} isAdmin={isAdmin}/>)}>里程计划</Menu.Item>
                                     {isAdmin&&<Menu.Item onClick={() => setPage(<Members pid={p.id}/>)}>成员管理</Menu.Item>}
                                 </Menu.SubMenu>
                             );
