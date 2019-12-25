@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import {Button, Icon, Row, Input, Drawer} from '../../components';
-import {Task, Project} from '../../common/protocol';
+import {TaskBrief, Project} from '../../common/protocol';
 import {ProjectRole} from '../../common/consts';
 import {request} from '../../common/request';
 
@@ -13,8 +13,8 @@ export const Tasks = (props: {proj: Project, isAdmin: boolean}) => {
 
     const [isGantt, setIsGantt] = React.useState<boolean>(false);
     const [isFilterVisible, setFilterVisible] = React.useState<boolean>(false);
-    const [tasks, setTasks] = React.useState<Task[]>([]);
-    const [visibleTasks, setVisibleTask] = React.useState<Task[]>([]);
+    const [tasks, setTasks] = React.useState<TaskBrief[]>([]);
+    const [visibleTasks, setVisibleTask] = React.useState<TaskBrief[]>([]);
     const [filter, setFilter] = React.useState<{mem: number, mid: number, n: string}>({mem: -1, mid: -1, n: ''});
 
     React.useEffect(() => {
@@ -22,7 +22,7 @@ export const Tasks = (props: {proj: Project, isAdmin: boolean}) => {
     }, [proj]);
 
     React.useEffect(() => {
-        let ret: Task[] = [];
+        let ret: TaskBrief[] = [];
 
         tasks.forEach(t => {
             if (filter.mid != -1 && (!t.milestone || t.milestone.id != filter.mid)) return;

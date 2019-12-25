@@ -1,12 +1,12 @@
 import * as React from 'react';
 import * as moment from 'moment';
 
-import {Task} from '../../common/protocol';
+import {TaskBrief} from '../../common/protocol';
 import {TaskStatus} from '../../common/consts';
 import {Viewer} from './viewer';
 
 interface GanttProps {
-    tasks: Task[];
+    tasks: TaskBrief[];
     onModified?: () => void;
 };
 
@@ -24,7 +24,7 @@ export const Gantt = (props: GanttProps) => {
 
     React.useEffect(() => {
         let counter: {[key: string]: number} = {created: 0, underway: 0, testing: 0, finished: 0};
-        let groups: {[key: number]: Task[]} = {};
+        let groups: {[key: number]: TaskBrief[]} = {};
         let start = moment().startOf('d');
         let end = moment().startOf('d');
 
@@ -142,7 +142,7 @@ export const Gantt = (props: GanttProps) => {
         );
     };
 
-    const makeBrief = (groups: {[key:number]: Task[]}) => {
+    const makeBrief = (groups: {[key:number]: TaskBrief[]}) => {
         if (props.tasks.length == 0) {
             setBrief(null);
             return;
@@ -196,7 +196,7 @@ export const Gantt = (props: GanttProps) => {
         );
     };
 
-    const makeGraph = (groups: {[key:number]: Task[]}, start: moment.Moment, end: moment.Moment) => {
+    const makeGraph = (groups: {[key:number]: TaskBrief[]}, start: moment.Moment, end: moment.Moment) => {
         if (props.tasks.length == 0) {
             setGraph(null);
             return;

@@ -136,6 +136,60 @@ export interface TaskEvent {
 }
 
 /**
+ * 任务摘要
+ */
+export interface TaskBrief {
+    /**
+     * 唯一ID
+     */
+    id: number;
+    /**
+     * 显示名
+     */
+    name: string;
+    /**
+     * 所属项目
+     */
+    proj: {id: number, name: string};
+    /**
+     * 里程碑
+     */
+    milestone: {id: number, name: string};
+    /**
+     * 是否置顶
+     */
+    bringTop: boolean;
+    /**
+     * 权重
+     */
+    weight: number;
+    /**
+     * 当前的状态
+     */
+    state: number;
+    /**
+     * 创建者/需求发起方
+     */
+    creator: {id: number, name: string};
+    /**
+     * 开发者/乙方
+     */
+    developer: {id: number, name: string};
+    /**
+     * 测试者/验收方
+     */
+    tester: {id: number, name: string};
+    /**
+     * 计划开始时间
+     */
+    startTime: string;
+    /**
+     * 计划截止时间
+     */
+    endTime: string;
+}
+
+/**
  * 服务器返回的任务数据类型
  */
 export interface Task {
@@ -158,11 +212,6 @@ export interface Task {
      * 所属分支
      */
     milestone: ProjectMilestone,
-
-    /**
-     * 是否置顶
-     */
-    bringTop?: boolean;
 
     /**
      * 权重

@@ -381,33 +381,64 @@ func (t *Task) Brief() map[string]interface{} {
 	tester := user.Find(t.Tester)
 	proj := project.Find(t.PID)
 
-	return map[string]interface{}{
-		"id":        t.ID,
-		"name":      t.Name,
-		"proj":      proj,
-		"milestone": proj.FindMilestone(t.MID),
-		"bringTop":  t.BringTop,
-		"weight":    t.Weight,
-		"state":     t.State,
-		"creator":   creator,
-		"developer": developer,
-		"tester":    tester,
+	brief := map[string]interface{}{
+		"id":   t.ID,
+		"name": t.Name,
+		"proj": map[string]interface{}{
+			"id":   proj.ID,
+			"name": proj.Name,
+		},
+		"bringTop": t.BringTop,
+		"weight":   t.Weight,
+		"state":    t.State,
+		"creator": map[string]interface{}{
+			"id":   creator.ID,
+			"name": creator.Name,
+		},
+		"developer": map[string]interface{}{
+			"id":   developer.ID,
+			"name": developer.Name,
+		},
+		"tester": map[string]interface{}{
+			"id":   tester.ID,
+			"name": tester.Name,
+		},
 		"startTime": t.StartTime.Format("2006-01-02"),
 		"endTime":   t.EndTime.Format("2006-01-02"),
 	}
+
+	if milestone := proj.FindMilestone(t.MID); milestone != nil {
+		brief["milestone"] = map[string]interface{}{
+			"id":   t.MID,
+			"name": milestone.Name,
+		}
+	}
+
+	return brief
 }
 
 // Detail returns detail information for this task.
 func (t *Task) Detail() map[string]interface{} {
-	info := t.Brief()
+	proj := project.Find(t.PID)
 
-	info["content"] = t.Content
-	info["tags"] = t.Tags
-	info["comments"] = t.GetComments()
-	info["events"] = t.GetEvents()
-	info["attachments"] = t.GetAttachments()
-
-	return info
+	return map[string]interface{}{
+		"id":          t.ID,
+		"name":        t.Name,
+		"proj":        proj,
+		"milestone":   proj.FindMilestone(t.MID),
+		"weight":      t.Weight,
+		"state":       t.State,
+		"creator":     user.Find(t.Creator),
+		"developer":   user.Find(t.Developer),
+		"tester":      user.Find(t.Tester),
+		"startTime":   t.StartTime.Format("2006-01-02"),
+		"endTime":     t.EndTime.Format("2006-01-02"),
+		"content":     t.Content,
+		"tags":        t.Tags,
+		"comments":    t.GetComments(),
+		"events":      t.GetEvents(),
+		"attachments": t.GetAttachments(),
+	}
 }
 
 // Delete task.
