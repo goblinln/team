@@ -118,11 +118,14 @@ func Add(account, name, pswd string, isSu bool) error {
 		return errors.New("帐号或昵称已存在")
 	}
 
+	hashPswd := md5.New()
+	hashPswd.Write([]byte(pswd))
+
 	one := &User{
 		Account:  account,
 		Name:     name,
 		Avatar:   "",
-		Password: pswd,
+		Password: fmt.Sprintf("%X", hashPswd.Sum(nil)),
 		IsSu:     isSu,
 		IsLocked: false,
 	}
@@ -140,6 +143,7 @@ func Add(account, name, pswd string, isSu bool) error {
 // Delete an existed user.
 func Delete(uid int64) {
 	orm.Delete("user", uid)
+	orm.Exec("DELETE FROM `member` WHERE `uid`=?", uid)
 	userCache.Delete(uid)
 }
 
@@ -246,6 +250,6 @@ func SetPassword(uid int64, old, pswd string) error {
 
 // Save user data to database.
 func (u *User) Save() error {
-	_, err := orm.Exec("UPDATE `user` SET `name`=?,`avatar`=? WHERE `id`=?", u.Name, u.Avatar, u.ID)
+	_, err := orm.Exec("UPDATE `user` SET `name`=?,`avatar`=?,`issu`=?,`islocked`=? WHERE `id`=?", u.Name, u.Avatar, u.IsSu, u.IsLocked, u.ID)
 	return err
 }
