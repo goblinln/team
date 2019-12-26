@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import {Button, Icon, Row, Input} from '../../components';
-import {Task, Project, ProjectMilestone} from '../../common/protocol';
+import {TaskBrief, Project, ProjectMilestone} from '../../common/protocol';
 import {request} from '../../common/request';
 
 import {Board} from './board';
@@ -10,8 +10,8 @@ import {Creator} from './creator';
 
 export const TaskPage = (props: {uid: number}) => {
     const [page, setPage] = React.useState<'creator'|'board'|'gantt'>('board');
-    const [tasks, setTasks] = React.useState<Task[]>([]);
-    const [visibleTasks, setVisibleTask] = React.useState<Task[]>([]);
+    const [tasks, setTasks] = React.useState<TaskBrief[]>([]);
+    const [visibleTasks, setVisibleTask] = React.useState<TaskBrief[]>([]);
     const [projs, setProjs] = React.useState<Project[]>([]);
     const [isFilterVisible, setFilterVisible] = React.useState<boolean>(false);
     const [filter, setFilter] = React.useState<{p: number, m: number, n: string, me: number}>({p: -1, m: -1, n: '', me: -1});
@@ -22,10 +22,10 @@ export const TaskPage = (props: {uid: number}) => {
     }, []);
 
     React.useEffect(() => {
-        let ret: Task[] = [];
+        let ret: TaskBrief[] = [];
 
         tasks.forEach(t => {
-            if (filter.m != -1 && t.milestone.id != filter.m) return;
+            if (filter.m != -1 && (!t.milestone || t.milestone.id != filter.m)) return;
             if (filter.n.length > 0 && t.name.indexOf(filter.n) == -1) return;
             if (filter.p != -1 && t.proj.id != filter.p) return;
 
@@ -40,7 +40,7 @@ export const TaskPage = (props: {uid: number}) => {
     const fetchTasks = () => {
         request({
             url: '/api/task/mine',
-            success: (data: Task[]) => {
+            success: (data: TaskBrief[]) => {
                 let projects: Project[] = [];
                 data.forEach(t => {
                     let idx = projects.findIndex(v => v.id == t.proj.id);

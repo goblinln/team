@@ -1,27 +1,27 @@
 import * as React from 'react';
 import * as moment from 'moment';
 
-import { DragDropContext, Draggable, Droppable, ResponderProvided } from 'react-beautiful-dnd';
+import {DragDropContext, Draggable, Droppable, ResponderProvided} from 'react-beautiful-dnd';
 
 import {Badge, Button, Card, Col, Dropdown, Empty, Icon, Menu, Row} from '../../components';
-import {Task} from '../../common/protocol';
+import {TaskBrief} from '../../common/protocol';
 import {TaskStatus, TaskWeight} from '../../common/consts';
 import {request} from '../../common/request';
 import {Viewer} from './viewer';
 
 interface BoardProps {
-    tasks: Task[];
+    tasks: TaskBrief[];
     onModified?: () => void;
 };
 
 interface SortMethod {
     name: string;
-    exec: (a: Task, b: Task) => number;
+    exec: (a: TaskBrief, b: TaskBrief) => number;
 };
 
 interface TaskGroup {
     sorter: number;
-    tasks: Task[];
+    tasks: TaskBrief[];
 };
 
 export const Board = (props: BoardProps) => {

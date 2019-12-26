@@ -23,10 +23,11 @@ type (
 	// Milestone schema
 	Milestone struct {
 		ID        int64     `json:"id"`
-		PID       int64     `json:"pid"`
-		Name      string    `json:"name" orm:"type=VARCHAR(64),unique,notnull"`
-		StartTime time.Time `json:"startTime" orm:"notnull,default='2000-01-01'"`
-		EndTime   time.Time `json:"endTime" orm:"notnull,default='2000-01-01'"`
+		PID       int64     `json:"-"`
+		Name      string    `json:"name" orm:"type=VARCHAR(64),notnull"`
+		StartTime time.Time `json:"-" orm:"notnull,default='2000-01-01'"`
+		EndTime   time.Time `json:"-" orm:"notnull,default='2000-01-01'"`
+		Desc      string    `json:"desc"`
 	}
 
 	// Member schema
@@ -212,13 +213,31 @@ func (p *Project) FetchMilestones() {
 	}
 }
 
+// GetMilestones returns readable milestones of this project.
+func (p *Project) GetMilestones() []map[string]interface{} {
+	list := []map[string]interface{}{}
+
+	for _, one := range p.Milestones {
+		list = append(list, map[string]interface{}{
+			"id":        one.ID,
+			"name":      one.Name,
+			"startTime": one.StartTime.Format("2006-01-02"),
+			"endTime":   one.EndTime.Format("2006-01-02"),
+			"desc":      one.Desc,
+		})
+	}
+
+	return list
+}
+
 // AddMilestone adds new milestone to this project.
-func (p *Project) AddMilestone(name string, startTime, endTime time.Time) error {
+func (p *Project) AddMilestone(name, desc string, startTime, endTime time.Time) error {
 	add := &Milestone{
 		PID:       p.ID,
 		Name:      name,
 		StartTime: startTime,
 		EndTime:   endTime,
+		Desc:      desc,
 	}
 
 	rs, err := orm.Insert(add)
@@ -230,6 +249,24 @@ func (p *Project) AddMilestone(name string, startTime, endTime time.Time) error 
 	return err
 }
 
+// DelMilestone deletes milestone by ID
+func (p *Project) DelMilestone(mid int64) {
+	orm.Delete("milestone", mid)
+	orm.Exec("UPDATE `task` SET `mid`=-1 WHERE `mid`=?", mid)
+
+	idx := -1
+	for i, one := range p.Milestones {
+		if one.ID == mid {
+			idx = i
+			break
+		}
+	}
+
+	if idx > -1 {
+		p.Milestones = append(p.Milestones[:idx], p.Milestones[idx+1:]...)
+	}
+}
+
 // FindMilestone returns milestone by ID
 func (p *Project) FindMilestone(mid int64) *Milestone {
 	for _, one := range p.Milestones {
@@ -239,6 +276,21 @@ func (p *Project) FindMilestone(mid int64) *Milestone {
 	}
 
 	return nil
+}
+
+// EditMilestone modifies milestone in this project.
+func (p *Project) EditMilestone(mid int64, name, desc string, start, end time.Time) error {
+	milestone := p.FindMilestone(mid)
+	if milestone == nil {
+		return errors.New("编辑的里程碑不存在或已删除")
+	}
+
+	milestone.Name = name
+	milestone.StartTime = start
+	milestone.EndTime = end
+	milestone.Desc = desc
+
+	return orm.Update(milestone)
 }
 
 // FetchMembers preloads all members for this project.

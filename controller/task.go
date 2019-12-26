@@ -17,6 +17,7 @@ type Task int
 func (t *Task) Register(group *web.Router) {
 	group.GET("/mine", t.mine)
 	group.GET("/project/:id", t.project)
+	group.GET("/milestone/:id", t.milestone)
 
 	group.GET("/:id", t.info)
 	group.DELETE("/:id", t.delete)
@@ -56,6 +57,13 @@ func (*Task) project(c *web.Context) {
 	c.JSON(200, web.Map{"data": list})
 }
 
+func (*Task) milestone(c *web.Context) {
+	mid := c.RouteValue("id").MustInt("")
+	list, err := task.GetAllByMID(mid)
+	web.AssertError(err)
+	c.JSON(200, web.Map{"data": list})
+}
+
 func (*Task) create(c *web.Context) {
 	name := c.PostFormValue("name").MustString("任务名不可空")
 	pid := c.PostFormValue("pid").MustInt("无效的项目ID")
@@ -80,7 +88,14 @@ func (*Task) create(c *web.Context) {
 	}
 
 	proj := project.Find(pid)
-	web.Assert(proj != nil, "项目不存在或已被删除")
+	web.Assert(proj != nil, "任务所属项目不存在或已删除")
+
+	milestone := proj.FindMilestone(mid)
+	if milestone != nil {
+		web.Assert(
+			startTime.After(milestone.StartTime) && endTime.Before(milestone.EndTime),
+			"任务时间计划与所属里程碑不匹配")
+	}
 
 	t := task.Add(name, pid, mid, int8(weight), me.IsSu, creator.ID, did, tid, startTime, endTime, tags, content)
 	fhs, ok := c.MultipartForm().File["files[]"]
