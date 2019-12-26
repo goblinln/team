@@ -47,6 +47,34 @@ export interface ProjectMember {
 }
 
 /**
+ * 项目里程
+ */
+export interface ProjectMilestone {
+    /**
+     * 唯一ID
+     */
+    id: number;
+    /**
+     * 显示名称
+     */
+    name: string;
+    /**
+     * 计划开始时间
+     */
+    startTime: string;
+
+    /**
+     * 计划截止时间
+     */
+    endTime: string;
+
+    /**
+     * 描述
+     */
+    desc?: string;
+}
+
+/**
  * 项目信息
  */
 export interface Project {
@@ -65,7 +93,33 @@ export interface Project {
     /**
      * 分支列表
      */
-    branches?: string[];
+    milestones?: ProjectMilestone[];
+}
+
+/**
+ * 项目统计数据
+ */
+export interface ProjectSummary {
+    /**
+     * 自定义简介
+     */
+    desc: string;
+    /**
+     * 成员数
+     */
+    members: number;
+    /**
+     * 里程碑数
+     */
+    milestones: number;
+    /**
+     * 进行中的任务数
+     */
+    tasks: number;
+    /**
+     * 逾期任务
+     */
+    delayed: number;
 }
 
 /**
@@ -113,6 +167,60 @@ export interface TaskEvent {
 }
 
 /**
+ * 任务摘要
+ */
+export interface TaskBrief {
+    /**
+     * 唯一ID
+     */
+    id: number;
+    /**
+     * 显示名
+     */
+    name: string;
+    /**
+     * 所属项目
+     */
+    proj: {id: number, name: string};
+    /**
+     * 里程碑
+     */
+    milestone: {id: number, name: string};
+    /**
+     * 是否置顶
+     */
+    bringTop: boolean;
+    /**
+     * 权重
+     */
+    weight: number;
+    /**
+     * 当前的状态
+     */
+    state: number;
+    /**
+     * 创建者/需求发起方
+     */
+    creator: {id: number, name: string};
+    /**
+     * 开发者/乙方
+     */
+    developer: {id: number, name: string};
+    /**
+     * 测试者/验收方
+     */
+    tester: {id: number, name: string};
+    /**
+     * 计划开始时间
+     */
+    startTime: string;
+    /**
+     * 计划截止时间
+     */
+    endTime: string;
+}
+
+/**
  * 服务器返回的任务数据类型
  */
 export interface Task {
@@ -134,12 +242,7 @@ export interface Task {
     /**
      * 所属分支
      */
-    branch: number,
-
-    /**
-     * 是否置顶
-     */
-    bringTop?: boolean;
+    milestone: ProjectMilestone,
 
     /**
      * 权重
@@ -233,7 +336,7 @@ export interface Notice {
 }
 
 /**
- * WIKI文档
+ * 文档
  */
 export interface Document {
     /**

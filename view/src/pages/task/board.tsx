@@ -1,27 +1,27 @@
 import * as React from 'react';
 import * as moment from 'moment';
 
-import { DragDropContext, Draggable, Droppable, ResponderProvided } from 'react-beautiful-dnd';
+import {DragDropContext, Draggable, Droppable, ResponderProvided} from 'react-beautiful-dnd';
 
 import {Badge, Button, Card, Col, Dropdown, Empty, Icon, Menu, Row} from '../../components';
-import {Task} from '../../common/protocol';
+import {TaskBrief} from '../../common/protocol';
 import {TaskStatus, TaskWeight} from '../../common/consts';
 import {request} from '../../common/request';
 import {Viewer} from './viewer';
 
 interface BoardProps {
-    tasks: Task[];
+    tasks: TaskBrief[];
     onModified?: () => void;
 };
 
 interface SortMethod {
     name: string;
-    exec: (a: Task, b: Task) => number;
+    exec: (a: TaskBrief, b: TaskBrief) => number;
 };
 
 interface TaskGroup {
     sorter: number;
-    tasks: Task[];
+    tasks: TaskBrief[];
 };
 
 export const Board = (props: BoardProps) => {
@@ -160,7 +160,7 @@ export const Board = (props: BoardProps) => {
                                                                     <Card key={t.id} className='my-1 fg-muted' bordered style={{borderLeft: `4px solid ${endTime.diff(now) < 0?'red':'gray'}`}}>
                                                                         <Row flex={{align: 'middle', justify: 'space-between'}} style={{fontSize: 12}}>
                                                                             <span><Icon type='pie-chart' className='mr-1'/>{t.proj.name}</span>
-                                                                            <span><Icon type='branches' className='mr-1'/>{t.proj.branches[t.branch]||'默认'}</span>
+                                                                            <span><Icon type='branches' className='mr-1'/>{t.milestone?t.milestone.name:'默认'}</span>
                                                                         </Row>
                                                                         <Button
                                                                             theme='link' 

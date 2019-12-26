@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import {Button, Icon, Row, Input} from '../../components';
-import {Task, Project} from '../../common/protocol';
+import {TaskBrief, Project, ProjectMilestone} from '../../common/protocol';
 import {request} from '../../common/request';
 
 import {Board} from './board';
@@ -10,22 +10,22 @@ import {Creator} from './creator';
 
 export const TaskPage = (props: {uid: number}) => {
     const [page, setPage] = React.useState<'creator'|'board'|'gantt'>('board');
-    const [tasks, setTasks] = React.useState<Task[]>([]);
-    const [visibleTasks, setVisibleTask] = React.useState<Task[]>([]);
+    const [tasks, setTasks] = React.useState<TaskBrief[]>([]);
+    const [visibleTasks, setVisibleTask] = React.useState<TaskBrief[]>([]);
     const [projs, setProjs] = React.useState<Project[]>([]);
     const [isFilterVisible, setFilterVisible] = React.useState<boolean>(false);
-    const [filter, setFilter] = React.useState<{p: number, b: number, n: string, me: number}>({p: -1, b: -1, n: '', me: -1});
-    const [branches, setBranches] = React.useState<string[]>([]);
+    const [filter, setFilter] = React.useState<{p: number, m: number, n: string, me: number}>({p: -1, m: -1, n: '', me: -1});
+    const [milestones, setMilestones] = React.useState<ProjectMilestone[]>([]);
 
     React.useEffect(() => {
         fetchTasks();
     }, []);
 
     React.useEffect(() => {
-        let ret: Task[] = [];
+        let ret: TaskBrief[] = [];
 
         tasks.forEach(t => {
-            if (filter.b != -1 && t.branch != filter.b) return;
+            if (filter.m != -1 && (!t.milestone || t.milestone.id != filter.m)) return;
             if (filter.n.length > 0 && t.name.indexOf(filter.n) == -1) return;
             if (filter.p != -1 && t.proj.id != filter.p) return;
 
@@ -40,7 +40,7 @@ export const TaskPage = (props: {uid: number}) => {
     const fetchTasks = () => {
         request({
             url: '/api/task/mine',
-            success: (data: Task[]) => {
+            success: (data: TaskBrief[]) => {
                 let projects: Project[] = [];
                 data.forEach(t => {
                     let idx = projects.findIndex(v => v.id == t.proj.id);
@@ -56,23 +56,23 @@ export const TaskPage = (props: {uid: number}) => {
         let selected = parseInt(ev.target.value);
         let idx = projs.findIndex(v => v.id == selected);
 
-        setBranches(idx==-1?[]:projs[idx].branches);
+        setMilestones(idx==-1?[]:projs[idx].milestones);
         setFilter(prev => {
             return {
                 p: selected,
-                b: -1,
+                m: -1,
                 n: prev.n,
                 me: prev.me,
             }
         });
     };
 
-    const handleBranchChange = (ev: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleMilestoneChange = (ev: React.ChangeEvent<HTMLSelectElement>) => {
         let selected = parseInt(ev.target.value);
         setFilter(prev => {
             return {
                 p: prev.p,
-                b: selected,
+                m: selected,
                 n: prev.n,
                 me: prev.me,
             }
@@ -83,7 +83,7 @@ export const TaskPage = (props: {uid: number}) => {
         setFilter(prev => {
             return {
                 p: prev.p,
-                b: prev.b,
+                m: prev.m,
                 n: v,
                 me: prev.me,
             }
@@ -95,7 +95,7 @@ export const TaskPage = (props: {uid: number}) => {
         setFilter(prev => {
             return {
                 p: prev.p,
-                b: prev.b,
+                m: prev.m,
                 n: prev.n,
                 me: selected,
             }
@@ -132,10 +132,10 @@ export const TaskPage = (props: {uid: number}) => {
                     </div>
 
                     <div className='ml-3'>
-                        <label className='mr-1'>选择分支</label>
-                        <Input.Select style={{width: 100}} value={filter.b} onChange={handleBranchChange}>
+                        <label className='mr-1'>选择里程碑</label>
+                        <Input.Select style={{width: 100}} value={filter.m} onChange={handleMilestoneChange}>
                             <option key={'none'} value={-1}>无要求</option>
-                            {branches.map((b, i) => <option key={i} value={i}>{b}</option>)}
+                            {milestones.map((m, i) => <option key={i} value={m.id}>{m.name}</option>)}
                         </Input.Select>
                     </div>
 
@@ -154,7 +154,7 @@ export const TaskPage = (props: {uid: number}) => {
                         <Input style={{width: 150}} value={filter.n} onChange={handleNameChange}/>
                     </div>
 
-                    <Button className='ml-3' size='sm' onClick={() => setFilter({p: -1, b: -1, n: '', me: -1})}>重置</Button>
+                    <Button className='ml-3' size='sm' onClick={() => setFilter({p: -1, m: -1, n: '', me: -1})}>重置</Button>
                 </div>
             </div>
             

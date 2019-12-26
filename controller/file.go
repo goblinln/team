@@ -7,8 +7,7 @@ import (
 	"os"
 	"time"
 
-	"team/model"
-	"team/orm"
+	"team/model/share"
 	"team/web"
 )
 
@@ -52,15 +51,7 @@ func (f *File) share(c *web.Context) {
 	for _, files := range formFiles {
 		for _, fh := range files {
 			url, size := f.save(fh, uid)
-
-			orm.Insert(&model.Share{
-				Name: fh.Filename,
-				Path: url,
-				UID:  uid,
-				Time: time.Now(),
-				Size: size,
-			})
-
+			share.Add(fh.Filename, url, uid, size)
 			c.JSON(200, web.Map{})
 			return
 		}
@@ -70,48 +61,21 @@ func (f *File) share(c *web.Context) {
 }
 
 func (f *File) getShareList(c *web.Context) {
-	rows, err := orm.Query("SELECT * FROM `share`")
-	web.Assert(err == nil, "拉取文件列表失败")
-	defer rows.Close()
-
-	list := []map[string]interface{}{}
-	for rows.Next() {
-		one := &model.Share{}
-		err = orm.Scan(rows, one)
-		if err == nil {
-			name, _ := model.FindUserInfo(one.UID)
-			list = append(list, map[string]interface{}{
-				"id":       one.ID,
-				"name":     one.Name,
-				"url":      one.Path,
-				"uploader": name,
-				"time":     one.Time.Format("2006-01-02 15:04:05"),
-				"size":     one.Size,
-			})
-		}
-	}
-
+	list, err := share.GetAll()
+	web.AssertError(err)
 	c.JSON(200, web.Map{"data": list})
 }
 
 func (f *File) download(c *web.Context) {
 	id := c.RouteValue("id").MustInt("")
-	share := &model.Share{ID: id}
-	err := orm.Read(share)
-	web.Assert(err == nil, "文件不存在或已被删除")
-
-	c.FileWithName(200, "."+share.Path, share.Name)
+	info, err := share.Find(id)
+	web.AssertError(err)
+	c.FileWithName(200, "."+info.Path, info.Name)
 }
 
 func (f *File) deleteShare(c *web.Context) {
 	id := c.RouteValue("id").MustInt("")
-	share := &model.Share{ID: id}
-	err := orm.Read(share)
-	if err == nil {
-		os.Remove("." + share.Path)
-		orm.Delete("share", id)
-	}
-
+	share.Delete(id)
 	c.JSON(200, web.Map{})
 }
 
