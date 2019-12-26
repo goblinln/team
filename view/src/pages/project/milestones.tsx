@@ -18,6 +18,7 @@ interface MilestoneChartElement {
     name: string;
     value: number;
     color: string;
+    isDelayed: boolean;
 }
 
 interface ViewMilestone {
@@ -153,6 +154,7 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
                             name: TaskStatus[t.state].name,
                             value: 1,
                             color: TaskStatus[t.state].color,
+                            isDelayed: t.state < 3 && moment(t.endTime).isBefore(),
                         })
                     } else {
                         summary[idx].value++;
@@ -186,23 +188,16 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
                         <Timeline.Item icon={<Icon type='flag-fill'/>} key={i}>
                             <Card
                                 style={(view&&view.target.id==m.id)?{border: '1px solid lightblue'}:{}}
-                                header={<span className='text-bold'>{m.name}</span>} 
-                                footer={(
-                                    <span>
-                                        <a className='link' onClick={() => viewMilestone(m)}>详情</a>
-                                        {props.isAdmin && [
-                                            <div key='d-0' className='divider-v'/>,
-                                            <a key='edit' className='link' onClick={() => editMilestone(m)}>编辑</a>,
-                                            <div key='d-1' className='divider-v'/>,
-                                            <a key='delete' className='link' onClick={() => delMilestone(m)}>删除</a>,
-                                        ]}                
-                                    </span>
-                                )}
+                                header={<span className='text-bold'>{m.name}</span>}
+                                onClick={() => viewMilestone(m)}
                                 shadowed>
-                                <ul style={{listStyle: 'disc', paddingLeft: 24}}>
-                                    <li>开始：{m.startTime}</li>
-                                    <li>结束：{m.endTime}</li>
-                                </ul>
+                                <span>
+                                    {props.isAdmin ? [
+                                        <a key='edit' className='link' onClick={ev => {ev.preventDefault(); ev.stopPropagation(); editMilestone(m)}}>编辑</a>,
+                                        <div key='d-0' className='divider-v'/>,
+                                        <a key='delete' className='link' onClick={ev => {ev.preventDefault(); ev.stopPropagation(); delMilestone(m)}}>删除</a>,
+                                    ] : '点击卡片查看详情'}                
+                                </span>
                             </Card>
                         </Timeline.Item>
                     ))}
@@ -252,7 +247,7 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
 
                                 {view.tasks.map(t => (
                                     <p key={t.id}>
-                                        {moment(t.endTime).isBefore()&&<Icon type='warning-circle' className='fg-danger mr-1'/>}
+                                        {(t.state < 3 && moment(t.endTime).isBefore()) &&<Icon type='warning-circle' className='fg-danger mr-1'/>}
                                         <Icon type={TaskStatus[t.state].icon} style={{color: TaskStatus[t.state].color}}/>
                                         <a href='#' className='fg-info ml-1' onClick={() => Viewer.open(t.id, props.isAdmin ? () => viewMilestone(view.target) : null)}>{t.name}</a>
                                         <small className='ml-1 text-bold'>
@@ -276,6 +271,15 @@ Milestones.Charts = (props: {elems: MilestoneChartElement[]}) => {
         if (!ref.current) return;
 
         let pie = echarts.init(ref.current);
+        let delay = [
+            {name: '正常', value: 0},
+            {name: '逾期', value: 0},
+        ];
+
+        props.elems.forEach(item => {
+            delay[item.isDelayed?1:0].value++
+        })
+
         pie.setOption({
             title: {
                 text: '完成情况统计',
@@ -294,9 +298,23 @@ Milestones.Charts = (props: {elems: MilestoneChartElement[]}) => {
                 {
                     type: 'pie',
                     radius: '50%',
-                    center: ['50%', '50%'],
+                    center: ['30%', '50%'],
                     selectedMode: 'single',
                     data: props.elems.map(item => ({name: item.name, value: item.value})),
+                    itemStyle: {
+                        emphasis: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, .5)',
+                        }
+                    }
+                },
+                {
+                    type: 'pie',
+                    radius: '50%',
+                    center: ['70%', '50%'],
+                    selectedMode: 'single',
+                    data: delay,
                     itemStyle: {
                         emphasis: {
                             shadowBlur: 10,
