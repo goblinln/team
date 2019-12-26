@@ -4,6 +4,7 @@ import {Layout, Icon, Menu, Empty, Badge, Row} from '../../components';
 import {Project} from '../../common/protocol';
 import {request} from '../../common/request';
 
+import {Summary} from './summary';
 import {Tasks} from './tasks';
 import {Members} from './members';
 import {Milestones} from './milestones';
@@ -19,7 +20,7 @@ export const ProjectPage = (props: {uid: number}) => {
     return (
         <Layout style={{width: '100%', height: '100%'}}>
             <Layout.Sider width={200} theme='light'>            
-                <div style={{padding: 8, borderBottom: '1px solid #E2E2E2'}}>
+                <div style={{padding: 8, borderBottom: '1px solid rgb(204,204,204)'}}>
                     <label className='text-bold fg-muted' style={{fontSize: '1.2em'}}><Icon type='pie-chart' className='mr-2'/>项目列表</label>
                 </div>
 
@@ -37,6 +38,7 @@ export const ProjectPage = (props: {uid: number}) => {
 
                             return (
                                 <Menu.SubMenu key={p.id} collapse='disabled' label={<Row flex={{align: 'middle', justify: 'space-between'}}>{p.name}<Badge className='ml-2' theme='info'>{isAdmin?'管理员':'成员'}</Badge></Row>}>
+                                    <Menu.Item onClick={() => setPage(<Summary proj={p} isAdmin={isAdmin}/>)}>项目概览</Menu.Item>
                                     <Menu.Item onClick={() => setPage(<Tasks proj={p} isAdmin={isAdmin}/>)}>任务列表</Menu.Item>
                                     <Menu.Item onClick={() => setPage(<Milestones pid={p.id} isAdmin={isAdmin}/>)}>里程计划</Menu.Item>
                                     {isAdmin&&<Menu.Item onClick={() => setPage(<Members pid={p.id}/>)}>成员管理</Menu.Item>}
@@ -48,7 +50,11 @@ export const ProjectPage = (props: {uid: number}) => {
             </Layout.Sider>
 
             <Layout.Content>
-                {page}
+                {page||(
+                    <div className='w-100 h-100 center-child'>
+                        <Empty label='请在左侧选择具体操作'/>
+                    </div>
+                )}
             </Layout.Content>
         </Layout>
     );

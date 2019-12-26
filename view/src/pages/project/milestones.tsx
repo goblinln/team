@@ -211,7 +211,7 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
                     </div>
                 ):(
                     <div className='p-2'>
-                        <label style={{fontSize: 16, fontWeight: 'bolder'}}><Icon type='flag-fill' className='mr-1'/>{view.target.name}</label>
+                        <label style={{fontSize: 16, fontWeight: 'bolder'}}><Icon type='flag-fill' className='mr-1'/>【{view.target.name}】详情</label>
                         <div className='divider-h pt-2'/>
 
                         <div className='py-2'>
