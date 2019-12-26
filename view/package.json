@@ -7,6 +7,7 @@
     "build": "webpack"
   },
   "dependencies": {
+    "echarts": "^4.5.0",
     "moment": "^2.24.0",
     "react": "^16.12.0",
     "react-beautiful-dnd": "^12.2.0",
@@ -14,6 +15,7 @@
     "react-markdown": "^4.2.2"
   },
   "devDependencies": {
+    "@types/echarts": "^4.4.2",
     "@types/react": "^16.9.15",
     "@types/react-beautiful-dnd": "^11.0.3",
     "@types/react-dom": "^16.9.4",

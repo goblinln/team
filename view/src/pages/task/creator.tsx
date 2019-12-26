@@ -111,7 +111,7 @@ export const Creator = (props: {onDone: () => void}) => {
                     <Form.Field htmlFor='mid' label='里程碑'>
                         <Input.Select name='mid'>
                             <option value={-1}>无要求</option>
-                            {selectedProj&&selectedProj.milestones.map((m, i) => <option key={i} value={i}>{m.name}</option>)}
+                            {selectedProj&&selectedProj.milestones.map((m, i) => <option key={i} value={m.id}>{m.name}</option>)}
                         </Input.Select>
                     </Form.Field>
                 </Col>
