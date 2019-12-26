@@ -42,7 +42,11 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
         request({url: `/api/project/${props.pid}/milestone/list`, success: (data: ProjectMilestone[]) => {
             data.sort((a, b) => b.id - a.id)
             setMilestones(data);
-            setView(null);
+            if (data.length > 0) {
+                viewMilestone(data[0]);
+            } else {
+                setView(null);
+            }
         }});
     };
 
@@ -181,6 +185,7 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
                     {milestones.map((m, i) => (
                         <Timeline.Item icon={<Icon type='flag-fill'/>} key={i}>
                             <Card
+                                style={(view&&view.target.id==m.id)?{border: '1px solid lightblue'}:{}}
                                 header={<span className='text-bold'>{m.name}</span>} 
                                 footer={(
                                     <span>
