@@ -129,6 +129,32 @@ func GetAllByPID(pid int64) ([]map[string]interface{}, error) {
 	return list, nil
 }
 
+// GetAllByMID returns tasks by project ID.
+func GetAllByMID(mid int64) ([]map[string]interface{}, error) {
+	rows, err := orm.Query(
+		"SELECT `id`,`pid`,`mid`,`creator`,`developer`,`tester`,`name`,`bringtop`,`weight`,`state`,`starttime`,`endtime` "+
+			"FROM `task` WHERE `mid`=?",
+		mid)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	list := []map[string]interface{}{}
+	for rows.Next() {
+		one := &Task{}
+		if err = orm.Scan(rows, one); err != nil {
+			return nil, err
+		}
+
+		list = append(list, one.Brief())
+	}
+
+	return list, nil
+}
+
 // Find task by ID
 func Find(ID int64) *Task {
 	t := &Task{ID: ID}

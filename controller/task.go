@@ -17,6 +17,7 @@ type Task int
 func (t *Task) Register(group *web.Router) {
 	group.GET("/mine", t.mine)
 	group.GET("/project/:id", t.project)
+	group.GET("/milestone/:id", t.milestone)
 
 	group.GET("/:id", t.info)
 	group.DELETE("/:id", t.delete)
@@ -53,6 +54,13 @@ func (*Task) project(c *web.Context) {
 	list, err := task.GetAllByPID(pid)
 	web.AssertError(err)
 
+	c.JSON(200, web.Map{"data": list})
+}
+
+func (*Task) milestone(c *web.Context) {
+	mid := c.RouteValue("id").MustInt("")
+	list, err := task.GetAllByMID(mid)
+	web.AssertError(err)
 	c.JSON(200, web.Map{"data": list})
 }
 
