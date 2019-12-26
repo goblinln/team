@@ -14,7 +14,10 @@ type Project int
 // Register implements web.Controller interface.
 func (p *Project) Register(group *web.Router) {
 	group.GET("/:id", p.info)
+	group.GET("/:id/summary", p.summary)
 	group.GET("/mine", p.mine)
+
+	group.PUT("/:id/desc", p.setDesc)
 
 	group.GET("/:id/invites", p.getInviteList)
 	group.POST("/:id/member", p.addMember)
@@ -35,11 +38,28 @@ func (*Project) info(c *web.Context) {
 	c.JSON(200, web.Map{"data": proj.Info()})
 }
 
+func (*Project) summary(c *web.Context) {
+	pid := c.RouteValue("id").MustInt("")
+	proj := project.Find(pid)
+	web.Assert(proj != nil, "指定项目不存在或已被删除")
+
+	c.JSON(200, web.Map{"data": proj.Summary()})
+}
+
 func (*Project) mine(c *web.Context) {
 	uid := c.Session.Get("uid").(int64)
 	projs, err := project.GetAllByUser(uid)
 	web.AssertError(err)
 	c.JSON(200, web.Map{"data": projs})
+}
+
+func (*Project) setDesc(c *web.Context) {
+	pid := c.RouteValue("id").MustInt("")
+	desc := c.PostFormValue("desc").String()
+	proj := project.Find(pid)
+	web.Assert(proj != nil, "指定项目不存在或已被删除")
+	web.AssertError(proj.SetDesc(desc))
+	c.JSON(200, web.Map{})
 }
 
 func (*Project) getInviteList(c *web.Context) {

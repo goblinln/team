@@ -97,6 +97,32 @@ export interface Project {
 }
 
 /**
+ * 项目统计数据
+ */
+export interface ProjectSummary {
+    /**
+     * 自定义简介
+     */
+    desc: string;
+    /**
+     * 成员数
+     */
+    members: number;
+    /**
+     * 里程碑数
+     */
+    milestones: number;
+    /**
+     * 进行中的任务数
+     */
+    tasks: number;
+    /**
+     * 逾期任务
+     */
+    delayed: number;
+}
+
+/**
  * 评论
  */
 export interface TaskComment {

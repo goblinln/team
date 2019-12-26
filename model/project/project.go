@@ -14,6 +14,7 @@ type (
 	Project struct {
 		ID   int64  `json:"id"`
 		Name string `json:"name" orm:"type=VARCHAR(64),unique,notnull"`
+		Desc string `json:"-"`
 
 		// Runtime data.
 		Milestones []*Milestone `json:"milestones" orm:"-"`
@@ -163,6 +164,16 @@ func Delete(ID int64) {
 	projectCache.Delete(ID)
 }
 
+// SetDesc changes project's description.
+func (p *Project) SetDesc(desc string) error {
+	if _, err := orm.Exec("UPDATE `project` SET `desc`=? WHERE `id`=?", desc, p.ID); err != nil {
+		return err
+	}
+
+	p.Desc = desc
+	return nil
+}
+
 // Info returns detail information
 func (p *Project) Info() map[string]interface{} {
 	members := []map[string]interface{}{}
@@ -190,6 +201,37 @@ func (p *Project) Info() map[string]interface{} {
 		"milestones": milestones,
 		"members":    members,
 	}
+}
+
+// Summary returns project's detail information.
+func (p *Project) Summary() map[string]interface{} {
+	info := map[string]interface{}{
+		"desc":       p.Desc,
+		"members":    len(p.Members),
+		"milestones": len(p.Milestones),
+		"tasks":      0,
+		"delayed":    0,
+	}
+
+	rowsTasks, err := orm.Query("SELECT COUNT(*) FROM `task` WHERE `state`<3 AND `pid`=?", p.ID)
+	if err == nil {
+		defer rowsTasks.Close()
+		count := 0
+		rowsTasks.Next()
+		rowsTasks.Scan(&count)
+		info["tasks"] = count
+	}
+
+	rowsDelayed, err := orm.Query("SELECT COUNT(*) FROM `task` WHERE `state`<3 AND `endtime`<? AND `pid`=?", time.Now().Format("2006-01-02"), p.ID)
+	if err == nil {
+		defer rowsDelayed.Close()
+		count := 0
+		rowsDelayed.Next()
+		rowsDelayed.Scan(&count)
+		info["delayed"] = count
+	}
+
+	return info
 }
 
 // FetchMilestones preloads all valid(NOT ended) milestones for this project.

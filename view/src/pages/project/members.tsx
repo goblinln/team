@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import {Table, Modal, Input, Notification, Form, FormProxy, FormFieldValidator, TableColumn, Avatar, Badge, Icon, Row, Card, Button} from '../../components';
+import {Table, Modal, Input, Form, FormProxy, FormFieldValidator, TableColumn, Avatar, Badge, Icon, Row, Card, Button} from '../../components';
 import {Project, ProjectMember, User} from '../../common/protocol';
 import {request} from '../../common/request';
 import { ProjectRole } from '../../common/consts';
