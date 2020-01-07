@@ -44,24 +44,24 @@ export const Summary = (props: {proj: Project, isAdmin: boolean}) => {
 
                 <div className='p-2'>
                     <Row flex={{align: 'middle', justify: 'start'}}>
-                        <Card style={{width: 100, textAlign: 'center', marginRight: 8}} header={null} bordered>
-                            <p style={{fontSize: 48, fontWeight: "bold"}}>{summary.members}</p>
+                        <Card className='fg-primary' style={{width: 80, textAlign: 'center', marginRight: 8}} header={null} bordered>
+                            <p style={{fontSize: 36, fontWeight: "bold"}}>{summary.members}</p>
                             <p>成员</p>
                         </Card>
 
-                        <Card style={{width: 100, textAlign: 'center', marginRight: 8}} header={null} bordered>
-                            <p style={{fontSize: 48, fontWeight: "bold"}}>{summary.milestones}</p>
+                        <Card className='fg-info' style={{width: 80, textAlign: 'center', marginRight: 8}} header={null} bordered>
+                            <p style={{fontSize: 36, fontWeight: "bold"}}>{summary.milestones}</p>
                             <p>里程碑</p>
                         </Card>
 
-                        <Card style={{width: 100, textAlign: 'center', marginRight: 8}} header={null} bordered>
-                            <p style={{fontSize: 48, fontWeight: "bold"}}>{summary.tasks}</p>
-                            <p>未完成任务</p>
+                        <Card className='fg-warning' style={{width: 80, textAlign: 'center', marginRight: 8}} header={null} bordered>
+                            <p style={{fontSize: 36, fontWeight: "bold"}}>{summary.tasks}</p>
+                            <p>未完成</p>
                         </Card>
 
-                        <Card style={{width: 100, textAlign: 'center'}} header={null} bordered>
-                            <p style={{fontSize: 48, fontWeight: "bold"}}>{summary.delayed}</p>
-                            <p>逾期任务</p>
+                        <Card className='fg-danger' style={{width: 80, textAlign: 'center'}} header={null} bordered>
+                            <p style={{fontSize: 36, fontWeight: "bold"}}>{summary.delayed}</p>
+                            <p>已逾期</p>
                         </Card>                     
                     </Row>
                 </div>
