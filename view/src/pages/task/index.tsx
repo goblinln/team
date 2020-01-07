@@ -135,7 +135,7 @@ export const TaskPage = (props: {uid: number}) => {
                         <label className='mr-1'>选择里程碑</label>
                         <Input.Select style={{width: 100}} value={filter.m} onChange={handleMilestoneChange}>
                             <option key={'none'} value={-1}>无要求</option>
-                            {milestones.map((m, i) => <option key={i} value={m.id}>{m.name}</option>)}
+                            {milestones&&milestones.map((m, i) => <option key={i} value={m.id}>{m.name}</option>)}
                         </Input.Select>
                     </div>
 
