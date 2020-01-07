@@ -123,6 +123,20 @@ export interface ProjectSummary {
 }
 
 /**
+ * 周报
+ */
+export interface ProjectWeek {
+    /**
+     * 已完成验收的
+     */
+    archived: TaskBrief[];
+    /**
+     * 未完成验收的
+     */
+    unarchived: TaskBrief[];
+}
+
+/**
  * 评论
  */
 export interface TaskComment {

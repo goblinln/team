@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"team/model/project"
+	"team/model/task"
 	"team/model/user"
 	"team/web"
 )
@@ -28,6 +29,8 @@ func (p *Project) Register(group *web.Router) {
 	group.POST("/:id/milestone", p.addMilestone)
 	group.PUT(`/:id/milestone/{mid:[\d]+}`, p.editMilestone)
 	group.DELETE(`/:id/milestone/{mid:[\d]+}`, p.delMilestone)
+
+	group.GET(`/:id/week/{start:[\d]+}`, p.getWeekReport)
 }
 
 func (*Project) info(c *web.Context) {
@@ -189,4 +192,14 @@ func (*Project) delMilestone(c *web.Context) {
 
 	proj.DelMilestone(mid)
 	c.JSON(200, web.Map{})
+}
+
+func (*Project) getWeekReport(c *web.Context) {
+	pid := c.RouteValue("id").MustInt("")
+	start := c.RouteValue("start").MustInt("")
+
+	proj := project.Find(pid)
+	web.Assert(proj != nil, "项目不存在或已被删除")
+
+	c.JSON(200, web.Map{"data": task.GetWeekReport(pid, start)})
 }

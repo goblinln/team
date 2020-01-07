@@ -129,6 +129,49 @@ func GetAllByPID(pid int64) ([]map[string]interface{}, error) {
 	return list, nil
 }
 
+// GetWeekReport returns tasks belongs this week.
+func GetWeekReport(pid, weekStart int64) map[string]interface{} {
+	end := weekStart + 3600*24*7
+
+	undone := []map[string]interface{}{}
+	done := []map[string]interface{}{}
+
+	rowsUndone, err := orm.Query(
+		"SELECT `id`,`pid`,`mid`,`creator`,`developer`,`tester`,`name`,`bringtop`,`weight`,`state`,`starttime`,`endtime` "+
+			"FROM `task` WHERE `pid`=? AND UNIX_TIMESTAMP(`endtime`)<=? AND (`state`<4 OR UNIX_TIMESTAMP(`archivetime`)>?)",
+		pid, end, end)
+	if err == nil {
+		defer rowsUndone.Close()
+
+		for rowsUndone.Next() {
+			one := &Task{}
+			if err = orm.Scan(rowsUndone, one); err == nil {
+				undone = append(undone, one.Brief())
+			}
+		}
+	}
+
+	rowsDone, err := orm.Query(
+		"SELECT `id`,`pid`,`mid`,`creator`,`developer`,`tester`,`name`,`bringtop`,`weight`,`state`,`starttime`,`endtime` "+
+			"FROM `task` WHERE `pid`=? AND `state`=4 AND UNIX_TIMESTAMP(`archivetime`)>=? AND UNIX_TIMESTAMP(`archivetime`)<=?",
+		pid, weekStart, end)
+	if err == nil {
+		defer rowsDone.Close()
+
+		for rowsDone.Next() {
+			one := &Task{}
+			if err = orm.Scan(rowsDone, one); err == nil {
+				done = append(done, one.Brief())
+			}
+		}
+	}
+
+	return map[string]interface{}{
+		"unarchived": undone,
+		"archived":   done,
+	}
+}
+
 // GetAllByMID returns tasks by project ID.
 func GetAllByMID(mid int64) ([]map[string]interface{}, error) {
 	rows, err := orm.Query(

@@ -8,6 +8,7 @@ import {Summary} from './summary';
 import {Tasks} from './tasks';
 import {Members} from './members';
 import {Milestones} from './milestones';
+import {Weeks} from './week';
 
 export const ProjectPage = (props: {uid: number}) => {
     const [projs, setProjs] = React.useState<Project[]>([]);
@@ -41,6 +42,7 @@ export const ProjectPage = (props: {uid: number}) => {
                                     <Menu.Item onClick={() => setPage(<Summary proj={p} isAdmin={isAdmin}/>)}>项目概览</Menu.Item>
                                     <Menu.Item onClick={() => setPage(<Tasks proj={p} isAdmin={isAdmin}/>)}>任务列表</Menu.Item>
                                     <Menu.Item onClick={() => setPage(<Milestones pid={p.id} isAdmin={isAdmin}/>)}>里程计划</Menu.Item>
+                                    <Menu.Item onClick={() => setPage(<Weeks pid={p.id} isAdmin={isAdmin}/>)}>项目周报</Menu.Item>
                                     {isAdmin&&<Menu.Item onClick={() => setPage(<Members pid={p.id}/>)}>成员管理</Menu.Item>}
                                 </Menu.SubMenu>
                             );
