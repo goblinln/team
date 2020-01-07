@@ -7,7 +7,7 @@ import 'echarts/lib/component/tooltip';
 import 'echarts/lib/component/legend';
 import 'echarts/lib/chart/pie';
 
-import { FormProxy, FormFieldValidator, Modal, Form, Input, Card, Icon, Button, Timeline, Markdown, Layout, Empty } from '../../components';
+import { FormProxy, FormFieldValidator, Modal, Form, Input, Card, Icon, Button, Timeline, Markdown, Layout, Empty, Badge, Row } from '../../components';
 import { ProjectMilestone, TaskBrief } from '../../common/protocol';
 import { request } from '../../common/request';
 import { TaskStatus } from '../../common/consts';
@@ -187,9 +187,14 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
                     {milestones.map((m, i) => (
                         <Timeline.Item icon={<Icon type='flag-fill'/>} key={i}>
                             <Card
-                                style={(view&&view.target.id==m.id)?{border: '1px solid lightblue'}:{}}
-                                header={<span className='text-bold'>{m.name}</span>}
+                                style={(view&&view.target.id==m.id)?{borderColor: 'silver'}:{}}
+                                header={(
+                                    <Row flex={{align: 'middle', justify: 'space-between'}}>
+                                        <span style={{fontSize: 14}}>{m.name}</span>
+                                        {moment(m.startTime).isAfter()?<Badge className='mr-1'>未开始</Badge>:(moment(m.endTime).isBefore()?<Badge className='mr-1' theme='success'>已结束</Badge>:<Badge className='mr-1' theme='info'>进行中</Badge>)}
+                                    </Row>)}
                                 onClick={() => viewMilestone(m)}
+                                bordered
                                 shadowed>
                                 <span>
                                     {props.isAdmin ? [
