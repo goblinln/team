@@ -174,39 +174,44 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
         <Layout style={{height: '100vh'}}>
             <Layout.Sider width={300} theme='light' style={{background: 'white'}}>
                 <div style={{padding: '8px 16px', borderBottom: '1px solid #e2e2e2'}}>
-                    <label className='text-bold fg-muted' style={{fontSize: '1.2em'}}>
-                        <Icon type='idcard' className='mr-1'/>里程计划
-                    </label>
+                    <Row flex={{align: 'middle', justify: 'space-between'}}>
+                        <label className='text-bold fg-muted' style={{fontSize: '1.2em'}}>
+                            <Icon type='idcard' className='mr-1'/>里程计划
+                        </label>
+
+                        <Button size='xs' theme='link' onClick={addMilestone}><Icon type='plus' className='mr-1'/>新建里程碑</Button>
+                    </Row>
                 </div>
 
-                <Timeline className='p-4'>
-                    <Timeline.Item icon={<Icon type='plus-square'/>}>
-                        <Button onClick={addMilestone}>新建里程碑</Button>
-                    </Timeline.Item>
-
-                    {milestones.map((m, i) => (
-                        <Timeline.Item icon={<Icon type='flag-fill'/>} key={i}>
-                            <Card
-                                style={(view&&view.target.id==m.id)?{borderColor: 'silver'}:{}}
-                                header={(
-                                    <Row flex={{align: 'middle', justify: 'space-between'}}>
-                                        <span style={{fontSize: 14}}>{m.name}</span>
-                                        {moment(m.startTime).isAfter()?<Badge className='mr-1'>未开始</Badge>:(moment(m.endTime).isBefore()?<Badge className='mr-1' theme='success'>已结束</Badge>:<Badge className='mr-1' theme='info'>进行中</Badge>)}
-                                    </Row>)}
-                                onClick={() => viewMilestone(m)}
-                                bordered
-                                shadowed>
-                                <span>
-                                    {props.isAdmin ? [
-                                        <a key='edit' className='link' onClick={ev => {ev.preventDefault(); ev.stopPropagation(); editMilestone(m)}}>编辑</a>,
-                                        <div key='d-0' className='divider-v'/>,
-                                        <a key='delete' className='link' onClick={ev => {ev.preventDefault(); ev.stopPropagation(); delMilestone(m)}}>删除</a>,
-                                    ] : '点击卡片查看详情'}                
-                                </span>
-                            </Card>
-                        </Timeline.Item>
-                    ))}
-                </Timeline>
+                {milestones.length > 0 ? (
+                    <Timeline className='p-4'>
+                        {milestones.map((m, i) => (
+                            <Timeline.Item icon={<Icon type='flag-fill'/>} key={i}>
+                                <Card
+                                    style={(view&&view.target.id==m.id)?{borderColor: 'silver'}:{}}
+                                    header={(
+                                        <Row flex={{align: 'middle', justify: 'space-between'}}>
+                                            <span style={{fontSize: 14}}>{m.name}</span>
+                                            {moment(m.startTime).isAfter()?<Badge className='mr-1'>未开始</Badge>:(moment(m.endTime).isBefore()?<Badge className='mr-1' theme='success'>已结束</Badge>:<Badge className='mr-1' theme='info'>进行中</Badge>)}
+                                        </Row>)}
+                                    onClick={() => viewMilestone(m)}
+                                    bordered
+                                    shadowed>
+                                    <span>
+                                        {props.isAdmin ? [
+                                            <a key='edit' className='link' onClick={ev => {ev.preventDefault(); ev.stopPropagation(); editMilestone(m)}}>编辑</a>,
+                                            <div key='d-0' className='divider-v'/>,
+                                            <a key='delete' className='link' onClick={ev => {ev.preventDefault(); ev.stopPropagation(); delMilestone(m)}}>删除</a>,
+                                        ] : '点击卡片查看详情'}                
+                                    </span>
+                                </Card>
+                            </Timeline.Item>
+                        ))}
+                    </Timeline>
+                ) : (
+                    <Empty label="暂无里程碑" className='mt-4'/>
+                )}
+                
             </Layout.Sider>
 
             <Layout.Content>
