@@ -2,8 +2,8 @@ import * as React from 'react';
 import * as moment from 'moment';
 
 import {Avatar, Button, Drawer, Row, Badge, Icon, Markdown, Tab, Timeline, Modal, Form, Input, Notification, Dropdown, Menu} from '../../components';
-import {Task, TaskEvent, User} from '../../common/protocol';
-import {TaskStatus, TaskWeight, TaskTag, ProjectRole} from '../../common/consts';
+import {Task, TaskEvent} from '../../common/protocol';
+import {TaskStatus, TaskWeight, ProjectRole} from '../../common/consts';
 import {request} from '../../common/request';
 
 const makeTaskEvent = (ev: TaskEvent) => {
@@ -34,7 +34,6 @@ const TaskDetailReadOnly = (props: {task: Task}) => {
             <Row flex={{align: 'middle', justify: 'space-between'}} className='mx-3 mb-3'>
                 <span style={{fontWeight: 'bold', fontSize: 18, maxWidth: 340}} className='text-ellipsis'>
                     {task.name}
-                    {task.tags.map((t, i) => <Badge key={i} theme={TaskTag[t].theme as any} className='mx-1'>{TaskTag[t].name}</Badge>)}
                 </span>
 
                 <span style={{fontSize: 12}}>
@@ -140,7 +139,6 @@ const TaskDetail = (props: {task: Task; closer: () => void; onModified: () => vo
             <Row flex={{align: 'middle', justify: 'space-between'}} className='mx-3 mb-3'>
                 <span style={{fontWeight: 'bold', fontSize: 18, maxWidth: 540}} className='text-ellipsis'>
                     {task.name}
-                    {task.tags.map((t, i) => <Badge key={i} theme={TaskTag[t].theme as any} className='mx-1'>{TaskTag[t].name}</Badge>)}
                     <Icon type='edit' className='fg-primary ml-1' style={{fontWeight: 'normal'}} onClick={renameTask}/>
                 </span>
 

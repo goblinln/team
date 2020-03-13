@@ -45,7 +45,6 @@ type (
 		StartTime   time.Time `json:"startTime" orm:"default=CURRENT_TIMESTAMP"`
 		EndTime     time.Time `json:"endTime" orm:"notnull,default='2000-01-01'"`
 		ArchiveTime time.Time `json:"archiveTime" orm:"notnull,default='2000-01-01'"`
-		Tags        []int     `json:"tags"`
 		Content     string    `json:"content"`
 	}
 
@@ -209,7 +208,7 @@ func Find(ID int64) *Task {
 }
 
 // Add new task
-func Add(name string, pid int64, mid int64, weight int8, bringTop bool, creator, developer, tester int64, startTime, endTime time.Time, tags []int, content string) *Task {
+func Add(name string, pid int64, mid int64, weight int8, bringTop bool, creator, developer, tester int64, startTime, endTime time.Time, content string) *Task {
 	add := &Task{
 		PID:         pid,
 		MID:         mid,
@@ -223,7 +222,6 @@ func Add(name string, pid int64, mid int64, weight int8, bringTop bool, creator,
 		StartTime:   startTime,
 		EndTime:     endTime,
 		ArchiveTime: TimeInfinite,
-		Tags:        tags,
 		Content:     content,
 	}
 
@@ -515,7 +513,6 @@ func (t *Task) Detail() map[string]interface{} {
 		"startTime":   t.StartTime.Format("2006-01-02"),
 		"endTime":     t.EndTime.Format("2006-01-02"),
 		"content":     t.Content,
-		"tags":        t.Tags,
 		"comments":    t.GetComments(),
 		"events":      t.GetEvents(),
 		"attachments": t.GetAttachments(),

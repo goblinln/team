@@ -1,8 +1,8 @@
 import * as React from 'react';
 import * as moment from 'moment';
 
-import {Badge, Button, Col, Form, Icon, Input, Markdown, Row, Notification, Empty} from '../../components';
-import {TaskTag, TaskWeight, ProjectRole} from '../../common/consts';
+import {Button, Col, Form, Icon, Input, Markdown, Row, Notification, Empty} from '../../components';
+import {TaskWeight, ProjectRole} from '../../common/consts';
 import {Project} from '../../common/protocol';
 import {CreateTaskHistory} from '../../common/storage';
 import {request} from '../../common/request';
@@ -204,14 +204,8 @@ export const Creator = (props: {onDone: () => void}) => {
                         <Input.DatePicker name='endTime' mode='date' value={moment().add(1, 'd').format('YYYY-MM-DD')}/>
                     </Form.Field>
                 </Col>
-
-                <Col span={{xs: 8}}>
-                    <Form.Field htmlFor='tags[]' label='任务标签'>
-                        {TaskTag.map((t, i) => (
-                            <Input.Checkbox name='tags[]' value={`${i}`} label={<Badge theme={t.theme as any}>{t.name}</Badge>}/>
-                        ))}
-                    </Form.Field>
-                </Col>
+                
+                <Col span={{xs: 8}}/>
             </Row>
 
             <Form.Field htmlFor='content' label='任务描述'>

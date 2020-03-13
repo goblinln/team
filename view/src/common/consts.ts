@@ -45,10 +45,3 @@ export const TaskWeight = [
     { name: '[主要] ', color: 'orange' },
     { name: '[严重] ', color: '#f50' },
 ];
-
-export const TaskTag = [
-    { name: '缺陷', theme: 'danger' },
-    { name: '快速修正', theme: 'primary' },
-    { name: '优化', theme: 'success' },
-    { name: '新功能', theme: 'info' },
-];

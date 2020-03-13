@@ -74,7 +74,6 @@ func (*Task) create(c *web.Context) {
 	tid := c.PostFormValue("tester").MustInt("测试人员未指定")
 	startTime, _ := time.Parse("2006-01-02", c.PostFormValue("startTime").MustString("开始时间未指定"))
 	endTime, _ := time.Parse("2006-01-02", c.PostFormValue("endTime").MustString("结束时间未指定"))
-	tags, _ := c.PostFormValue("tags[]").Ints()
 	content := c.PostFormValue("content").MustString("任务内容不可空")
 
 	me := user.Find(c.Session.Get("uid").(int64))
@@ -97,7 +96,7 @@ func (*Task) create(c *web.Context) {
 			"任务时间计划与所属里程碑不匹配")
 	}
 
-	t := task.Add(name, pid, mid, int8(weight), me.IsSu, creator.ID, did, tid, startTime, endTime, tags, content)
+	t := task.Add(name, pid, mid, int8(weight), me.IsSu, creator.ID, did, tid, startTime, endTime, content)
 	fhs, ok := c.MultipartForm().File["files[]"]
 	if ok {
 		helper := new(File)
