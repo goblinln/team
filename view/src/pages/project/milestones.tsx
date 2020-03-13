@@ -174,13 +174,19 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
         <Layout style={{height: '100vh'}}>
             <Layout.Sider width={300} theme='light' style={{background: 'white'}}>
                 <div style={{padding: '8px 16px', borderBottom: '1px solid #e2e2e2'}}>
-                    <Row flex={{align: 'middle', justify: 'space-between'}}>
+                    {props.isAdmin ? (
+                        <Row flex={{align: 'middle', justify: 'space-between'}}>
+                            <label className='text-bold fg-muted' style={{fontSize: '1.2em'}}>
+                                <Icon type='idcard' className='mr-1'/>里程计划
+                            </label>
+
+                            <Button size='xs' theme='link' onClick={addMilestone}><Icon type='plus' className='mr-1'/>新建里程碑</Button>
+                        </Row>
+                    ) : (
                         <label className='text-bold fg-muted' style={{fontSize: '1.2em'}}>
                             <Icon type='idcard' className='mr-1'/>里程计划
                         </label>
-
-                        <Button size='xs' theme='link' onClick={addMilestone}><Icon type='plus' className='mr-1'/>新建里程碑</Button>
-                    </Row>
+                    )}                    
                 </div>
 
                 {milestones.length > 0 ? (
