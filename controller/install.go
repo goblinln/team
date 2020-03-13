@@ -30,6 +30,7 @@ func (i *Install) Register(group *web.Router) {
 }
 
 func (i *Install) configure(c *web.Context) {
+	appName := c.FormValue("name").MustString("无效的站点名称")
 	appPort := c.FormValue("port").MustInt("无效的监听端口")
 	mysqlHost := c.FormValue("mysqlHost").MustString("无效MySQL地址")
 	mysqlUser := c.FormValue("mysqlUser").MustString("无效MySQL用户")
@@ -42,6 +43,7 @@ func (i *Install) configure(c *web.Context) {
 	i.IsError = false
 	i.Status = []string{"连接数据库..."}
 
+	config.Default.AppName = appName
 	config.Default.AppPort = fmt.Sprintf(":%d", appPort)
 	config.Default.MySQL = &config.MySQL{
 		Host:     mysqlHost,

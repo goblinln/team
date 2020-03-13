@@ -10,6 +10,7 @@ export const Install = () => {
     const dbTimer = React.useRef<number>(-1);
 
     const configureForm = Form.useForm({
+        name: {required: '服务名不可为空'},
         port: {required: '端口号不可为空', range: {min: 80, max: 65535, message: '端口号需要在80至65535之间'}},
         mysqlHost: {required: 'MySQL服务器的地址不可为空'},
         mysqlUser: {required: 'MySQL登录用户未填写'},
@@ -101,8 +102,12 @@ export const Install = () => {
                 <Steps current={step}>
                     <Steps.Step label='基本配置'>
                         <Form form={configureForm} style={{width: 400}} onSubmit={submitConfigure}>
-                            <Card header='监听端口（需要重新启动）' bordered>
-                                <Form.Field htmlFor='port'>
+                            <Card header='基本配置（需要重新启动）' bordered>
+                                <Form.Field htmlFor='name' label='站点名'>
+                                    <Input name='name' value='Team管理系统'/>
+                                </Form.Field>
+                                
+                                <Form.Field htmlFor='port' label='服务端口号'>
                                     <Input name='port' value='8080'/>
                                 </Form.Field>
                             </Card>

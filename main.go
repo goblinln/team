@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strings"
+
 	"team/config"
 	"team/controller"
 	"team/middleware"
@@ -28,7 +30,7 @@ func main() {
 	router.Use(middleware.PanicAsError)
 
 	// Resources.
-	router.SetPage("/", rice.MustFindBox("view/dist").MustString("app.html"))
+	router.SetPage("/", strings.ReplaceAll(rice.MustFindBox("view/dist").MustString("app.html"), "__APP_NAME__", config.Default.AppName))
 	router.StaticFS("/assets", rice.MustFindBox("view/dist").HTTPBox())
 	router.StaticFS("/uploads", web.Dir("uploads"))
 

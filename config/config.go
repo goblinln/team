@@ -19,6 +19,7 @@ type (
 	// Configure holds configuration for this server.
 	Configure struct {
 		Installed bool   `json:"-"`
+		AppName   string `json:"appName"`
 		AppPort   string `json:"appPort"`
 		MySQL     *MySQL `json:"mysql"`
 	}
@@ -27,6 +28,7 @@ type (
 // Default setting for this app.
 var Default = &Configure{
 	Installed: false,
+	AppName:   "Team",
 	AppPort:   ":8080",
 	MySQL: &MySQL{
 		Host:     "127.0.0.1:3306",
