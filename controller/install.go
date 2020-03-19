@@ -4,6 +4,8 @@ import (
 	"crypto/md5"
 	"fmt"
 
+	"team/common/orm"
+	"team/common/web"
 	"team/config"
 	"team/model/document"
 	"team/model/notice"
@@ -11,8 +13,6 @@ import (
 	"team/model/share"
 	"team/model/task"
 	"team/model/user"
-	"team/orm"
-	"team/web"
 )
 
 // Install prepares databases
@@ -32,6 +32,7 @@ func (i *Install) Register(group *web.Router) {
 func (i *Install) configure(c *web.Context) {
 	appName := c.FormValue("name").MustString("无效的站点名称")
 	appPort := c.FormValue("port").MustInt("无效的监听端口")
+	appLoginType := c.FormValue("loginType").MustInt("无效的认证方式")
 	mysqlHost := c.FormValue("mysqlHost").MustString("无效MySQL地址")
 	mysqlUser := c.FormValue("mysqlUser").MustString("无效MySQL用户")
 	mysqlPswd := c.FormValue("mysqlPswd").String()
@@ -43,17 +44,30 @@ func (i *Install) configure(c *web.Context) {
 	i.IsError = false
 	i.Status = []string{"连接数据库..."}
 
-	config.Default.AppName = appName
-	config.Default.AppPort = fmt.Sprintf(":%d", appPort)
-	config.Default.MySQL = &config.MySQL{
+	config.App.Name = appName
+	config.App.Port = int(appPort)
+	config.App.LoginType = config.LoginType(appLoginType)
+	config.MySQL = &config.MySQLInfo{
 		Host:     mysqlHost,
 		User:     mysqlUser,
 		Password: mysqlPswd,
 		Database: mysqlDB,
 	}
 
+	switch config.App.LoginType {
+	case config.LoginTypeSMTP:
+		smtp := &config.SMTPLoginProcessor{}
+		smtp.Host = c.FormValue("smtpLoginHost").MustString("无效的SMTP地址")
+		smtp.Port = int(c.FormValue("smtpLoginPort").MustInt("端口号不可为空"))
+		smtp.Plain = c.FormValue("smtpLoginKind").MustInt("未选择SMTP登录方式") == 0
+		smtp.TLS, _ = c.FormValue("smtpLoginTLS").Bool()
+		smtp.SkipVerfiy, _ = c.FormValue("smtpLoginSkipVerify").Bool()
+
+		config.ExtraLoginProcessor = smtp
+	}
+
 	go func() {
-		err := orm.OpenDB("mysql", config.Default.GetMySQLAddr())
+		err := orm.OpenDB("mysql", config.MySQL.URL())
 		if err != nil {
 			i.IsError = true
 			i.Status = append(i.Status, "无法连接数据："+err.Error())
@@ -124,8 +138,8 @@ func (i *Install) createAdmin(c *web.Context) {
 
 	_, err := orm.Insert(user)
 	web.Assert(err == nil, "创建默认管理员失败")
+	web.Assert(config.Save() == nil, "保存配置失败")
 
-	config.Default.Installed = true
-	config.Default.Save()
+	config.Installed = true
 	c.JSON(200, web.Map{})
 }

@@ -3,9 +3,9 @@ package controller
 import (
 	"time"
 
+	"team/common/web"
 	"team/model/document"
 	"team/model/user"
-	"team/web"
 )
 
 // Document controller

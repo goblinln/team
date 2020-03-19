@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"team/web"
+	"team/common/web"
 )
 
 // PanicAsError helps to use `panic` returns JSON error response

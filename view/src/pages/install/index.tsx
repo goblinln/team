@@ -7,6 +7,7 @@ export const Install = () => {
     const [step, setStep] = React.useState<number>(0);
     const [dbInited, setDBInited] = React.useState<boolean>(false);
     const [dbStatus, setDBStatus] = React.useState<string[]>([]);
+    const [loginType, setLoginType] = React.useState<number>(0);
     const dbTimer = React.useRef<number>(-1);
 
     const configureForm = Form.useForm({
@@ -40,6 +41,11 @@ export const Install = () => {
         }
 
         setStep(prev => prev + 1);
+    };
+
+    const handleLoginTypeChange = (ev: React.ChangeEvent<HTMLSelectElement>) => {
+        ev.preventDefault();
+        setLoginType(parseInt(ev.currentTarget.value));
     };
 
     const submitConfigure = (ev: React.FormEvent<HTMLFormElement>) => {
@@ -96,7 +102,7 @@ export const Install = () => {
 
     return (
         <div className='fullscreen pt-4 bg-light' style={{display: 'flex', justifyContent: 'center'}}>
-            <div>
+            <div style={{overflow: 'auto'}}>
                 <p className='text-logo fg-muted'>系统初始化配置</p>
 
                 <Steps current={step}>
@@ -110,7 +116,41 @@ export const Install = () => {
                                 <Form.Field htmlFor='port' label='服务端口号'>
                                     <Input name='port' value='8080'/>
                                 </Form.Field>
+
+                                <Form.Field htmlFor='loginType' label='帐号认证方式'>
+                                    <Input.Select name='loginType' value={loginType} onChange={handleLoginTypeChange}>
+                                        <option value={0}>仅使用内置</option>
+                                        <option value={1}>支持SMTP</option>
+                                    </Input.Select>
+                                </Form.Field>
                             </Card>
+
+                            {loginType == 1&&(
+                                <Card className='mt-2' header='SMTP登录配置' bordered>
+                                    <Form.Field htmlFor="smtpLoginHost" label="主机地址">
+                                        <Input name='smtpLoginHost' value='smtp.example.com'/>
+                                    </Form.Field>
+
+                                    <Form.Field htmlFor='smtpLoginPort' label='服务端口号，默认587'>
+                                        <Input name='smtpLoginPort' value='587'/>
+                                    </Form.Field>
+
+                                    <Form.Field htmlFor='smtpLoginKind' label='登录类型'>
+                                        <Input.Select name='smtpLoginKind' value={0}>
+                                            <option value={0}>PLAIN</option>
+                                            <option value={1}>LOGIN</option>
+                                        </Input.Select>
+                                    </Form.Field>
+
+                                    <Form.Field>
+                                        <Input.Checkbox name='smtpLoginTLS' label='启用TLS加密' value='1' checked/>
+                                    </Form.Field>
+
+                                    <Form.Field>
+                                        <Input.Checkbox name='smtpLoginSkipVerify' label='忽略TLS验证' value='1' checked/>
+                                    </Form.Field>
+                                </Card>
+                            )}
 
                             <Card className='mt-2' header='MySQL配置' bordered>
                                 <Form.Field htmlFor='mysqlHost' label='服务器地址'>

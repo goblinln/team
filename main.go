@@ -3,11 +3,11 @@ package main
 import (
 	"strings"
 
+	"team/common/orm"
+	"team/common/web"
 	"team/config"
 	"team/controller"
 	"team/middleware"
-	"team/orm"
-	"team/web"
 
 	rice "github.com/GeertJohan/go.rice"
 	_ "github.com/go-sql-driver/mysql"
@@ -15,18 +15,18 @@ import (
 
 func main() {
 	// Load configuration.
-	config.Default.Load()
+	config.Load()
 
 	// Open database.
-	if config.Default.Installed {
-		if err := orm.OpenDB("mysql", config.Default.GetMySQLAddr()); err != nil {
-			web.Logger.Fatal("Failed to connect to database: %s. Reason: %v", config.Default.GetMySQLAddr(), err)
+	if config.Installed {
+		if err := orm.OpenDB("mysql", config.MySQL.URL()); err != nil {
+			web.Logger.Fatal("Failed to connect to database: %s. Reason: %v", config.MySQL.URL(), err)
 		}
 	}
 
 	// Load resources.
 	resBox := rice.MustFindBox("view/dist")
-	mainPage := strings.ReplaceAll(resBox.MustString("app.html"), "__APP_NAME__", config.Default.AppName)
+	mainPage := strings.ReplaceAll(resBox.MustString("app.html"), "__APP_NAME__", config.App.Name)
 
 	// Create router for httpd service.
 	router := web.NewRouter()
@@ -38,7 +38,7 @@ func main() {
 	router.StaticFS("/assets", resBox.HTTPBox())
 	router.StaticFS("/uploads", web.Dir("uploads"))
 
-	// Home. Check display mode(Install? Login? Normal?)
+	// Home. Determine display mode.
 	router.GET("/home", controller.Home)
 
 	// Install/Login/Logout API.
@@ -67,5 +67,5 @@ func main() {
 		middleware.MustLoginedAsAdmin)
 
 	// Start service.
-	router.Start(config.Default.AppPort)
+	router.Start(config.App.Addr())
 }

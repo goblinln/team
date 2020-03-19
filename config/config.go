@@ -1,73 +1,87 @@
 package config
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"os"
+
+	"team/common/ini"
 )
 
-type (
-	// MySQL configuration.
-	MySQL struct {
-		Host     string `json:"host"`
-		User     string `json:"user"`
-		Password string `json:"password"`
-		Database string `json:"database"`
+var (
+	// Installed check if already installed.
+	Installed bool = false
+
+	// App information of this system.
+	App = &AppInfo{
+		Name:      "Team",
+		Port:      8080,
+		LoginType: LoginTypeSimple,
 	}
 
-	// Configure holds configuration for this server.
-	Configure struct {
-		Installed bool   `json:"-"`
-		AppName   string `json:"appName"`
-		AppPort   string `json:"appPort"`
-		MySQL     *MySQL `json:"mysql"`
-	}
-)
-
-// Default setting for this app.
-var Default = &Configure{
-	Installed: false,
-	AppName:   "Team",
-	AppPort:   ":8080",
-	MySQL: &MySQL{
+	// MySQL information.
+	MySQL = &MySQLInfo{
 		Host:     "127.0.0.1:3306",
 		User:     "root",
 		Password: "root",
 		Database: "team",
-	},
-}
+	}
 
-// Load configure file for this app.
-func (c *Configure) Load() {
-	raw, err := ioutil.ReadFile("./team.json")
+	// ExtraLoginProcessor for this app.
+	ExtraLoginProcessor LoginProcessor = nil
+)
+
+// Load configuration from file.
+func Load() {
+	setting, err := ini.Load("./team.ini")
 	if err != nil {
+		fmt.Printf("Load configuration failed. %v. Using default configuration.\n", err)
 		return
 	}
 
-	err = json.Unmarshal(raw, c)
-	if err != nil {
-		fmt.Printf("Failed to parse configure file : ./team.json. Error: %v\n", err)
-		os.Exit(-1)
+	App.Name = setting.GetString("app", "name")
+	App.Port = setting.GetInt("app", "port")
+	App.LoginType = LoginType(setting.GetInt("app", "login_type"))
+
+	MySQL.Host = setting.GetString("mysql", "host")
+	MySQL.User = setting.GetString("mysql", "user")
+	MySQL.Password = setting.GetString("mysql", "password")
+	MySQL.Database = setting.GetString("mysql", "database")
+
+	switch App.LoginType {
+	case LoginTypeSMTP:
+		ExtraLoginProcessor = &SMTPLoginProcessor{
+			Host:       setting.GetString("smtp_login", "host"),
+			Port:       setting.GetInt("smtp_login", "port"),
+			Plain:      setting.GetBool("smtp_login", "plain"),
+			TLS:        setting.GetBool("smtp_login", "tls"),
+			SkipVerfiy: setting.GetBool("smtp_login", "skip_verify"),
+		}
 	}
 
-	c.Installed = true
+	Installed = true
 }
 
-// GetMySQLAddr returns MySQL service address
-func (c *Configure) GetMySQLAddr() string {
-	m := c.MySQL
-	return fmt.Sprintf(
-		"%s:%s@tcp(%s)/%s?multiStatements=true&charset=utf8&collation=utf8_general_ci",
-		m.User, m.Password, m.Host, m.Database)
-}
+// Save configuration to file
+func Save() error {
+	setting := ini.New()
 
-// Save configure data of this app.
-func (c *Configure) Save() error {
-	data, err := json.Marshal(c)
-	if err != nil {
-		return err
+	setting.SetString("app", "name", App.Name)
+	setting.SetInt("app", "port", App.Port)
+	setting.SetInt("app", "login_type", int(App.LoginType))
+
+	setting.SetString("mysql", "host", MySQL.Host)
+	setting.SetString("mysql", "user", MySQL.User)
+	setting.SetString("mysql", "password", MySQL.Password)
+	setting.SetString("mysql", "database", MySQL.Database)
+
+	switch App.LoginType {
+	case LoginTypeSMTP:
+		smtp := ExtraLoginProcessor.(*SMTPLoginProcessor)
+		setting.SetString("smtp_login", "host", smtp.Host)
+		setting.SetInt("smtp_login", "port", smtp.Port)
+		setting.SetBool("smtp_login", "plain", smtp.Plain)
+		setting.SetBool("smtp_login", "tls", smtp.TLS)
+		setting.SetBool("smtp_login", "skip_verify", smtp.SkipVerfiy)
 	}
 
-	return ioutil.WriteFile("./team.json", data, 0777)
+	return setting.Save("./team.ini")
 }

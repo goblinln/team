@@ -1,9 +1,9 @@
 package controller
 
 import (
+	"team/common/web"
 	"team/model/project"
 	"team/model/user"
-	"team/web"
 )
 
 // Admin controller

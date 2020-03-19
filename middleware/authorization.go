@@ -3,8 +3,8 @@ package middleware
 import (
 	"net/http"
 
+	"team/common/web"
 	"team/model/user"
-	"team/web"
 )
 
 // AutoLogin tries login user using cookie token.

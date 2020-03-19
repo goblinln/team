@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
+	"team/common/orm"
 	"team/model/user"
-	"team/orm"
 )
 
 type (

@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
+	"team/common/web"
 	"team/model/share"
-	"team/web"
 )
 
 // File controller

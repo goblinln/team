@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
+	"team/common/orm"
 	"team/model/user"
-	"team/orm"
 )
 
 type (

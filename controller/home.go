@@ -2,13 +2,13 @@ package controller
 
 import (
 	"team/config"
+	"team/common/web"
 	"team/model/user"
-	"team/web"
 )
 
 // Home handler.
 func Home(c *web.Context) {
-	if !config.Default.Installed {
+	if !config.Installed {
 		c.JSON(200, web.Map{"data": "install"})
 		return
 	}

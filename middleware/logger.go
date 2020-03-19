@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"team/web"
+	"team/common/web"
 	"time"
 )
 

@@ -3,8 +3,9 @@ package controller
 import (
 	"net/http"
 
+	"team/common/web"
+	"team/config"
 	"team/model/user"
-	"team/web"
 )
 
 // Login handler
@@ -14,6 +15,17 @@ func Login(c *web.Context) {
 	remember, _ := c.PostFormValue("remember").Bool()
 
 	logined, cookie := user.Login(account, password, c.RemoteIP(), remember)
+	if logined == nil {
+		web.Assert(config.ExtraLoginProcessor != nil, "帐号或密码不正确")
+
+		err := config.ExtraLoginProcessor.Login(account, password)
+		if err != nil {
+			web.Assert(false, "帐号验证失败")
+		}
+
+		logined, cookie = user.LoginViaCustom(account, c.RemoteIP(), remember)
+	}
+
 	web.Assert(logined != nil, "帐号或密码不正确")
 	web.Assert(!logined.IsLocked, "帐号已被禁止登录，请联系管理员解除锁定！")
 

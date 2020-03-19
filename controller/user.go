@@ -1,8 +1,8 @@
 package controller
 
 import (
+	"team/common/web"
 	"team/model/user"
-	"team/web"
 )
 
 // User controller

@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"team/orm"
+	"team/common/orm"
 )
 
 const (
@@ -26,7 +26,7 @@ type (
 		Account         string `json:"account" orm:"type=VARCHAR(64),unique,notnull"`
 		Name            string `json:"name" orm:"type=VARCHAR(32),unique,notnull"`
 		Avatar          string `json:"avatar" orm:"type=VARCHAR(128)"`
-		Password        string `json:"-" orm:"type=CHAR(32),notnull"`
+		Password        string `json:"-" orm:"type=CHAR(32)"`
 		IsSu            bool   `json:"isSu"`
 		IsLocked        bool   `json:"isLocked"`
 		AutoLoginExpire int64  `json:"-"`
@@ -187,6 +187,7 @@ func Login(account, pswd, ip string, remember bool) (*User, *AutoLoginCookie) {
 	hash := md5.New()
 	hash.Write([]byte(pswd))
 
+	var cookie *AutoLoginCookie = nil
 	try := &User{
 		Account:  account,
 		Password: fmt.Sprintf("%X", hash.Sum(nil)),
@@ -197,32 +198,48 @@ func Login(account, pswd, ip string, remember bool) (*User, *AutoLoginCookie) {
 	}
 
 	if remember {
-		expire := time.Now().Add(30 * 24 * time.Hour)
-		code := fmt.Sprintf("%d|%s|%s", try.ID, ip, AutoLoginSecret)
-		sign := md5.New()
-		sign.Write([]byte(code))
-
-		token := &AutoLoginData{
-			ID:   try.ID,
-			IP:   ip,
-			Sign: fmt.Sprintf("%X", sign.Sum(nil)),
-		}
-
-		j, err := json.Marshal(token)
-		if err == nil {
-			try.AutoLoginExpire = expire.Unix()
-			orm.Update(try)
-			userCache.Store(try.ID, try)
-
-			return try, &AutoLoginCookie{
-				Name:    AutoLoginCookieKey,
-				Value:   base64.StdEncoding.EncodeToString(j),
-				Expires: expire,
-			}
-		}
+		cookie = try.makeAutoLoginCookie(ip)
 	}
 
 	userCache.Store(try.ID, try)
+	return try, cookie
+}
+
+// LoginViaCustom called after SMTP/LDAP login successfully.
+func LoginViaCustom(account, ip string, remember bool) (*User, *AutoLoginCookie) {
+	rows, err := orm.Query("SELECT COUNT(*) FROM `user` WHERE `issu`='1'")
+	if err != nil {
+		return nil, nil
+	}
+
+	count := 0
+	rows.Next()
+	rows.Scan(&count)
+	rows.Close()
+
+	try := &User{
+		Account:  account,
+		Name:     account,
+		Avatar:   "",
+		IsSu:     count == 0,
+		IsLocked: false,
+	}
+
+	if err = orm.Read(try, "account"); err != nil {
+		rs, err := orm.Insert(try)
+		if err != nil {
+			return nil, nil
+		}
+
+		try.ID, _ = rs.LastInsertId()
+	}
+
+	userCache.Store(try.ID, try)
+
+	if remember {
+		return try, try.makeAutoLoginCookie(ip)
+	}
+
 	return try, nil
 }
 
@@ -252,4 +269,31 @@ func SetPassword(uid int64, old, pswd string) error {
 func (u *User) Save() error {
 	_, err := orm.Exec("UPDATE `user` SET `name`=?,`avatar`=?,`issu`=?,`islocked`=? WHERE `id`=?", u.Name, u.Avatar, u.IsSu, u.IsLocked, u.ID)
 	return err
+}
+
+func (u *User) makeAutoLoginCookie(ip string) *AutoLoginCookie {
+	expire := time.Now().Add(30 * 24 * time.Hour)
+	code := fmt.Sprintf("%d|%s|%s", u.ID, ip, AutoLoginSecret)
+	sign := md5.New()
+	sign.Write([]byte(code))
+
+	token := &AutoLoginData{
+		ID:   u.ID,
+		IP:   ip,
+		Sign: fmt.Sprintf("%X", sign.Sum(nil)),
+	}
+
+	j, err := json.Marshal(token)
+	if err == nil {
+		u.AutoLoginExpire = expire.Unix()
+		orm.Update(u)
+
+		return &AutoLoginCookie{
+			Name:    AutoLoginCookieKey,
+			Value:   base64.StdEncoding.EncodeToString(j),
+			Expires: expire,
+		}
+	}
+
+	return nil
 }
