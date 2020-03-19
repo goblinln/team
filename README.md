@@ -70,7 +70,7 @@
     |-- config                      - 网站配置解析
     |   |-- config.go                   - 外部接口等
     |   |-- base.go                     - 基本配置
-    |   |-- auth.go                     - 帐号认证相关配置
+    |   |-- login.go                    - 帐号认证相关配置
     |   |-- mysql.go                    - 数据库配置
     |
     |-- controller                  - 控制器
