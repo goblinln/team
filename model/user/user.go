@@ -206,7 +206,7 @@ func Login(account, pswd, ip string, remember bool) (*User, *AutoLoginCookie) {
 }
 
 // LoginViaCustom called after SMTP/LDAP login successfully.
-func LoginViaCustom(account, ip string, remember bool) (*User, *AutoLoginCookie) {
+func LoginViaCustom(account, pswd, ip string, remember bool) (*User, *AutoLoginCookie) {
 	rows, err := orm.Query("SELECT COUNT(*) FROM `user` WHERE `issu`='1'")
 	if err != nil {
 		return nil, nil
@@ -217,10 +217,15 @@ func LoginViaCustom(account, ip string, remember bool) (*User, *AutoLoginCookie)
 	rows.Scan(&count)
 	rows.Close()
 
+	hash := md5.New()
+	hash.Write([]byte(pswd))
+	encodedPswd := fmt.Sprintf("%X", hash.Sum(nil))
+
 	try := &User{
 		Account:  account,
 		Name:     account,
 		Avatar:   "",
+		Password: encodedPswd,
 		IsSu:     count == 0,
 		IsLocked: false,
 	}
@@ -232,6 +237,9 @@ func LoginViaCustom(account, ip string, remember bool) (*User, *AutoLoginCookie)
 		}
 
 		try.ID, _ = rs.LastInsertId()
+	} else if try.Password != encodedPswd {
+		try.Password = encodedPswd
+		orm.Update(try)
 	}
 
 	userCache.Store(try.ID, try)

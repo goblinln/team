@@ -23,7 +23,7 @@ func Login(c *web.Context) {
 			web.Assert(false, "帐号验证失败")
 		}
 
-		logined, cookie = user.LoginViaCustom(account, c.RemoteIP(), remember)
+		logined, cookie = user.LoginViaCustom(account, password, c.RemoteIP(), remember)
 	}
 
 	web.Assert(logined != nil, "帐号或密码不正确")
