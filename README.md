@@ -57,8 +57,8 @@
 
     repo
     |-- common                      - 通用组件
-    |   |-- auth                        - 帐号认证
     |   |-- orm                         - 实现的一个简单的golang struct与MySQL表映射的ORM库
+    |   |-- ini                         - INI配置文件解析
     |   |-- web                         - 网络框架
     |   |   |-- context.go                  - HTTP Context定义
     |   |   |-- logger.go                   - 日志工具
