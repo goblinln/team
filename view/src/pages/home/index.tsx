@@ -81,8 +81,9 @@ export const Home = () => {
                     })}
                 </Menu>
 
-                <div style={{position: 'absolute', left: 0, bottom: 16, width: '100%', fontSize: 24, textAlign: 'center'}}>
-                    <Icon type='export' title='退出' onClick={() => location.href = '/logout'}/>
+                <div style={{position: 'absolute', left: 0, bottom: 16, width: '100%', textAlign: 'center'}}>
+                    <Icon style={{fontSize: 24}} type='export' title='退出' onClick={() => location.href = '/logout'}/><br/>
+                    <label style={{fontSize: 11}}>退出登录</label>
                 </div>
             </Layout.Sider>
 
