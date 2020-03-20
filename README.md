@@ -68,11 +68,7 @@
     |   |   |-- session.go                  - 会话功能
     |   |   |-- value.go                    - 参数
     |
-    |-- config                      - 网站配置解析
-    |   |-- config.go                   - 外部接口等
-    |   |-- base.go                     - 基本配置
-    |   |-- login.go                    - 帐号认证相关配置
-    |   |-- mysql.go                    - 数据库配置
+    |-- config                      - 网站配置结构
     |
     |-- controller                  - 控制器
     |   |-- admin.go                    - 处理 /admin/* 的请求 （系统管理功能）
