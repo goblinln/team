@@ -1,4 +1,4 @@
-package config
+package auth
 
 import (
 	"crypto/tls"
@@ -6,21 +6,6 @@ import (
 	"fmt"
 	"net/smtp"
 )
-
-// LoginType definition
-type LoginType int
-
-const (
-	// LoginTypeSimple using build-in account
-	LoginTypeSimple LoginType = iota
-	// LoginTypeSMTP using SMTP auth
-	LoginTypeSMTP
-)
-
-// LoginProcessor for custom login method.
-type LoginProcessor interface {
-	Login(account, password string) error
-}
 
 // SMTPLoginProcessor for login using SMTP
 type SMTPLoginProcessor struct {

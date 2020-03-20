@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"fmt"
 
+	"team/common/auth"
 	"team/common/orm"
 	"team/common/web"
 	"team/config"
@@ -46,7 +47,7 @@ func (i *Install) configure(c *web.Context) {
 
 	config.App.Name = appName
 	config.App.Port = int(appPort)
-	config.App.LoginType = config.LoginType(appLoginType)
+	config.App.LoginType = auth.Kind(appLoginType)
 	config.MySQL = &config.MySQLInfo{
 		Host:     mysqlHost,
 		User:     mysqlUser,
@@ -55,8 +56,8 @@ func (i *Install) configure(c *web.Context) {
 	}
 
 	switch config.App.LoginType {
-	case config.LoginTypeSMTP:
-		smtp := &config.SMTPLoginProcessor{}
+	case auth.KindSMTP:
+		smtp := &auth.SMTPLoginProcessor{}
 		smtp.Host = c.FormValue("smtpLoginHost").MustString("无效的SMTP地址")
 		smtp.Port = int(c.FormValue("smtpLoginPort").MustInt("端口号不可为空"))
 		smtp.Plain = c.FormValue("smtpLoginKind").MustInt("未选择SMTP登录方式") == 0
