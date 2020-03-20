@@ -13,8 +13,8 @@ type LDAPProtocol int
 const (
 	// LDAPUnencrypted protocol
 	LDAPUnencrypted LDAPProtocol = iota
-	// LDAPS protocol
-	LDAPS
+	// LDAPTLS protocol
+	LDAPTLS
 	// LDAPStartTLS protocol
 	LDAPStartTLS
 )
@@ -34,7 +34,7 @@ func (l *LDAPProcessor) Login(account, password string) error {
 		err  error
 	)
 
-	if l.Protocol == LDAPS {
+	if l.Protocol == LDAPTLS {
 		conn, err = ldap.DialTLS("tcp", fmt.Sprintf("%s:%d", l.Host, l.Port), &tls.Config{
 			ServerName:         l.Host,
 			InsecureSkipVerify: l.SkipVerify,
