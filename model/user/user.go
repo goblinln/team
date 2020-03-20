@@ -27,6 +27,7 @@ type (
 		Name            string `json:"name" orm:"type=VARCHAR(32),unique,notnull"`
 		Avatar          string `json:"avatar" orm:"type=VARCHAR(128)"`
 		Password        string `json:"-" orm:"type=CHAR(32)"`
+		IsBuildin       bool   `json:"-"`
 		IsSu            bool   `json:"isSu"`
 		IsLocked        bool   `json:"isLocked"`
 		AutoLoginExpire int64  `json:"-"`
@@ -87,8 +88,18 @@ func Find(ID int64) *User {
 		return nil
 	}
 
-	user.Password = ""
 	userCache.Store(ID, user)
+	return user
+}
+
+// FindByAccount returns user by account
+func FindByAccount(account string) *User {
+	user := &User{Account: account}
+	if err := orm.Read(user, "account"); err != nil {
+		return nil
+	}
+
+	userCache.Store(user.ID, user)
 	return user
 }
 
@@ -102,9 +113,49 @@ func FindInfo(ID int64) (string, string) {
 	return exists.Name, exists.Avatar
 }
 
+// AddBuildIn adds build-in account
+func AddBuildIn(account, name, pswd string, isSu bool) error {
+	hashPswd := md5.New()
+	hashPswd.Write([]byte(pswd))
+
+	one := &User{
+		Account:   account,
+		Name:      name,
+		Avatar:    "",
+		Password:  fmt.Sprintf("%X", hashPswd.Sum(nil)),
+		IsSu:      isSu,
+		IsBuildin: true,
+		IsLocked:  false,
+	}
+
+	if err := Add(one); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// AddExternal adds custom account.
+func AddExternal(account string) (*User, error) {
+	one := &User{
+		Account:   account,
+		Name:      account,
+		Avatar:    "",
+		IsSu:      false,
+		IsBuildin: false,
+		IsLocked:  false,
+	}
+
+	if err := Add(one); err != nil {
+		return nil, err
+	}
+
+	return one, nil
+}
+
 // Add a new user.
-func Add(account, name, pswd string, isSu bool) error {
-	rows, err := orm.Query("SELECT COUNT(*) FROM `user` WHERE `account`=? OR `name`=?", account, name)
+func Add(added *User) error {
+	rows, err := orm.Query("SELECT COUNT(*) FROM `user` WHERE `account`=? OR `name`=?", added.Account, added.Name)
 	if err != nil {
 		return err
 	}
@@ -118,25 +169,13 @@ func Add(account, name, pswd string, isSu bool) error {
 		return errors.New("帐号或昵称已存在")
 	}
 
-	hashPswd := md5.New()
-	hashPswd.Write([]byte(pswd))
-
-	one := &User{
-		Account:  account,
-		Name:     name,
-		Avatar:   "",
-		Password: fmt.Sprintf("%X", hashPswd.Sum(nil)),
-		IsSu:     isSu,
-		IsLocked: false,
-	}
-
-	result, err := orm.Insert(one)
+	result, err := orm.Insert(added)
 	if err != nil {
 		return err
 	}
 
-	one.ID, _ = result.LastInsertId()
-	userCache.Store(one.ID, one)
+	added.ID, _ = result.LastInsertId()
+	userCache.Store(added.ID, added)
 	return nil
 }
 
@@ -147,8 +186,8 @@ func Delete(uid int64) {
 	userCache.Delete(uid)
 }
 
-// AutoLogin by cookie data. <0 means failed.
-func AutoLogin(data, ip string) int64 {
+// CheckAutoLogin checks cookie data for auto login. <0 means failed.
+func CheckAutoLogin(data, ip string) int64 {
 	j, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
 		return -1
@@ -182,80 +221,15 @@ func AutoLogin(data, ip string) int64 {
 	return user.ID
 }
 
-// Login process.
-func Login(account, pswd, ip string, remember bool) (*User, *AutoLoginCookie) {
-	hash := md5.New()
-	hash.Write([]byte(pswd))
-
-	var cookie *AutoLoginCookie = nil
-	try := &User{
-		Account:  account,
-		Password: fmt.Sprintf("%X", hash.Sum(nil)),
-	}
-
-	if err := orm.Read(try, "account", "password"); err != nil {
-		return nil, nil
-	}
-
-	if remember {
-		cookie = try.makeAutoLoginCookie(ip)
-	}
-
-	userCache.Store(try.ID, try)
-	return try, cookie
-}
-
-// LoginViaCustom called after SMTP/LDAP login successfully.
-func LoginViaCustom(account, pswd, ip string, remember bool) (*User, *AutoLoginCookie) {
-	rows, err := orm.Query("SELECT COUNT(*) FROM `user` WHERE `issu`='1'")
-	if err != nil {
-		return nil, nil
-	}
-
-	count := 0
-	rows.Next()
-	rows.Scan(&count)
-	rows.Close()
-
-	hash := md5.New()
-	hash.Write([]byte(pswd))
-	encodedPswd := fmt.Sprintf("%X", hash.Sum(nil))
-
-	try := &User{
-		Account:  account,
-		Name:     account,
-		Avatar:   "",
-		Password: encodedPswd,
-		IsSu:     count == 0,
-		IsLocked: false,
-	}
-
-	if err = orm.Read(try, "account"); err != nil {
-		rs, err := orm.Insert(try)
-		if err != nil {
-			return nil, nil
-		}
-
-		try.ID, _ = rs.LastInsertId()
-	} else if try.Password != encodedPswd {
-		try.Password = encodedPswd
-		orm.Update(try)
-	}
-
-	userCache.Store(try.ID, try)
-
-	if remember {
-		return try, try.makeAutoLoginCookie(ip)
-	}
-
-	return try, nil
-}
-
 // SetPassword changes user's password
 func SetPassword(uid int64, old, pswd string) error {
 	u := &User{ID: uid}
 	if err := orm.Read(u); err != nil {
 		return err
+	}
+
+	if !u.IsBuildin {
+		return errors.New("第三方帐号无法重置密码")
 	}
 
 	hashOld := md5.New()
@@ -273,13 +247,8 @@ func SetPassword(uid int64, old, pswd string) error {
 	return err
 }
 
-// Save user data to database.
-func (u *User) Save() error {
-	_, err := orm.Exec("UPDATE `user` SET `name`=?,`avatar`=?,`issu`=?,`islocked`=? WHERE `id`=?", u.Name, u.Avatar, u.IsSu, u.IsLocked, u.ID)
-	return err
-}
-
-func (u *User) makeAutoLoginCookie(ip string) *AutoLoginCookie {
+// GetAutoLoginCookie returns auto login cookie data.
+func (u *User) GetAutoLoginCookie(ip string) *AutoLoginCookie {
 	expire := time.Now().Add(30 * 24 * time.Hour)
 	code := fmt.Sprintf("%d|%s|%s", u.ID, ip, AutoLoginSecret)
 	sign := md5.New()
@@ -304,4 +273,10 @@ func (u *User) makeAutoLoginCookie(ip string) *AutoLoginCookie {
 	}
 
 	return nil
+}
+
+// Save user data to database.
+func (u *User) Save() error {
+	_, err := orm.Exec("UPDATE `user` SET `name`=?,`avatar`=?,`issu`=?,`islocked`=? WHERE `id`=?", u.Name, u.Avatar, u.IsSu, u.IsLocked, u.ID)
+	return err
 }

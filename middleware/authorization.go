@@ -13,7 +13,7 @@ func AutoLogin(next web.Handler) web.Handler {
 		if !c.Session.Has("uid") {
 			cookie, err := c.Cookie(user.AutoLoginCookieKey)
 			if err == nil {
-				uid := user.AutoLogin(cookie.Value, c.RemoteIP())
+				uid := user.CheckAutoLogin(cookie.Value, c.RemoteIP())
 				if uid < 0 {
 					c.SetCookie(&http.Cookie{
 						Name:   user.AutoLoginCookieKey,

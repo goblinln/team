@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"team/config"
 	"team/common/web"
+	"team/config"
 	"team/model/user"
 )
 
@@ -16,7 +16,7 @@ func Home(c *web.Context) {
 	for !c.Session.Has("uid") {
 		cookie, err := c.Cookie(user.AutoLoginCookieKey)
 		if err == nil {
-			uid := user.AutoLogin(cookie.Value, c.RemoteIP())
+			uid := user.CheckAutoLogin(cookie.Value, c.RemoteIP())
 			if uid < 0 {
 				c.EndSession()
 			} else {

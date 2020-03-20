@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"crypto/md5"
+	"fmt"
 	"net/http"
 
 	"team/common/web"
@@ -14,27 +16,36 @@ func Login(c *web.Context) {
 	password := c.PostFormValue("password").MustString("登录密码未填写")
 	remember, _ := c.PostFormValue("remember").Bool()
 
-	logined, cookie := user.Login(account, password, c.RemoteIP(), remember)
-	if logined == nil {
+	logined := user.FindByAccount(account)
+	if logined == nil || !logined.IsBuildin {
 		web.Assert(config.ExtraLoginProcessor != nil, "帐号或密码不正确")
 
 		err := config.ExtraLoginProcessor.Login(account, password)
-		if err != nil {
-			web.Assert(false, "帐号验证失败")
-		}
+		web.Assert(err == nil, "帐号验证失败")
 
-		logined, cookie = user.LoginViaCustom(account, password, c.RemoteIP(), remember)
+		if logined == nil {
+			logined, err = user.AddExternal(account)
+			web.Assert(err == nil, "导入第三方帐号失败")
+		}
+	} else {
+		hash := md5.New()
+		hash.Write([]byte(password))
+
+		encodedPswd := fmt.Sprintf("%X", hash.Sum(nil))
+		web.Assert(logined.Password == encodedPswd, "帐号或密码不正确")
 	}
 
-	web.Assert(logined != nil, "帐号或密码不正确")
 	web.Assert(!logined.IsLocked, "帐号已被禁止登录，请联系管理员解除锁定！")
 
-	if cookie != nil {
-		c.SetCookie(&http.Cookie{
-			Name:    cookie.Name,
-			Value:   cookie.Value,
-			Expires: cookie.Expires,
-		})
+	if remember {
+		cookie := logined.GetAutoLoginCookie(c.RemoteIP())
+		if cookie != nil {
+			c.SetCookie(&http.Cookie{
+				Name:    cookie.Name,
+				Value:   cookie.Value,
+				Expires: cookie.Expires,
+			})
+		}
 	}
 
 	c.Session.Set("uid", logined.ID)

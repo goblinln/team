@@ -31,7 +31,7 @@ func (a *Admin) addUser(c *web.Context) {
 	isSu, _ := c.PostFormValue("isSu").Bool()
 
 	web.Assert(cfmPswd == pswd, "两次输入的新密码不一致")
-	web.AssertError(user.Add(account, name, pswd, isSu))
+	web.AssertError(user.AddBuildIn(account, name, pswd, isSu))
 	c.JSON(200, web.Map{})
 }
 
