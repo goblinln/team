@@ -25,7 +25,7 @@ export const Home = () => {
     const [page, setPage] = React.useState<JSX.Element>();
 
     const menus: MainMenu[] = [
-        {name: '任务', id: 'task', icon: 'calendar-check', click: () => setPage(<TaskPage uid={user.id}/>)},
+        {name: '工作台', id: 'task', icon: 'dashboard', click: () => setPage(<TaskPage uid={user.id}/>)},
         {name: '项目', id: 'project', icon: 'pie-chart', click: () => setPage(<ProjectPage uid={user.id}/>)},
         {name: '文档', id: 'document', icon: 'read', click: () => setPage(<DocumentPage/>)},
         {name: '分享', id: 'share', icon: 'cloud-upload', click: () => setPage(<SharePage/>)},
@@ -68,13 +68,14 @@ export const Home = () => {
                     </div>
                 </div>
 
-                <Menu defaultActive='task' theme='dark' style={{fontSize: 24}}>
+                <Menu defaultActive='task' theme='dark'>
                     {user&&menus.map(m => {
                         if (m.needAdmin && !user.isSu) return null;
 
                         return (
-                            <Menu.Item key={m.id} id={m.id} className='py-2' title={m.name} onClick={m.click}>
-                                <Icon type={m.icon}/>
+                            <Menu.Item className='text-center px-0 py-2' style={{lineHeight: 'normal'}} key={m.id} id={m.id} title={m.name} onClick={m.click}>
+                                <Icon type={m.icon} style={{fontSize: 24}}/><br/>
+                                <label style={{fontSize: 11}}>{m.name}</label>
                             </Menu.Item>
                         );
                     })}
