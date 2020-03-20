@@ -121,6 +121,7 @@ export const Install = () => {
                                     <Input.Select name='loginType' value={loginType} onChange={handleLoginTypeChange}>
                                         <option value={0}>仅使用内置</option>
                                         <option value={1}>支持SMTP</option>
+                                        <option value={2}>支持LDAP</option>
                                     </Input.Select>
                                 </Form.Field>
                             </Card>
@@ -148,6 +149,30 @@ export const Install = () => {
 
                                     <Form.Field>
                                         <Input.Checkbox name='smtpLoginSkipVerify' label='忽略TLS验证' value='1' checked/>
+                                    </Form.Field>
+                                </Card>
+                            )}
+
+                            {loginType == 2&&(
+                                <Card className='mt-2' header='LDAP登录配置' bordered>
+                                    <Form.Field htmlFor="ldapLoginHost" label="主机地址">
+                                        <Input name='ldapLoginHost' value='mydomain.com'/>
+                                    </Form.Field>
+
+                                    <Form.Field htmlFor='ldapLoginPort' label='服务端口号，默认636'>
+                                        <Input name='ldapLoginPort' value='636'/>
+                                    </Form.Field>
+
+                                    <Form.Field htmlFor='ldapLoginProtocol' label='安全协议'>
+                                        <Input.Select name='ldapLoginProtocol' value={0}>
+                                            <option value={0}>不加密</option>
+                                            <option value={1}>LDAPS</option>
+                                            <option value={2}>StartTLS</option>
+                                        </Input.Select>
+                                    </Form.Field>
+
+                                    <Form.Field>
+                                        <Input.Checkbox name='ldapLoginSkipVerify' label='忽略TLS验证' value='1' checked/>
                                     </Form.Field>
                                 </Card>
                             )}

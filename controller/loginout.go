@@ -21,6 +21,9 @@ func Login(c *web.Context) {
 		web.Assert(config.ExtraAuth != nil, "帐号或密码不正确")
 
 		err := config.ExtraAuth.Login(account, password)
+		if err != nil {
+			web.Logger.Info("Failed using extra auth. %v", err)
+		}
 		web.Assert(err == nil, "帐号验证失败")
 
 		if logined == nil {

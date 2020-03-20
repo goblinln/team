@@ -94,6 +94,12 @@ func Load() {
 			setting.GetBool("smtp_login", "skip_verify"),
 		)
 	case AuthKindLDAP:
+		UseLDAPAuth(
+			setting.GetString("ldap_login", "host"),
+			setting.GetInt("ldap_login", "port"),
+			setting.GetInt("ldap_login", "protocol"),
+			setting.GetBool("ldap_login", "skip_verify"),
+		)
 	}
 
 	Installed = true
@@ -105,7 +111,7 @@ func Save() error {
 
 	setting.SetString("app", "name", App.Name)
 	setting.SetInt("app", "port", App.Port)
-	setting.SetInt("app", "login_type", int(App.Auth))
+	setting.SetInt("app", "auth", int(App.Auth))
 
 	setting.SetString("mysql", "host", MySQL.Host)
 	setting.SetString("mysql", "user", MySQL.User)
@@ -119,8 +125,13 @@ func Save() error {
 		setting.SetInt("smtp_login", "port", smtp.Port)
 		setting.SetBool("smtp_login", "plain", smtp.Plain)
 		setting.SetBool("smtp_login", "tls", smtp.TLS)
-		setting.SetBool("smtp_login", "skip_verify", smtp.SkipVerfiy)
+		setting.SetBool("smtp_login", "skip_verify", smtp.SkipVerify)
 	case AuthKindLDAP:
+		ldap := ExtraAuth.(*auth.LDAPProcessor)
+		setting.SetString("ldap_login", "host", ldap.Host)
+		setting.SetInt("ldap_login", "port", ldap.Port)
+		setting.SetInt("ldap_login", "protocol", int(ldap.Protocol))
+		setting.SetBool("ldap_login", "skip_verify", ldap.SkipVerify)
 	}
 
 	return setting.Save("./team.ini")
@@ -133,6 +144,16 @@ func UseSMTPAuth(host string, port int, plain, tls, skipVerify bool) {
 		Port:       port,
 		Plain:      plain,
 		TLS:        tls,
-		SkipVerfiy: skipVerify,
+		SkipVerify: skipVerify,
+	}
+}
+
+// UseLDAPAuth uses LDAP as extra auth method.
+func UseLDAPAuth(host string, port, protocol int, skipVerify bool) {
+	ExtraAuth = &auth.LDAPProcessor{
+		Host:       host,
+		Port:       port,
+		Protocol:   auth.LDAPProtocol(protocol),
+		SkipVerify: skipVerify,
 	}
 }

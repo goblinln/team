@@ -62,6 +62,12 @@ func (i *Install) configure(c *web.Context) {
 		smtpTLS, _ := c.FormValue("smtpLoginTLS").Bool()
 		smtpSkipVerfiy, _ := c.FormValue("smtpLoginSkipVerify").Bool()
 		config.UseSMTPAuth(smtpHost, smtpPort, smtpPlain, smtpTLS, smtpSkipVerfiy)
+	case config.AuthKindLDAP:
+		ldapHost := c.FormValue("ldapLoginHost").MustString("无效的LDAP主机地址")
+		ldapPort := int(c.FormValue("ldapLoginPort").MustInt("端口号不可为空"))
+		ldapProtocol := int(c.FormValue("ldapLoginProtocol").MustInt("协议不可为空"))
+		ldapSkipVerfiy, _ := c.FormValue("ldapLoginSkipVerify").Bool()
+		config.UseLDAPAuth(ldapHost, ldapPort, ldapProtocol, ldapSkipVerfiy)
 	}
 
 	go func() {
@@ -128,10 +134,11 @@ func (i *Install) createAdmin(c *web.Context) {
 	hash.Write([]byte(pswd))
 
 	user := &user.User{
-		Account:  account,
-		Name:     name,
-		Password: fmt.Sprintf("%X", hash.Sum(nil)),
-		IsSu:     true,
+		Account:   account,
+		Name:      name,
+		Password:  fmt.Sprintf("%X", hash.Sum(nil)),
+		IsBuildin: true,
+		IsSu:      true,
 	}
 
 	_, err := orm.Insert(user)

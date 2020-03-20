@@ -13,7 +13,7 @@ type SMTPProcessor struct {
 	Port       int
 	Plain      bool
 	TLS        bool
-	SkipVerfiy bool
+	SkipVerify bool
 }
 
 // Login process.
@@ -32,7 +32,7 @@ func (s *SMTPProcessor) Login(account, password string) error {
 	if s.TLS {
 		if ok, _ := c.Extension("STARTTLS"); ok {
 			err = c.StartTLS(&tls.Config{
-				InsecureSkipVerify: s.SkipVerfiy,
+				InsecureSkipVerify: s.SkipVerify,
 				ServerName:         s.Host,
 			})
 
