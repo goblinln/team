@@ -18,9 +18,9 @@ func Login(c *web.Context) {
 
 	logined := user.FindByAccount(account)
 	if logined == nil || !logined.IsBuildin {
-		web.Assert(config.ExtraLoginProcessor != nil, "帐号或密码不正确")
+		web.Assert(config.ExtraAuth != nil, "帐号或密码不正确")
 
-		err := config.ExtraLoginProcessor.Login(account, password)
+		err := config.ExtraAuth.Login(account, password)
 		web.Assert(err == nil, "帐号验证失败")
 
 		if logined == nil {

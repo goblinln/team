@@ -7,8 +7,8 @@ import (
 	"net/smtp"
 )
 
-// SMTPLoginProcessor for login using SMTP
-type SMTPLoginProcessor struct {
+// SMTPProcessor implements auth using SMTP
+type SMTPProcessor struct {
 	Host       string
 	Port       int
 	Plain      bool
@@ -16,8 +16,8 @@ type SMTPLoginProcessor struct {
 	SkipVerfiy bool
 }
 
-// Login implements interface of LoginProcessor.
-func (s *SMTPLoginProcessor) Login(account, password string) error {
+// Login process.
+func (s *SMTPProcessor) Login(account, password string) error {
 	c, err := smtp.Dial(fmt.Sprintf("%s:%d", s.Host, s.Port))
 	if err != nil {
 		return err
@@ -52,22 +52,22 @@ func (s *SMTPLoginProcessor) Login(account, password string) error {
 	if s.Plain {
 		auth = smtp.PlainAuth("", account, password, s.Host)
 	} else {
-		auth = &customSMTPAuth{account: account, password: password}
+		auth = &smtpAuth{account: account, password: password}
 	}
 
 	return c.Auth(auth)
 }
 
-type customSMTPAuth struct {
+type smtpAuth struct {
 	account  string
 	password string
 }
 
-func (s *customSMTPAuth) Start(server *smtp.ServerInfo) (string, []byte, error) {
+func (s *smtpAuth) Start(server *smtp.ServerInfo) (string, []byte, error) {
 	return "LOGIN", []byte(s.account), nil
 }
 
-func (s *customSMTPAuth) Next(from []byte, more bool) ([]byte, error) {
+func (s *smtpAuth) Next(from []byte, more bool) ([]byte, error) {
 	if more {
 		switch string(from) {
 		case "Username:":

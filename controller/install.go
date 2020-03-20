@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	"fmt"
 
-	"team/common/auth"
 	"team/common/orm"
 	"team/common/web"
 	"team/config"
@@ -47,7 +46,7 @@ func (i *Install) configure(c *web.Context) {
 
 	config.App.Name = appName
 	config.App.Port = int(appPort)
-	config.App.LoginType = auth.Kind(appLoginType)
+	config.App.Auth = config.AuthKind(appLoginType)
 	config.MySQL = &config.MySQLInfo{
 		Host:     mysqlHost,
 		User:     mysqlUser,
@@ -55,16 +54,14 @@ func (i *Install) configure(c *web.Context) {
 		Database: mysqlDB,
 	}
 
-	switch config.App.LoginType {
-	case auth.KindSMTP:
-		smtp := &auth.SMTPLoginProcessor{}
-		smtp.Host = c.FormValue("smtpLoginHost").MustString("无效的SMTP地址")
-		smtp.Port = int(c.FormValue("smtpLoginPort").MustInt("端口号不可为空"))
-		smtp.Plain = c.FormValue("smtpLoginKind").MustInt("未选择SMTP登录方式") == 0
-		smtp.TLS, _ = c.FormValue("smtpLoginTLS").Bool()
-		smtp.SkipVerfiy, _ = c.FormValue("smtpLoginSkipVerify").Bool()
-
-		config.ExtraLoginProcessor = smtp
+	switch config.App.Auth {
+	case config.AuthKindSMTP:
+		smtpHost := c.FormValue("smtpLoginHost").MustString("无效的SMTP地址")
+		smtpPort := int(c.FormValue("smtpLoginPort").MustInt("端口号不可为空"))
+		smtpPlain := c.FormValue("smtpLoginKind").MustInt("未选择SMTP登录方式") == 0
+		smtpTLS, _ := c.FormValue("smtpLoginTLS").Bool()
+		smtpSkipVerfiy, _ := c.FormValue("smtpLoginSkipVerify").Bool()
+		config.UseSMTPAuth(smtpHost, smtpPort, smtpPlain, smtpTLS, smtpSkipVerfiy)
 	}
 
 	go func() {
