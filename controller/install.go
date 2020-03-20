@@ -66,8 +66,11 @@ func (i *Install) configure(c *web.Context) {
 		ldapHost := c.FormValue("ldapLoginHost").MustString("无效的LDAP主机地址")
 		ldapPort := int(c.FormValue("ldapLoginPort").MustInt("端口号不可为空"))
 		ldapProtocol := int(c.FormValue("ldapLoginProtocol").MustInt("协议不可为空"))
+		ldapBindDN := c.FormValue("ldapLoginBindDN").MustString("无效的绑定DN")
+		ldapBindPswd := c.FormValue("ldapLoginBindPswd").MustString("无效的绑定密码")
+		ldapSearchDN := c.FormValue("ldapLoginSearchDN").MustString("无效的用户基准DN")
 		ldapSkipVerfiy, _ := c.FormValue("ldapLoginSkipVerify").Bool()
-		config.UseLDAPAuth(ldapHost, ldapPort, ldapProtocol, ldapSkipVerfiy)
+		config.UseLDAPAuth(ldapHost, ldapPort, ldapProtocol, ldapBindDN, ldapBindPswd, ldapSearchDN, ldapSkipVerfiy)
 	}
 
 	go func() {

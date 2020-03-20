@@ -21,10 +21,13 @@ const (
 
 // LDAPProcessor implements auth using LDAP
 type LDAPProcessor struct {
-	Host       string
-	Port       int
-	Protocol   LDAPProtocol
-	SkipVerify bool
+	Host         string
+	Port         int
+	Protocol     LDAPProtocol
+	BindDN       string
+	BindPassword string
+	SearchDN     string
+	SkipVerify   bool
 }
 
 // Login implements LoginProcessor interface.
@@ -34,11 +37,10 @@ func (l *LDAPProcessor) Login(account, password string) error {
 		err  error
 	)
 
+	tlsCfg := &tls.Config{InsecureSkipVerify: l.SkipVerify}
+
 	if l.Protocol == LDAPTLS {
-		conn, err = ldap.DialTLS("tcp", fmt.Sprintf("%s:%d", l.Host, l.Port), &tls.Config{
-			ServerName:         l.Host,
-			InsecureSkipVerify: l.SkipVerify,
-		})
+		conn, err = ldap.DialTLS("tcp", fmt.Sprintf("%s:%d", l.Host, l.Port), tlsCfg)
 	} else {
 		conn, err = ldap.Dial("tcp", fmt.Sprintf("%s:%d", l.Host, l.Port))
 	}
@@ -50,10 +52,35 @@ func (l *LDAPProcessor) Login(account, password string) error {
 	defer conn.Close()
 
 	if l.Protocol == LDAPStartTLS {
-		if err = conn.StartTLS(&tls.Config{ServerName: l.Host, InsecureSkipVerify: l.SkipVerify}); err != nil {
+		if err = conn.StartTLS(tlsCfg); err != nil {
 			return fmt.Errorf("Failed to STARTTLS: %v", err)
 		}
 	}
 
-	return conn.Bind(account, password)
+	if err = conn.Bind(l.BindDN, l.BindPassword); err != nil {
+		return fmt.Errorf("Bind to LDAP server failed: %v", err)
+	}
+
+	req := ldap.NewSearchRequest(
+		l.SearchDN,
+		ldap.ScopeWholeSubtree,
+		ldap.DerefAlways,
+		0,
+		0,
+		false,
+		fmt.Sprintf("(sAMAccountName=%s)", account),
+		[]string{"sAMAccountName"},
+		nil,
+	)
+
+	rsp, err := conn.Search(req)
+	if err != nil {
+		return fmt.Errorf("Failed to Search LDAP. %v", err)
+	}
+
+	if len(rsp.Entries) == 0 {
+		return fmt.Errorf("User %s NOT found", account)
+	}
+
+	return conn.Bind(rsp.Entries[0].DN, password)
 }

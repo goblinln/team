@@ -98,6 +98,9 @@ func Load() {
 			setting.GetString("ldap_login", "host"),
 			setting.GetInt("ldap_login", "port"),
 			setting.GetInt("ldap_login", "protocol"),
+			setting.GetString("ldap_login", "bind_dn"),
+			setting.GetString("ldap_login", "bind_pswd"),
+			setting.GetString("ldap_login", "search_dn"),
 			setting.GetBool("ldap_login", "skip_verify"),
 		)
 	}
@@ -131,6 +134,9 @@ func Save() error {
 		setting.SetString("ldap_login", "host", ldap.Host)
 		setting.SetInt("ldap_login", "port", ldap.Port)
 		setting.SetInt("ldap_login", "protocol", int(ldap.Protocol))
+		setting.SetString("ldap_login", "bind_dn", ldap.BindDN)
+		setting.SetString("ldap_login", "bind_pswd", ldap.BindPassword)
+		setting.SetString("ldap_login", "search_dn", ldap.SearchDN)
 		setting.SetBool("ldap_login", "skip_verify", ldap.SkipVerify)
 	}
 
@@ -149,11 +155,14 @@ func UseSMTPAuth(host string, port int, plain, tls, skipVerify bool) {
 }
 
 // UseLDAPAuth uses LDAP as extra auth method.
-func UseLDAPAuth(host string, port, protocol int, skipVerify bool) {
+func UseLDAPAuth(host string, port, protocol int, bindDN, bindPswd, searchDN string, skipVerify bool) {
 	ExtraAuth = &auth.LDAPProcessor{
-		Host:       host,
-		Port:       port,
-		Protocol:   auth.LDAPProtocol(protocol),
-		SkipVerify: skipVerify,
+		Host:         host,
+		Port:         port,
+		Protocol:     auth.LDAPProtocol(protocol),
+		BindDN:       bindDN,
+		BindPassword: bindPswd,
+		SearchDN:     searchDN,
+		SkipVerify:   skipVerify,
 	}
 }

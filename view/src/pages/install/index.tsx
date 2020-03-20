@@ -171,6 +171,18 @@ export const Install = () => {
                                         </Input.Select>
                                     </Form.Field>
 
+                                    <Form.Field htmlFor='ldapLoginBindDN' label='绑定 DN'>
+                                        <Input name='ldapLoginBindDN' placeholder='e.g. xxx@example.local'/>
+                                    </Form.Field>
+
+                                    <Form.Field htmlFor='ldapLoginBindPswd' label='绑定DN的密码'>
+                                        <Input name='ldapLoginBindPswd' placeholder='明文存放，请确保帐号只读'/>
+                                    </Form.Field>
+
+                                    <Form.Field htmlFor='ldapLoginSearchDN' label='用户搜索基准'>
+                                        <Input name='ldapLoginSearchDN' placeholder='e.g. DC=example,DC=local'/>
+                                    </Form.Field>
+
                                     <Form.Field>
                                         <Input.Checkbox name='ldapLoginSkipVerify' label='忽略TLS验证' value='1' checked/>
                                     </Form.Field>
