@@ -53,7 +53,7 @@ export const Home = () => {
             body: <UserPage
                 user={user} 
                 notices={notices} 
-                onAvatarChanged={a => setUser(prev => {let ret = {...prev}; ret.avatar = a; return ret;})} 
+                onInfoChanged={fetchUserInfo} 
                 onNoticeChanged={fetchNotices}/>,
         });
     };

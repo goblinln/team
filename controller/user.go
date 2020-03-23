@@ -11,16 +11,25 @@ type User int
 // Register implements web.Controller interface.
 func (u *User) Register(group *web.Router) {
 	group.GET("", u.info)
+	group.PUT("/name", u.rename)
 	group.PUT("/pswd", u.setPswd)
 	group.PUT("/avatar", u.setAvatar)
 }
 
-func (u *User) info(c *web.Context) {
+func (*User) info(c *web.Context) {
 	uid := c.Session.Get("uid").(int64)
 	c.JSON(200, web.Map{"data": user.Find(uid)})
 }
 
-func (u *User) setPswd(c *web.Context) {
+func (*User) rename(c *web.Context) {
+	uid := c.Session.Get("uid").(int64)
+	name := c.FormValue("name").MustString("请填写新昵称")
+
+	web.AssertError(user.Rename(uid, name))
+	c.JSON(200, web.Map{})
+}
+
+func (*User) setPswd(c *web.Context) {
 	uid := c.Session.Get("uid").(int64)
 	oldPswd := c.FormValue("oldPswd").MustString("请填写原始密码")
 	newPswd := c.FormValue("newPswd").MustString("请输入新密码")
@@ -32,7 +41,7 @@ func (u *User) setPswd(c *web.Context) {
 	c.JSON(200, web.Map{})
 }
 
-func (u *User) setAvatar(c *web.Context) {
+func (*User) setAvatar(c *web.Context) {
 	uid := c.Session.Get("uid").(int64)
 	me := user.Find(uid)
 

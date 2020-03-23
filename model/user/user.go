@@ -221,6 +221,26 @@ func CheckAutoLogin(data, ip string) int64 {
 	return user.ID
 }
 
+// Rename an existing user.
+func Rename(uid int64, name string) error {
+	u := Find(uid)
+	if u == nil {
+		return fmt.Errorf("指定用户【%d】不存在或已被删除", uid)
+	}
+
+	if u.Name != name {
+		_, err := orm.Exec("UPDATE `user` SET `name`=? WHERE `id`=?", name, uid)
+		if err != nil {
+			return fmt.Errorf("更新数据库失败！")
+		}
+
+		u.Name = name
+		return nil
+	}
+
+	return nil
+}
+
 // SetPassword changes user's password
 func SetPassword(uid int64, old, pswd string) error {
 	u := &User{ID: uid}

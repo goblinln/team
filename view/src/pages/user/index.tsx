@@ -9,7 +9,7 @@ interface UserPageProps {
     user: User;
     notices: Notice[];
 
-    onAvatarChanged: (avatar: string) => void;
+    onInfoChanged: () => void;
     onNoticeChanged: () => void;
 };
 
@@ -45,10 +45,21 @@ export const UserPage = (props: UserPageProps) => {
             data: data,
             success: (data: string) => {
                 setAvatar(data);
-                props.onAvatarChanged(data);
+                props.onInfoChanged();
             }
         });
     };
+
+    const openRenameEditor = () => {
+        let closer = Drawer.open({
+            width: 300,
+            header: '修改昵称',
+            body: <UserPage.RenameEditor onFinish={() => {
+                props.onInfoChanged();
+                closer();
+            }}/>
+        });
+    }
 
     const openPasswordEditor = () => {
         let closer = Drawer.open({
@@ -94,7 +105,10 @@ export const UserPage = (props: UserPageProps) => {
 
                 <p className='fg-muted mt-2 mb-0' style={{fontSize: 18, fontWeight: 'bolder'}}>{props.user.name}</p>
                 <p className='fg-muted'>{props.user.account}</p>
-                <Button size='sm' className='mt-2' onClick={openPasswordEditor}>重置密码</Button>
+                <div className='mt-2'>
+                    <Button size='sm' className='mr-1' onClick={openRenameEditor}>修改昵称</Button>
+                    <Button size='sm' onClick={openPasswordEditor}>重置密码</Button>
+                </div>
             </div>
 
             <Card header={<Row flex={{align: 'middle', justify: 'space-between'}}>消息列表<Button theme='link' size='sm' onClick={clearNotices}>清空</Button></Row>} bordered>
@@ -115,6 +129,36 @@ export const UserPage = (props: UserPageProps) => {
                 )}
             </Card>
         </div>
+    );
+};
+
+UserPage.RenameEditor = (props: {onFinish: () => void}) => {
+    const form = Form.useForm({
+        name: {required: '新昵称不可为空', length: {min: 3, max: 64, message: '昵称长度非法'}},
+    });
+
+    const submit = (ev: React.FormEvent<HTMLFormElement>) => {
+        ev.preventDefault();
+        
+        request({
+            url: '/api/user/name',
+            method: 'PUT',
+            data: new FormData(ev.currentTarget),
+            success: () => {
+                Notification.alert('修改昵称完成', 'info');
+                props.onFinish();
+            }
+        });
+    };
+
+    return (
+        <Form form={form} onSubmit={submit} className='mx-2'>
+            <Form.Field htmlFor='name'>
+                <Input name='name' placeholder='新昵称'/>
+            </Form.Field>
+
+            <Button theme='primary' size='sm' fluid onClick={ev => {ev.preventDefault(); form.submit()}}>提交修改</Button>
+        </Form>
     );
 };
 
