@@ -19,6 +19,10 @@ export interface User {
      */
     avatar?: string,
     /**
+     * 是否是内置帐号
+     */
+    isBuildin?: boolean,
+    /**
      * 是否是超级管理员
      */
     isSu?: boolean,

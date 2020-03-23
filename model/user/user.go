@@ -27,7 +27,7 @@ type (
 		Name            string `json:"name" orm:"type=VARCHAR(32),unique,notnull"`
 		Avatar          string `json:"avatar" orm:"type=VARCHAR(128)"`
 		Password        string `json:"-" orm:"type=CHAR(32)"`
-		IsBuildin       bool   `json:"-"`
+		IsBuildin       bool   `json:"isBuildin"`
 		IsSu            bool   `json:"isSu"`
 		IsLocked        bool   `json:"isLocked"`
 		AutoLoginExpire int64  `json:"-"`

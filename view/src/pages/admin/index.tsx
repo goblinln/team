@@ -12,6 +12,7 @@ export const AdminPage = () => {
     const userSchema: TableColumn[] = [
         {label: '昵称', dataIndex: 'name'},
         {label: '帐号', dataIndex: 'account'},
+        {label: '是否是内置帐号', align: 'center', renderer: (data: User) => <label>{data.isBuildin?'是':'否'}</label>},
         {label: '管理员', align: 'center', renderer: (data: User) => <Input.Switch on={data.isSu} disabled={true}/>},
         {label: '操作', renderer: (data: User) => (
             <span>
@@ -70,7 +71,7 @@ export const AdminPage = () => {
         };
 
         closer = Modal.open({
-            title: '添加用户',
+            title: '添加用户（仅可添加内置帐号）',
             body: (
                 <Form style={{width: 400}} form={() => {form = Form.useForm(validator); return form}} onSubmit={submit}>
                     <Form.Field htmlFor='account' label='帐号'>
