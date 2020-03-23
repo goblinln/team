@@ -18,7 +18,7 @@ var (
 
 var (
 	// TimeFormat for datatime
-	TimeFormat = "2006-01-02 15:04:05.999999999"
+	TimeFormat = "2006-01-02 15:04:05"
 	// ErrNotValid means database has NOT beed configured.
 	ErrNotValid = errors.New("NOT VALID")
 	// ErrNotFound means record can NOT be found in database.
