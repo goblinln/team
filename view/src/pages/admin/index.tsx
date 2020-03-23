@@ -1,18 +1,13 @@
 import * as React from 'react';
 
-import {Row, Col, Card, TableColumn, Input, Table, Button, Icon, Modal, Form, FormProxy, FormFieldValidator} from '../../components';
-import {User, Project} from '../../common/protocol';
+import {Row, Card, TableColumn, Input, Table, Button, Icon, Modal, Form, FormProxy, FormFieldValidator} from '../../components';
+import {User} from '../../common/protocol';
 import {request} from '../../common/request';
-import { ProjectRole } from '../../common/consts';
 
 export const AdminPage = () => {
     const [users, setUsers] = React.useState<User[]>([]);
-    const [projs, setProjs] = React.useState<Project[]>([]);
 
-    React.useEffect(() => {
-        fetchUsers();
-        fetchProjs();
-    }, []);
+    React.useEffect(() => fetchUsers(), []);
 
     const userSchema: TableColumn[] = [
         {label: '昵称', dataIndex: 'name'},
@@ -29,17 +24,6 @@ export const AdminPage = () => {
         )}
     ];
 
-    const projSchema: TableColumn[] = [
-        {label: '项目名', dataIndex: 'name'},
-        {label: '操作', renderer: (data: Project) => (
-            <span>
-                <a className='link' href='javascript:void(0)' onClick={() => editProj(data)}>编辑</a>
-                <div className='divider-v'/>
-                <a className='link' href='javascript:void(0)' onClick={() => delProj(data)}>删除</a>
-            </span>
-        )}
-    ];
-
     const fetchUsers = () => {
         request({
             url: '/admin/user/list',
@@ -47,10 +31,6 @@ export const AdminPage = () => {
                 setUsers(data.sort((a, b) => a.account.localeCompare(b.account)));
             }
         });
-    };
-
-    const fetchProjs = () => {
-        request({url: '/admin/project/list', success: setProjs});
     };
 
     const addUser = () => {
@@ -176,120 +156,19 @@ export const AdminPage = () => {
         });
     };
 
-    const addProj = () => {
-        let form: FormProxy = null;
-        let closer: () => void = null;
-
-        const validates: {[k: string]: FormFieldValidator} = {
-            name: {required: '项目名不可为空'},
-            admin: {required: '需要指定一个默认的管理员'},
-        };
-
-        const submit = (ev: React.FormEvent<HTMLFormElement>) => {
-            ev.preventDefault();
-            request({
-                url: `/admin/project`, 
-                method: 'POST', 
-                data: new FormData(ev.currentTarget), 
-                success: () => {
-                    fetchProjs();
-                    closer();
-                }
-            });
-        };
-
-        closer = Modal.open({
-            title: '新建项目',
-            body: (
-                <Form style={{width: 400}} form={() => {form = Form.useForm(validates); return form}} onSubmit={submit}>
-                    <Form.Field htmlFor='name' label='项目名'>
-                        <Input name='name'/>
-                    </Form.Field>
-                    <Form.Field htmlFor='admin' label='默认管理员'>
-                        <Input.Select name='admin'>
-                            {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
-                        </Input.Select>
-                    </Form.Field>
-                    <Form.Field htmlFor='role' label='初始管理员角色'>
-                        <Input.Select name='role'>
-                            {ProjectRole.map((r, i) => <option key={i} value={i}>{r}</option>)}
-                        </Input.Select>
-                    </Form.Field>
-                </Form>
-            ),
-            onOk: () => {form.submit(); return false},
-        })
-    };
-
-    const editProj = (proj: Project) => {
-        let form: FormProxy = null;
-        let closer: () => void = null;
-
-        const submit = (ev: React.FormEvent<HTMLFormElement>) => {
-            ev.preventDefault();
-            request({
-                url: `/admin/project/${proj.id}`, 
-                method: 'PUT', 
-                data: new FormData(ev.currentTarget), 
-                success: () => {
-                    fetchProjs();
-                    closer();
-                }
-            });
-        };
-
-        closer = Modal.open({
-            title: '编辑项目',
-            body: (
-                <Form style={{width: 400}} form={() => {form = Form.useForm({name: {required: '名字不可为空'}}); return form;}} onSubmit={submit}>
-                    <Form.Field htmlFor='name' label='项目名称'>
-                        <Input name='name' value={proj.name}/>
-                    </Form.Field>
-                </Form>
-            ),
-            onOk: () => {form.submit(); return false},
-        });
-    };
-
-    const delProj = (proj: Project) => {
-        Modal.open({
-            title: '删除确认',
-            body: <div className='my-2'>确定要删除项目【{proj.name}】吗？</div>,
-            onOk: () => {
-                request({url: `/admin/project/${proj.id}`, method: 'DELETE', success: fetchProjs});
-            }
-        });
-    };
-
     return (
-        <Row className='m-4' space={8}>
-            <Col span={{xs: 8}}>
-                <Card
-                    bodyProps={{className: 'px-2 py-3'}}
-                    header={
-                        <Row flex={{align: 'middle', justify: 'space-between'}}>
-                            <label><Icon type='idcard' className='mx-2'/>用户列表</label>
-                            <Button theme='link' onClick={addUser}><Icon type='plus' className='mr-1'/>添加用户</Button>
-                        </Row>}
-                    bordered
-                    shadowed>
-                    <Table dataSource={users} columns={userSchema} pagination={15}/>
-                </Card>
-            </Col>
-
-            <Col span={{xs: 4}}>
-                <Card
-                    bodyProps={{className: 'px-2 py-3'}}
-                    header={
-                        <Row flex={{align: 'middle', justify: 'space-between'}}>
-                            <label><Icon type='pie-chart' className='mx-2'/>项目列表</label>
-                            <Button theme='link' onClick={addProj}><Icon type='plus' className='mr-1'/>新建项目</Button>
-                        </Row>}
-                    bordered
-                    shadowed>
-                    <Table dataSource={projs} columns={projSchema} pagination={15}/>
-                </Card>
-            </Col>
-        </Row>
+        <div className='m-4'>
+            <Card
+                bodyProps={{className: 'px-2 py-3'}}
+                header={
+                    <Row flex={{align: 'middle', justify: 'space-between'}}>
+                        <label><Icon type='idcard' className='mx-2'/>用户列表</label>
+                        <Button theme='link' onClick={addUser}><Icon type='plus' className='mr-1'/>添加用户</Button>
+                    </Row>}
+                bordered
+                shadowed>
+                <Table dataSource={users} columns={userSchema} pagination={15}/>
+            </Card>
+        </div>
     );
 };

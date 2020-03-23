@@ -2,7 +2,6 @@ package controller
 
 import (
 	"team/common/web"
-	"team/model/project"
 	"team/model/user"
 )
 
@@ -16,11 +15,6 @@ func (a *Admin) Register(group *web.Router) {
 	group.PUT("/user/:id/lock", a.lockUser)
 	group.DELETE("/user/:id", a.deleteUser)
 	group.GET("/user/list", a.users)
-
-	group.POST("/project", a.addProject)
-	group.PUT("/project/:id", a.editProject)
-	group.DELETE("/project/:id", a.deleteProject)
-	group.GET("/project/list", a.projects)
 }
 
 func (a *Admin) addUser(c *web.Context) {
@@ -74,37 +68,4 @@ func (a *Admin) users(c *web.Context) {
 	users, err := user.GetAll()
 	web.AssertError(err)
 	c.JSON(200, web.Map{"data": users})
-}
-
-func (a *Admin) addProject(c *web.Context) {
-	name := c.PostFormValue("name").MustString("非法项目名称")
-	admin := c.PostFormValue("admin").MustInt("无效管理员ID")
-	role, _ := c.PostFormValue("role").Int()
-
-	web.AssertError(project.Add(name, admin, int8(role)))
-	c.JSON(200, web.Map{})
-}
-
-func (a *Admin) editProject(c *web.Context) {
-	pid := c.RouteValue("id").MustInt("")
-	name := c.PostFormValue("name").MustString("无效项目名")
-
-	proj := project.Find(pid)
-	web.Assert(proj != nil, "项目不存在或已被删除")
-
-	proj.Name = name
-	web.AssertError(proj.Save())
-	c.JSON(200, web.Map{})
-}
-
-func (a *Admin) deleteProject(c *web.Context) {
-	pid := c.RouteValue("id").MustInt("")
-	project.Delete(pid)
-	c.JSON(200, web.Map{})
-}
-
-func (a *Admin) projects(c *web.Context) {
-	projs, err := project.GetAll()
-	web.AssertError(err)
-	c.JSON(200, web.Map{"data": projs})
 }
