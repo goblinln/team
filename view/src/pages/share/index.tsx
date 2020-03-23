@@ -79,7 +79,7 @@ export const SharePage = () => {
                     <Progress percent={progress}/>
                 </div>
             )}
-            <Table size='lg' dataSource={files} columns={schema} pagination={15}/>
+            <Table dataSource={files} columns={schema} pagination={15}/>
         </div>
     );
 };
