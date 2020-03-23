@@ -14,11 +14,14 @@ type Project int
 
 // Register implements web.Controller interface.
 func (p *Project) Register(group *web.Router) {
+	group.POST("", p.create)
+	group.GET("/mine", p.mine)
+	group.DELETE("/:id", p.delete)
+
 	group.GET("/:id", p.info)
 	group.GET("/:id/summary", p.summary)
-	group.GET("/mine", p.mine)
-
 	group.PUT("/:id/desc", p.setDesc)
+	group.PUT("/:id/name", p.rename)
 
 	group.GET("/:id/invites", p.getInviteList)
 	group.POST("/:id/member", p.addMember)
@@ -31,6 +34,28 @@ func (p *Project) Register(group *web.Router) {
 	group.DELETE(`/:id/milestone/{mid:[\d]+}`, p.delMilestone)
 
 	group.GET(`/:id/week/{start:[\d]+}`, p.getWeekReport)
+}
+
+func (*Project) create(c *web.Context) {
+	uid := c.Session.Get("uid").(int64)
+	name := c.PostFormValue("name").MustString("非法项目名称")
+	role, _ := c.PostFormValue("role").Int()
+
+	web.AssertError(project.Add(name, uid, int8(role)))
+	c.JSON(200, web.Map{})
+}
+
+func (*Project) mine(c *web.Context) {
+	uid := c.Session.Get("uid").(int64)
+	projs, err := project.GetAllByUser(uid)
+	web.AssertError(err)
+	c.JSON(200, web.Map{"data": projs})
+}
+
+func (*Project) delete(c *web.Context) {
+	pid := c.RouteValue("id").MustInt("")
+	project.Delete(pid)
+	c.JSON(200, web.Map{})
 }
 
 func (*Project) info(c *web.Context) {
@@ -49,19 +74,24 @@ func (*Project) summary(c *web.Context) {
 	c.JSON(200, web.Map{"data": proj.Summary()})
 }
 
-func (*Project) mine(c *web.Context) {
-	uid := c.Session.Get("uid").(int64)
-	projs, err := project.GetAllByUser(uid)
-	web.AssertError(err)
-	c.JSON(200, web.Map{"data": projs})
-}
-
 func (*Project) setDesc(c *web.Context) {
 	pid := c.RouteValue("id").MustInt("")
 	desc := c.PostFormValue("desc").String()
 	proj := project.Find(pid)
 	web.Assert(proj != nil, "指定项目不存在或已被删除")
 	web.AssertError(proj.SetDesc(desc))
+	c.JSON(200, web.Map{})
+}
+
+func (*Project) rename(c *web.Context) {
+	pid := c.RouteValue("id").MustInt("")
+	name := c.PostFormValue("name").MustString("无效项目名")
+
+	proj := project.Find(pid)
+	web.Assert(proj != nil, "项目不存在或已被删除")
+
+	proj.Name = name
+	web.AssertError(proj.Save())
 	c.JSON(200, web.Map{})
 }
 
