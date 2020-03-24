@@ -6,10 +6,9 @@ import {request} from '../../common/request';
 
 import {Board} from './board';
 import {Gantt} from './gantt';
-import {Creator} from './creator';
 
 export const TaskPage = (props: {uid: number}) => {
-    const [page, setPage] = React.useState<'creator'|'board'|'gantt'>('board');
+    const [useGantt, setUseGantt] = React.useState<boolean>(false);
     const [tasks, setTasks] = React.useState<TaskBrief[]>([]);
     const [visibleTasks, setVisibleTask] = React.useState<TaskBrief[]>([]);
     const [projs, setProjs] = React.useState<Project[]>([]);
@@ -102,23 +101,18 @@ export const TaskPage = (props: {uid: number}) => {
         });
     }
 
-    const creator = React.useMemo(() => <Creator onDone={() => {fetchTasks(); setPage('board')}}/>, []);
     const board = React.useMemo(() => <Board tasks={visibleTasks} onModified={fetchTasks}/>, [visibleTasks]);
     const gantt = React.useMemo(() => <Gantt tasks={visibleTasks} onModified={fetchTasks}/>, [visibleTasks]);
 
     return (
         <div>
-            <div style={{padding: '8px 16px', borderBottom: '1px solid #E2E2E2'}}>
+            <div style={{padding: '0 16px', borderBottom: '1px solid #E2E2E2'}}>
                 <Row flex={{align: 'middle', justify: 'space-between'}}>
-                    <label className='text-bold fg-muted' style={{fontSize: '1.2em'}}>{page=='creator'?'发布任务':'任务列表'}</label>
-                    <div hidden={page!='creator'}>
-                        <Button size='sm' onClick={() => setPage('board')}>返回任务列表</Button>
-                    </div>
-                    <div hidden={page=='creator'}>
+                    <label className='text-bold fg-muted' style={{padding: "8px 0", fontSize: '1.2em'}}>任务列表</label>
+                    <div>
                         <Button size='sm' onClick={() => fetchTasks()}><Icon className='mr-1' type='reload'/>刷新</Button>
-                        <Button size='sm' onClick={() => setPage(prev => prev=='gantt'?'board':'gantt')}><Icon className='mr-1' type='view'/>{page=='gantt'?'看板模式':'甘特图'}</Button>
+                        <Button size='sm' onClick={() => setUseGantt(prev => !prev)}><Icon className='mr-1' type='view'/>{useGantt?'看板模式':'甘特图'}</Button>
                         <Button size='sm' theme={isFilterVisible?'primary':'default'} onClick={() => setFilterVisible(prev => !prev)}><Icon className='mr-1' type='filter'/>任务过滤</Button>
-                        <Button size='sm' onClick={() => setPage('creator')}><Icon className='mr-1' type='plus'/>发布任务</Button>
                     </div>
                 </Row>
 
@@ -159,9 +153,7 @@ export const TaskPage = (props: {uid: number}) => {
             </div>
             
             <div className='px-2 mt-3'>
-                {page=='creator'&&creator}
-                {page=='board'&&board}
-                {page=='gantt'&&gantt}
+                {useGantt?gantt:board}
             </div>
         </div>
     );
