@@ -5,6 +5,7 @@ import {TaskBrief, Project} from '../../common/protocol';
 import {ProjectRole} from '../../common/consts';
 import {request} from '../../common/request';
 
+import {Creator} from '../task/creator';
 import {Board} from '../task/board';
 import {Gantt} from '../task/gantt';
 
@@ -39,6 +40,16 @@ export const Tasks = (props: {proj: Project, isAdmin: boolean}) => {
 
     const fetchTasks = () => {
         request({url: `/api/task/project/${proj.id}`, success: setTasks});
+    };
+
+    const publishTask = () => {
+        let closer: () => void = null;
+
+        closer = Drawer.open({
+            width: 800,
+            header: '发布任务',
+            body: <div className='pt-2'><Creator proj={proj} onDone={() => {closer(); fetchTasks()}}/></div>, 
+        });
     };
 
     const handleMemberChange = (ev: React.ChangeEvent<HTMLSelectElement>) => {
@@ -78,17 +89,18 @@ export const Tasks = (props: {proj: Project, isAdmin: boolean}) => {
 
     return (
         <div>
-            <div style={{padding: '8px 16px', borderBottom: '1px solid #E2E2E2'}}>
+            <div style={{padding: '0 8px', borderBottom: '1px solid #E2E2E2'}}>
                 <Row flex={{align: 'middle', justify: 'space-between'}}>
-                    <label className='text-bold fg-muted' style={{fontSize: '1.2em'}}>{`【${proj.name}】任务列表`}</label>
+                    <label className='text-bold fg-muted' style={{padding: "8px 0", fontSize: '1.2em'}}>{`【${proj.name}】任务列表`}</label>
                     <div>
                         <Button size='sm' onClick={() => fetchTasks()}><Icon className='mr-1' type='reload'/>刷新</Button>
                         <Button size='sm' onClick={() => setIsGantt(prev => !prev)}><Icon className='mr-1' type='view'/>{isGantt?'看板模式':'甘特图'}</Button>
                         <Button size='sm' theme={isFilterVisible?'primary':'default'} onClick={() => setFilterVisible(prev => !prev)}><Icon className='mr-1' type='filter'/>任务过滤</Button>
+                        <Button size='sm' onClick={publishTask}><Icon className='mr-1' type='plus'/>发布任务</Button>
                     </div>
                 </Row>
 
-                <div className={`mt-2 center-child ${isFilterVisible?'':' hide'}`}>
+                <div className={`my-2 center-child ${isFilterVisible?'':' hide'}`}>
                     <div>
                         <label className='mr-1'>选择成员</label>
                         <Input.Select style={{width: 150}} value={filter.mem} onChange={handleMemberChange}>

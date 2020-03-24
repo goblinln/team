@@ -7,11 +7,12 @@ import 'echarts/lib/component/tooltip';
 import 'echarts/lib/component/legend';
 import 'echarts/lib/chart/pie';
 
-import { FormProxy, FormFieldValidator, Modal, Form, Input, Card, Icon, Button, Timeline, Markdown, Layout, Empty, Badge, Row } from '../../components';
-import { ProjectMilestone, TaskBrief } from '../../common/protocol';
+import { FormProxy, FormFieldValidator, Modal, Form, Input, Card, Icon, Button, Timeline, Markdown, Layout, Empty, Badge, Row, Drawer } from '../../components';
+import { ProjectMilestone, TaskBrief, Project } from '../../common/protocol';
 import { request } from '../../common/request';
 import { TaskStatus } from '../../common/consts';
 import { Viewer } from '../task/viewer';
+import { Creator } from '../task/creator';
 
 interface MilestoneChartElement {
     state: number;
@@ -27,7 +28,7 @@ interface ViewMilestone {
     summary: MilestoneChartElement[];
 }
 
-export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
+export const Milestones = (props: {proj: Project, isAdmin: boolean}) => {
     const [milestones, setMilestones] = React.useState<ProjectMilestone[]>([]);
     const [view, setView] = React.useState<ViewMilestone>();
 
@@ -40,7 +41,7 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
     React.useEffect(() => fetchMilestones(), [props]);
 
     const fetchMilestones = () => {
-        request({url: `/api/project/${props.pid}/milestone/list`, success: (data: ProjectMilestone[]) => {
+        request({url: `/api/project/${props.proj.id}/milestone/list`, success: (data: ProjectMilestone[]) => {
             data.sort((a, b) => b.id - a.id)
             setMilestones(data);
             if (data.length > 0) {
@@ -49,6 +50,16 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
                 setView(null);
             }
         }});
+    };
+
+    const publishTask = (m: ProjectMilestone) => {
+        let closer: () => void = null;
+
+        closer = Drawer.open({
+            width: 800,
+            header: '发布任务',
+            body: <div className='pt-2'><Creator proj={props.proj} milestone={m} onDone={() => {closer(); viewMilestone(m)}}/></div>, 
+        });
     };
 
     const uploadForDesc = (file: File, done: (url: string) => void) => {
@@ -64,7 +75,7 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
         const submit = (ev: React.FormEvent<HTMLFormElement>) => {
             ev.preventDefault();
             request({
-                url: `/api/project/${props.pid}/milestone`, 
+                url: `/api/project/${props.proj.id}/milestone`, 
                 method: 'POST', 
                 data: new FormData(ev.currentTarget), 
                 success: () => {closer(); fetchMilestones()}});
@@ -99,7 +110,7 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
         const submit = (ev: React.FormEvent<HTMLFormElement>) => {
             ev.preventDefault();
             request({
-                url: `/api/project/${props.pid}/milestone/${m.id}`, 
+                url: `/api/project/${props.proj.id}/milestone/${m.id}`, 
                 method: 'PUT', 
                 data: new FormData(ev.currentTarget), 
                 success: () => {closer(); fetchMilestones()}});
@@ -133,7 +144,7 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
             body: <div className='my-2'>确定要删除里程碑【{m.name}】吗（相关任务的里程碑会被置空）？</div>,
             onOk: () => {
                 request({
-                    url: `/api/project/${props.pid}/milestone/${m.id}`, 
+                    url: `/api/project/${props.proj.id}/milestone/${m.id}`, 
                     method: 'DELETE', 
                     success: fetchMilestones
                 });
@@ -207,8 +218,12 @@ export const Milestones = (props: {pid: number, isAdmin: boolean}) => {
                                         {props.isAdmin ? [
                                             <a key='edit' className='link' onClick={ev => {ev.preventDefault(); ev.stopPropagation(); editMilestone(m)}}>编辑</a>,
                                             <div key='d-0' className='divider-v'/>,
+                                            <a key='publish' className='link' onClick={ev => {ev.preventDefault(); ev.stopPropagation(); publishTask(m)}}>发布任务</a>,
+                                            <div key='d-0' className='divider-v'/>,
                                             <a key='delete' className='link' onClick={ev => {ev.preventDefault(); ev.stopPropagation(); delMilestone(m)}}>删除</a>,
-                                        ] : '点击卡片查看详情'}                
+                                        ] : [
+                                            <a key='publish' className='link' onClick={ev => {ev.preventDefault(); ev.stopPropagation(); publishTask(m)}}>发布任务</a>,
+                                        ]}
                                     </span>
                                 </Card>
                             </Timeline.Item>

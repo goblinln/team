@@ -106,9 +106,9 @@ export const TaskPage = (props: {uid: number}) => {
 
     return (
         <div>
-            <div style={{padding: '0 16px', borderBottom: '1px solid #E2E2E2'}}>
+            <div style={{padding: '0 8px', borderBottom: '1px solid #E2E2E2'}}>
                 <Row flex={{align: 'middle', justify: 'space-between'}}>
-                    <label className='text-bold fg-muted' style={{padding: "8px 0", fontSize: '1.2em'}}>任务列表</label>
+                    <label className='text-bold fg-muted' style={{padding: "8px 0", fontSize: '1.2em'}}><Icon type='calendar' className='mr-2'/>任务列表</label>
                     <div>
                         <Button size='sm' onClick={() => fetchTasks()}><Icon className='mr-1' type='reload'/>刷新</Button>
                         <Button size='sm' onClick={() => setUseGantt(prev => !prev)}><Icon className='mr-1' type='view'/>{useGantt?'看板模式':'甘特图'}</Button>

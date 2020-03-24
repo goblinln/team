@@ -3,10 +3,11 @@ import * as React from 'react';
 import {Table, Modal, Input, Form, FormProxy, FormFieldValidator, TableColumn, Avatar, Badge, Icon, Row, Card, Button} from '../../components';
 import {Project, ProjectMember, User} from '../../common/protocol';
 import {request} from '../../common/request';
-import { ProjectRole } from '../../common/consts';
+import {ProjectRole} from '../../common/consts';
 
-export const Members = (props: {pid: number}) => {
+export const Manager = (props: {pid: number, onDelete: () => void}) => {
     const [proj, setProj] = React.useState<Project>();
+    const refName = React.useRef<HTMLInputElement>(null);
 
     const memberSchema: TableColumn[] = [
         {label: '头像', renderer: (data: ProjectMember) => <Avatar size={32} src={data.user.avatar}/>},
@@ -30,6 +31,23 @@ export const Members = (props: {pid: number}) => {
             data.members.sort((a, b) => a.user.account.localeCompare(b.user.account));
             setProj(data);
         }});
+    };
+
+    const rename = () => {
+        let newName = refName.current.value;
+
+        Modal.open({
+            title: '更新项目名',
+            body: <div className='my-2'>确定要将【{proj.name}】改为【{newName}】吗？该操作需要手动刷新！</div>,
+            onOk: () => {
+                request({
+                    url: `/api/project/${props.pid}/name`, 
+                    method: 'PUT', 
+                    data: new URLSearchParams({'name': newName}),
+                    success: () => {}
+                });
+            }
+        });
     };
 
     const addMember = () => {
@@ -127,8 +145,37 @@ export const Members = (props: {pid: number}) => {
         });
     };
 
+    const delProj = () => {
+        Modal.open({
+            title: '删除确认',
+            body: <div className='my-2'>请再次确认：要删除项目【{proj.name}】吗？</div>,
+            onOk: () => {
+                request({url: `/api/project/${proj.id}`, method: 'DELETE', success: props.onDelete});
+            }
+        });
+    };
+
     return (
         <div className='m-4'>
+            <Card
+                className='mt-3'
+                headerProps={{className: 'py-2'}}
+                bodyProps={{className: 'p-2'}}
+                header={
+                    <span>
+                        <Icon type='info-circle' className='mr-2'/>项目名称
+                    </span>
+                }
+                bordered
+                shadowed>
+
+                <div className='input'>
+                    <input ref={refName} defaultValue={proj?proj.name:''}/>
+                </div>
+                
+                <Button size='sm' theme='primary' className='mt-2' onClick={rename}>更新</Button>
+            </Card>
+
             <Card
                 className='mt-3'
                 bodyProps={{className: 'p-2'}}
@@ -144,6 +191,29 @@ export const Members = (props: {pid: number}) => {
                 bordered
                 shadowed>
                 <Table dataSource={proj?proj.members:[]} columns={memberSchema}/>
+            </Card>
+
+            <Card
+                className='mt-3'
+                headerProps={{className: 'py-2'}}
+                bodyProps={{className: 'p-0'}}
+                header={
+                    <span>
+                        <Icon type='info-circle' className='mr-2'/>危险操作区
+                    </span>
+                }
+                bordered
+                shadowed>
+                <Card className='m-2'>
+                    <Row flex={{align: 'middle', justify: 'space-between'}}>
+                        <div>
+                            <p className='text-bold'>删除本项目</p>
+                            <p>删除项目操作不可恢复，请三思而后行！！！</p>
+                        </div>
+
+                        <Button theme='danger' onClick={delProj}>确认删除</Button>
+                    </Row>
+                </Card>
             </Card>
         </div>
     );

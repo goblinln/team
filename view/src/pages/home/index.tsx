@@ -61,7 +61,7 @@ export const Home = () => {
     return (
         <Layout style={{width: '100vw', height: '100vh'}}>
             <Layout.Sider width={64}>
-                <div className='text-center my-3'>
+                <div className='text-center mt-3 mb-1'>
                     <div onClick={openProfiler}>
                         <Avatar size={48} src={user.avatar}/>                        
                         {notices.length > 0&&<div style={{marginTop: -20}}><Badge theme='danger' className='r-1'>{notices.length}</Badge></div>}
