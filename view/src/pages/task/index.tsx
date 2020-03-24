@@ -116,7 +116,7 @@ export const TaskPage = (props: {uid: number}) => {
                     </div>
                 </Row>
 
-                <div className={`mt-2 center-child ${isFilterVisible?'':' hide'}`}>
+                <div className={`my-2 center-child ${isFilterVisible?'':' hide'}`}>
                     <div>
                         <label className='mr-1'>选择项目</label>
                         <Input.Select style={{width: 100}} value={filter.p} onChange={handleProjectChange}>
@@ -151,7 +151,7 @@ export const TaskPage = (props: {uid: number}) => {
                     <Button className='ml-3' size='sm' onClick={() => setFilter({p: -1, m: -1, n: '', me: -1})}>重置</Button>
                 </div>
             </div>
-            
+
             <div className='px-2 mt-3'>
                 {useGantt?gantt:board}
             </div>
