@@ -2,6 +2,7 @@ export {Avatar} from './avatar';
 export {Badge} from './badge';
 export {Block} from './block';
 export {Blockquote} from './blockquote';
+export {Breadcrumb} from './breadcrumb';
 export {Button} from './button';
 export {Card} from './card';
 export {Code} from './code';

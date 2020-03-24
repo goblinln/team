@@ -11,7 +11,7 @@ export const Breadcrumb = (props: React.HTMLAttributes<HTMLSpanElement>) => {
     return (
         <span {...classes} {...nativeProps}>
             {React.Children.map(children, (c, i) => {
-                return i==lastElement?c:[c,<span className='mx-1 text-muted text-bold'>/</span>]
+                return i==lastElement?c:[c,<span className='mx-1 fg-muted text-bold'>/</span>]
             })}
         </span>
     );
