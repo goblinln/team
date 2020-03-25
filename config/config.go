@@ -79,7 +79,7 @@ func Load() {
 
 	setting, err := ini.Load("./team.ini")
 	if err != nil {
-		log.Fatalf("Load configuration failed. %v. Using default configuration.\n", err)
+		log.Fatalf("Failed to parse configuration file: team.ini. Reason: %v\n", err)
 	}
 
 	Read(setting)
