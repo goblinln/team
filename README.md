@@ -71,7 +71,6 @@
     |   |-- orm                         - 实现的一个简单的golang struct与MySQL表映射的ORM库
     |   |-- web                         - 网络框架
     |   |   |-- context.go                  - HTTP Context定义
-    |   |   |-- logger.go                   - 日志工具
     |   |   |-- responser.go                - 响应类
     |   |   |-- router.go                   - 路由组件实现
     |   |   |-- session.go                  - 会话功能

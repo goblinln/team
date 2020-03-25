@@ -2,11 +2,11 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"team/common/auth"
 	"team/common/ini"
-	"team/common/log"
 	"team/common/orm"
 )
 
@@ -73,22 +73,22 @@ func (m *MySQLInfo) URL() string {
 // Load configuration from file.
 func Load() {
 	if _, err := os.Stat("./team.ini"); err != nil {
-		log.Info("Please visit http://localhost:8080 to configure this system.")
+		log.Printf("Please visit http://localhost:8080 to configure this system.\n")
 		return
 	}
 
 	setting, err := ini.Load("./team.ini")
 	if err != nil {
-		log.Fatal("Load configuration failed. %v. Using default configuration.\n", err)
+		log.Fatalf("Load configuration failed. %v. Using default configuration.\n", err)
 	}
 
 	Read(setting)
 
 	if err = orm.OpenDB("mysql", MySQL.URL()); err != nil {
-		log.Fatal("Failed to connect to MySQL database: %s. Reason: %v", MySQL.URL(), err)
+		log.Fatalf("Failed to connect to MySQL database: %s. Reason: %v", MySQL.URL(), err)
 	}
 
-	log.Info("Service will started at :%d", App.Port)
+	log.Printf("Service will started at :%d\n", App.Port)
 	Installed = true
 }
 
@@ -96,7 +96,7 @@ func Load() {
 func Read(setting *ini.Ini) {
 	defer func() {
 		if except := recover(); except != nil {
-			log.Fatal("Parse ./team.ini failed. Reason: %v", except)
+			log.Fatalf("Parse ./team.ini failed. Reason: %v", except)
 		}
 	}()
 

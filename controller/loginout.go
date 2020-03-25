@@ -3,9 +3,9 @@ package controller
 import (
 	"crypto/md5"
 	"fmt"
+	"log"
 	"net/http"
 
-	"team/common/log"
 	"team/common/web"
 	"team/config"
 	"team/model/user"
@@ -23,7 +23,7 @@ func Login(c *web.Context) {
 
 		err := config.ExtraAuth.Login(account, password)
 		if err != nil {
-			log.Info("Failed using extra auth. %v", err)
+			log.Printf("Failed using extra auth. %v\n", err)
 		}
 		web.Assert(err == nil, "帐号验证失败")
 

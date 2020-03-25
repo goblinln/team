@@ -1,9 +1,9 @@
 package middleware
 
 import (
+	"log"
 	"time"
 
-	"team/common/log"
 	"team/common/web"
 )
 
@@ -13,8 +13,8 @@ func Logger(next web.Handler) web.Handler {
 		start := time.Now()
 		next(c)
 
-		log.Info(
-			"%5s %10s %03d %s",
+		log.Printf(
+			"%5s %10s %03d %s\n",
 			c.Method(),
 			time.Now().Sub(start).String(),
 			c.Status(),
