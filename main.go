@@ -3,7 +3,6 @@ package main
 import (
 	"strings"
 
-	"team/common/orm"
 	"team/common/web"
 	"team/config"
 	"team/controller"
@@ -16,13 +15,6 @@ import (
 func main() {
 	// Load configuration.
 	config.Load()
-
-	// Open database.
-	if config.Installed {
-		if err := orm.OpenDB("mysql", config.MySQL.URL()); err != nil {
-			web.Logger.Fatal("Failed to connect to database: %s. Reason: %v", config.MySQL.URL(), err)
-		}
-	}
 
 	// Load resources.
 	resBox := rice.MustFindBox("view/dist")

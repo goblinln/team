@@ -83,7 +83,6 @@ func Assert(expr bool, errMsg string) {
 
 // Start httpd service
 func (r *Router) Start(addr string) error {
-	Logger.Info("Service started at %s", addr)
 	return http.ListenAndServe(addr, r)
 }
 

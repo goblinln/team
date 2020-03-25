@@ -33,7 +33,7 @@ func Load(path string) (*Ini, error) {
 
 	buf, err := ioutil.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("File: %s not exists or not readeable", path)
+		return nil, fmt.Errorf("File: %s is NOT readable", path)
 	}
 
 	content := string(buf)
