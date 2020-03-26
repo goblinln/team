@@ -7,8 +7,8 @@ import (
 	"net/smtp"
 )
 
-// SMTPProcessor implements auth using SMTP
-type SMTPProcessor struct {
+// SMTPProvider implements auth.Provider using SMTP
+type SMTPProvider struct {
 	Host       string
 	Port       int
 	Plain      bool
@@ -16,8 +16,8 @@ type SMTPProcessor struct {
 	SkipVerify bool
 }
 
-// Login process.
-func (s *SMTPProcessor) Login(account, password string) error {
+// Verify implement.
+func (s *SMTPProvider) Verify(account, password string) error {
 	c, err := smtp.Dial(fmt.Sprintf("%s:%d", s.Host, s.Port))
 	if err != nil {
 		return err

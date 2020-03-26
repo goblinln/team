@@ -21,9 +21,9 @@ func Login(c *web.Context) {
 	if logined == nil || !logined.IsBuildin {
 		web.Assert(config.ExtraAuth != nil, "帐号或密码不正确")
 
-		err := config.ExtraAuth.Login(account, password)
+		err := config.ExtraAuth.Verify(account, password)
 		if err != nil {
-			log.Printf("Failed using extra auth. %v\n", err)
+			log.Printf("Failed verify account by extra auth. %v\n", err)
 		}
 		web.Assert(err == nil, "帐号验证失败")
 

@@ -19,8 +19,8 @@ const (
 	LDAPStartTLS
 )
 
-// LDAPProcessor implements auth using LDAP
-type LDAPProcessor struct {
+// LDAPProvider implements auth using LDAP
+type LDAPProvider struct {
 	Host         string
 	Port         int
 	Protocol     LDAPProtocol
@@ -30,8 +30,8 @@ type LDAPProcessor struct {
 	SkipVerify   bool
 }
 
-// Login implements LoginProcessor interface.
-func (l *LDAPProcessor) Login(account, password string) error {
+// Verify implement.
+func (l *LDAPProvider) Verify(account, password string) error {
 	var (
 		conn *ldap.Conn
 		err  error

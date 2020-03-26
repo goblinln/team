@@ -26,7 +26,7 @@ const (
 )
 
 // ExtraAuth for this app.
-var ExtraAuth auth.LoginProcessor = nil
+var ExtraAuth auth.Provider = nil
 
 // AppInfo holds basic information for this server.
 type AppInfo struct {
@@ -146,14 +146,14 @@ func Save() error {
 
 	switch App.Auth {
 	case AuthKindSMTP:
-		smtp := ExtraAuth.(*auth.SMTPProcessor)
+		smtp := ExtraAuth.(*auth.SMTPProvider)
 		setting.SetString("smtp_login", "host", smtp.Host)
 		setting.SetInt("smtp_login", "port", smtp.Port)
 		setting.SetBool("smtp_login", "plain", smtp.Plain)
 		setting.SetBool("smtp_login", "tls", smtp.TLS)
 		setting.SetBool("smtp_login", "skip_verify", smtp.SkipVerify)
 	case AuthKindLDAP:
-		ldap := ExtraAuth.(*auth.LDAPProcessor)
+		ldap := ExtraAuth.(*auth.LDAPProvider)
 		setting.SetString("ldap_login", "host", ldap.Host)
 		setting.SetInt("ldap_login", "port", ldap.Port)
 		setting.SetInt("ldap_login", "protocol", int(ldap.Protocol))
@@ -168,7 +168,7 @@ func Save() error {
 
 // UseSMTPAuth uses SMTP as extra auth method.
 func UseSMTPAuth(host string, port int, plain, tls, skipVerify bool) {
-	ExtraAuth = &auth.SMTPProcessor{
+	ExtraAuth = &auth.SMTPProvider{
 		Host:       host,
 		Port:       port,
 		Plain:      plain,
@@ -179,7 +179,7 @@ func UseSMTPAuth(host string, port int, plain, tls, skipVerify bool) {
 
 // UseLDAPAuth uses LDAP as extra auth method.
 func UseLDAPAuth(host string, port, protocol int, bindDN, bindPswd, searchDN string, skipVerify bool) {
-	ExtraAuth = &auth.LDAPProcessor{
+	ExtraAuth = &auth.LDAPProvider{
 		Host:         host,
 		Port:         port,
 		Protocol:     auth.LDAPProtocol(protocol),
