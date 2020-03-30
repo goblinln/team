@@ -86,6 +86,7 @@
     |
     |-- model                       - 数据模型
     |   |-- document                    - WIKI在线文档
+    |   |-- install                     - 部署逻辑
     |   |-- notice                      - 通知数据
     |   |-- project                     - 项目
     |   |-- share                       - 分享
