@@ -29,6 +29,7 @@ func (i *Install) configure(c *web.Context) {
 
 	web.Assert(appPort > 0 && appPort < 65535, "无效的端口参数")
 
+	i.output = &install.Status{}
 	i.output.Done = false
 	i.output.IsError = false
 	i.output.Status = []string{"连接数据库..."}
