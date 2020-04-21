@@ -392,6 +392,13 @@ func (p *Project) IsAdmin(uid int64) bool {
 
 // DelMember remove given user from this project.
 func (p *Project) DelMember(uid int64) {
+	backup := []*Member{}
+	for _, one := range p.Members {
+		if one.UID != uid {
+			backup = append(backup, one)
+		}
+	}
+	p.Members = backup
 	orm.Exec("DELETE FROM `member` WHERE `pid`=? AND `uid`=?", p.ID, uid)
 }
 
