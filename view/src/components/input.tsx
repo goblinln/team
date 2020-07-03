@@ -265,14 +265,14 @@ Input.Password = (props: PasswordProps) => {
 
 Input.Select = (props: React.SelectHTMLAttributes<HTMLSelectElement>) => {
     const {className, style, value, onChange, children, ...nativeProps} = props;
-    const [selected, setSelected] = React.useState<string|number|string[]>(value);
+    const [selected, setSelected] = React.useState<string|number|string[]>(value as string|number|string[]);
 
     const handleChange = (ev: React.ChangeEvent<HTMLSelectElement>) => {
         setSelected(ev.target.value);
         if (onChange) onChange(ev);
     };
     
-    React.useEffect(() => setSelected(props.value), [props.value]);
+    React.useEffect(() => setSelected(props.value as string|number|string[]), [props.value]);
 
     return (
         <div {...makeClass('select', className)} style={style}>
